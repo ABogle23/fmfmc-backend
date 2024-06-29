@@ -1,10 +1,20 @@
 package com.icl.fmfmc_backend.Routing;
 
+import com.icl.fmfmc_backend.entity.GeoCoordinates;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PolylineUtility {
 
   private static final double PRECISION = 1E5;
+
+  public static String encodeGeoCoordinatesToPolyline(List<GeoCoordinates> geoCoordinatesList) {
+    List<List<Double>> coordinates = geoCoordinatesList.stream()
+            .map(gc -> List.of(gc.getLongitude(), gc.getLatitude()))
+            .collect(Collectors.toList());
+    return encodePolyline(coordinates);
+  }
 
   public static String encodePolyline(List<List<Double>> coordinates) {
     StringBuilder encodedPath = new StringBuilder();

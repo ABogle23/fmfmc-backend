@@ -2,6 +2,9 @@ package com.icl.fmfmc_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import lombok.Data;
 
 @Data
@@ -102,7 +105,8 @@ public class OSRDirectionsServiceGeoJSONResponse {
     public static class GeometryDTO {
 
       @JsonProperty("coordinates")
-      private List<List<Double>> coordinates;
+      @JsonDeserialize(using = GeoCoordinatesDeserializer.class)
+      private List<GeoCoordinates> coordinates;
 
       @JsonProperty("type")
       private String type;

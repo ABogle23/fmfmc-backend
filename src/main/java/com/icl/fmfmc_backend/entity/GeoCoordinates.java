@@ -6,6 +6,7 @@ import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.Coordinate;
 
 @Embeddable
 @Data
@@ -29,9 +30,9 @@ public class GeoCoordinates {
 //        return geoCoordinates;
 //    }
 
-    public GeoCoordinates(double latitude, double longitude) {
-        this.latitude = latitude;
+    public GeoCoordinates(double longitude, double latitude) {
         this.longitude = longitude;
+        this.latitude = latitude;
         validate();
     }
 
@@ -39,6 +40,10 @@ public class GeoCoordinates {
         if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
             throw new IllegalArgumentException("Invalid latitude or longitude values");
         }
+    }
+
+    public Coordinate toJtsCoordinate() {
+        return new Coordinate(this.longitude, this.latitude);
     }
 
 }

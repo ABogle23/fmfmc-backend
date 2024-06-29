@@ -7,11 +7,13 @@ import com.icl.fmfmc_backend.dto.RouteRequest;
 import com.icl.fmfmc_backend.dto.RouteResult;
 import com.icl.fmfmc_backend.entity.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment;
+import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import com.icl.fmfmc_backend.service.OSRService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.LineString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -26,12 +28,12 @@ public class RoutingService {
 
 
     private final OSRService osrService;
-
     private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
 
     private final ChargerService chargerService;
 
     private final FoodEstablishmentService foodEstablishmentService;
+    private final GeometryService geometryService;
 
     public RouteResult getRoute(RouteRequest routeRequest) {
         logger.info("Fetching route from routing service");
@@ -48,8 +50,8 @@ public class RoutingService {
         OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse = osrService.getDirectionsGeoJSON(osrDirectionsServiceGeoJSONRequest);
 
 
-        List<List<Double>> routeCoordinates = osrDirectionsServiceGeoJSONResponse.getFeatures().get(0).getGeometry().getCoordinates();
-        String polyline = PolylineUtility.encodePolyline(routeCoordinates);
+        List<GeoCoordinates> routeCoordinates = osrDirectionsServiceGeoJSONResponse.getFeatures().get(0).getGeometry().getCoordinates();
+        String polyline = PolylineUtility.encodeGeoCoordinatesToPolyline(routeCoordinates);
         System.out.println("Encoded Polyline: " + polyline);
 
         List<Charger> chargers = chargerService.getAllChargers();
