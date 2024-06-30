@@ -45,5 +45,4 @@ public class GeoCoordinates {
     public Coordinate toJtsCoordinate() {
         return new Coordinate(this.longitude, this.latitude);
     }
-
 }
