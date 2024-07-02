@@ -15,17 +15,21 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.validation.BindingResult;
+//import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import javax.validation.Valid;
+import javax.validation.Validator;
+import javax.validation.ConstraintViolation;
 
 @RestController
 @RequestMapping("/route")
 @RequiredArgsConstructor
-@Validated
+//@Validated
 public class RouteController {
 
   /**
@@ -34,31 +38,31 @@ public class RouteController {
    *
    * @return Route
    */
-  //  @GetMapping("/find-route")
-  //  public RouteRequest findRoute(@Valid @ModelAttribute RouteRequest routeRequest) {
-  //    // You can access routeRequest.getStartLat(), routeRequest.getStartLong(), etc.
-  //    // Implement your logic to process the route request
-  //
-  ////    return "Route details based on provided parameters";
-  //    return routeRequest;
-  //  }
 
-  private final ChargerService chargerService;
-
-  private final FoodEstablishmentService foodEstablishmentService;
-
-  private final OSRService osrService;
   private final RoutingService routingService;
 
   private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
 
   @PostMapping("/find-route")
-  public RouteResult findRoute(@Valid @RequestBody RouteRequest routeRequest) {
+  public ResponseEntity<?> findRoute(@Valid @RequestBody RouteRequest routeRequest) {
     logger.info("Received route request: {}", routeRequest);
 
+//    if (bindingResult.hasErrors()) {
+//      logger.info("Route is NOT valid");
+//      return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
+//    }
+
+//    if (bindingResult.hasErrors()) {
+//      List<RouteRequestValidationErrorResponse> errors = bindingResult.getFieldErrors().stream()
+//              .map(fieldError -> new RouteRequestValidationErrorResponse(fieldError.getField(), fieldError.getDefaultMessage()))
+//              .collect(Collectors.toList());
+//      return ResponseEntity.badRequest().body(errors);
+//    }
+
+    logger.info("Route is valid");
     RouteResult dummyRouteResult = routingService.getRoute(routeRequest);
 
-    return dummyRouteResult;
+    return ResponseEntity.ok(dummyRouteResult);
 
 //
 //    Double[] start = {routeRequest.getStartLong(), routeRequest.getStartLat()};

@@ -3,15 +3,12 @@ package com.icl.fmfmc_backend.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import lombok.Builder;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import javax.validation.constraints.Max;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Min;
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.*;
 import java.time.LocalTime;
 
+//@Validated
 @Data
 public class RouteRequest {
 
@@ -72,10 +69,6 @@ public class RouteRequest {
   @JsonSetter(nulls = Nulls.SKIP)
   @JsonProperty("breakDuration")
   private LocalTime breakDuration = LocalTime.of(1, 0);
-
-
-
-
 
 
 }

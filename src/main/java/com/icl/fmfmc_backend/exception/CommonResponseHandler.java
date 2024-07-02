@@ -1,15 +1,11 @@
-package com.icl.fmfmc_backend.util;
+package com.icl.fmfmc_backend.exception;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 import org.jsoup.Jsoup;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 
 public class CommonResponseHandler {
 

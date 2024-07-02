@@ -3,14 +3,11 @@ package com.icl.fmfmc_backend.service;
 import com.icl.fmfmc_backend.config.OpenRouteServiceProperties;
 import com.icl.fmfmc_backend.dto.OSRDirectionsServiceGeoJSONRequest;
 import com.icl.fmfmc_backend.dto.OSRDirectionsServiceGeoJSONResponse;
-import com.icl.fmfmc_backend.util.CommonResponseHandler;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import com.icl.fmfmc_backend.exception.CommonResponseHandler;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClient.Builder;
 import reactor.core.publisher.Mono;
 
 import lombok.RequiredArgsConstructor;

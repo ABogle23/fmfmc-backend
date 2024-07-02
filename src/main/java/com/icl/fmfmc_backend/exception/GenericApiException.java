@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.util;
+package com.icl.fmfmc_backend.exception;
 
 import org.springframework.http.HttpStatusCode;
 
