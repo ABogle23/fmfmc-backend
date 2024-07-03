@@ -1,7 +1,7 @@
 package com.icl.fmfmc_backend.controller;
 
 
-import com.icl.fmfmc_backend.service.OpenChargeMapService;
+import com.icl.fmfmc_backend.Integration.OpenChargeMapClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,10 +12,10 @@ import org.springframework.util.LinkedMultiValueMap;
 @RequestMapping("/test")
 public class OCMTestController {
 
-    private final OpenChargeMapService openChargeMapService;
+    private final OpenChargeMapClient openChargeMapClient;
 
-    public OCMTestController(OpenChargeMapService openChargeMapService) {
-        this.openChargeMapService = openChargeMapService;
+    public OCMTestController(OpenChargeMapClient openChargeMapClient) {
+        this.openChargeMapClient = openChargeMapClient;
     }
 
     @GetMapping("/basic-test-api-call")
@@ -28,7 +28,7 @@ public class OCMTestController {
         MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         // Populate your parameters as required for the API call
 //        parameters.add("exampleParam", "value");
-        openChargeMapService.getChargerFromOpenChargeMapApi(parameters);
+        openChargeMapClient.getChargerFromOpenChargeMapApi(parameters);
         return "API call successful!";
     }
 }

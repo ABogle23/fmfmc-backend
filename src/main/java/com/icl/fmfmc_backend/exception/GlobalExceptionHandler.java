@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     // handles all validation errors where @Valid annotations are present.
+    // https://medium.com/@tericcabrel/validate-request-body-and-parameter-in-spring-boot-53ca77f97fe9
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<String> details = ex.getBindingResult().getAllErrors().stream()

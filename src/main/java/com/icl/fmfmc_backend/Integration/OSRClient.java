@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.service;
+package com.icl.fmfmc_backend.Integration;
 
 import com.icl.fmfmc_backend.config.OpenRouteServiceProperties;
 import com.icl.fmfmc_backend.dto.OSRDirectionsServiceGeoJSONRequest;
@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class OSRService {
+public class OSRClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(OSRService.class);
+    private static final Logger logger = LoggerFactory.getLogger(OSRClient.class);
     private final OpenRouteServiceProperties orsProperties;
 
     private final WebClient.Builder webClientBuilder = WebClient.builder();

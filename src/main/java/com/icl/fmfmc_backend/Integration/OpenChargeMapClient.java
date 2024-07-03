@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.service;
+package com.icl.fmfmc_backend.Integration;
 
 import com.icl.fmfmc_backend.config.OpenChargeMapProperties;
 import com.icl.fmfmc_backend.dto.OpenChargeMapResponseDTO;
@@ -6,18 +6,16 @@ import com.icl.fmfmc_backend.entity.AddressInfo;
 import com.icl.fmfmc_backend.entity.Charger;
 import com.icl.fmfmc_backend.entity.Connection;
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
+import com.icl.fmfmc_backend.service.ChargerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.List;
@@ -26,8 +24,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OpenChargeMapService {
-  private static final Logger logger = LoggerFactory.getLogger(OpenChargeMapService.class);
+public class OpenChargeMapClient {
+  private static final Logger logger = LoggerFactory.getLogger(OpenChargeMapClient.class);
   private final OpenChargeMapProperties openChargeMapProperties;
   private final ChargerService chargerService;
 

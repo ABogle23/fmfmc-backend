@@ -1,37 +1,35 @@
-package com.icl.fmfmc_backend.service;
+package com.icl.fmfmc_backend.Integration;
 
 import com.icl.fmfmc_backend.config.FoursquareProperties;
 import com.icl.fmfmc_backend.dto.FoursquareResponseDTO;
 import com.icl.fmfmc_backend.entity.*;
+import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.stream.Collectors;
+
+
+
+//https://docs.foursquare.com/developer/reference/place-search
+
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+public class FoursquareClient {
 
-//https://docs.foursquare.com/developer/reference/place-search
-
-public class FoursquareService {
-
-  private static final Logger logger = LoggerFactory.getLogger(FoursquareService.class);
+  private static final Logger logger = LoggerFactory.getLogger(FoursquareClient.class);
   private final FoursquareProperties foursquarePlacesProperties;
   private final FoodEstablishmentService foodEstablishmentService;
 

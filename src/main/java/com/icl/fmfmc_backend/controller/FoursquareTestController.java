@@ -1,8 +1,7 @@
 package com.icl.fmfmc_backend.controller;
 
 
-import com.icl.fmfmc_backend.service.FoursquareService;
-import com.icl.fmfmc_backend.service.OpenChargeMapService;
+import com.icl.fmfmc_backend.Integration.FoursquareClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test")
 public class FoursquareTestController {
 
-    private final FoursquareService foursquareService;
+    private final FoursquareClient foursquareClient;
 
-    public FoursquareTestController(FoursquareService foursquareService) {
-        this.foursquareService = foursquareService;
+    public FoursquareTestController(FoursquareClient foursquareClient) {
+        this.foursquareClient = foursquareClient;
     }
 
     @GetMapping("/fs-basic-test-api-call")
@@ -29,7 +28,7 @@ public class FoursquareTestController {
         MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         // Populate your parameters as required for the API call
 //        parameters.add("exampleParam", "value");
-        foursquareService.getFoodEstablishmentFromFoursquarePlacesApi(parameters);
+        foursquareClient.getFoodEstablishmentFromFoursquarePlacesApi(parameters);
         return "API call successful!";
     }
 }
