@@ -13,6 +13,7 @@ import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import com.icl.fmfmc_backend.Integration.OSRClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class RoutingService {
         getOsrDirectionsServiceGeoJSONResponse(routeRequest);
 
     // find chargers
-    List<Charger> chargers = chargerService.getAllChargers();
+    List<Charger> potentialChargers = chargerService.getAllChargers();
 
 
 
