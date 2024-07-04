@@ -1,5 +1,6 @@
 package com.icl.fmfmc_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -42,6 +43,7 @@ public class FoodEstablishment {
 
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @Column(columnDefinition = "Point")
     private Point location;
 

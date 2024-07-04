@@ -1,6 +1,7 @@
 package com.icl.fmfmc_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -74,6 +75,7 @@ public class Charger {
   //  @JsonProperty("updated_at")
   private LocalDateTime updatedAt;
 
+  @JsonIgnore
   @Column(columnDefinition = "Point")
   private Point location;
 

@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.locationtech.jts.geom.Polygon;
+
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,6 +33,10 @@ public class ChargerService {
         }
         log.info("Charger with id: {} doesn't exist", id);
         return null;
+    }
+
+    public List<Charger> getChargersWithinPolygon(Polygon polygon) {
+        return chargerRepo.findAllWithinPolygon(polygon);
     }
 
     @Transactional

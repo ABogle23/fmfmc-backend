@@ -1,7 +1,10 @@
 package com.icl.fmfmc_backend.Routing;
 
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Polygon;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,19 @@ public class PolylineUtility {
     }
 
     return encodedPath.toString();
+  }
+
+
+  public static String encodeLineString(LineString lineString) {
+    List<List<Double>> coordinates = Arrays.stream(lineString.getCoordinates())
+            .map(coord -> List.of(coord.x, coord.y))
+            .collect(Collectors.toList());
+    return encodePolyline(coordinates);
+  }
+
+  public static String encodePolygon(Polygon polygon) {
+    LineString exteriorRing = polygon.getExteriorRing();
+    return encodeLineString(exteriorRing);
   }
 
   private static String encode(int value) {

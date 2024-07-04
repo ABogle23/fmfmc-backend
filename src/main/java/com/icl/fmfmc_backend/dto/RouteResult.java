@@ -15,6 +15,8 @@ public class RouteResult {
 
   private String routePolyline;
 
+  private String tmpPolygon;
+
   private Double distance;
 
   private Double time; // mins

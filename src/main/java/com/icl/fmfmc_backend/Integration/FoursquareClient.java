@@ -21,10 +21,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
-
-
 //https://docs.foursquare.com/developer/reference/place-search
-
 
 @Service
 @RequiredArgsConstructor

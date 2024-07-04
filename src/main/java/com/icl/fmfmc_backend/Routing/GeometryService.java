@@ -2,6 +2,8 @@ package com.icl.fmfmc_backend.Routing;
 
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import org.locationtech.jts.geom.*;
+import org.locationtech.jts.operation.buffer.BufferOp;
+import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Arrays;
@@ -9,6 +11,23 @@ import java.util.Arrays;
 @Service
 public class GeometryService {
     private final GeometryFactory geometryFactory = new GeometryFactory();
+
+    public static Polygon bufferLineStringSquare(LineString lineString, double distance) {
+        BufferParameters bufferParameters = new BufferParameters();
+        bufferParameters.setEndCapStyle(BufferParameters.CAP_FLAT);
+        return (Polygon) BufferOp.bufferOp(lineString, distance, bufferParameters);
+    }
+    public static Polygon bufferLineString(LineString lineString, double distance) {
+        return (Polygon) lineString.buffer(distance);
+    }
+
+
+
+
+
+
+
+
 
     // Function to buffer a polyline represented as a string
     public Polygon bufferPolyline(String polyline, double width) {
