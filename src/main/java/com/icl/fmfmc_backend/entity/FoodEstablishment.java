@@ -3,6 +3,8 @@ package com.icl.fmfmc_backend.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Type;
+import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,5 +41,8 @@ public class FoodEstablishment {
     private Double rating;
 
     private LocalDateTime createdAt;
+
+    @Column(columnDefinition = "Point")
+    private Point location;
 
 }

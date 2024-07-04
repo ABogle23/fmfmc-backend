@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
+import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -72,6 +73,9 @@ public class Charger {
 
   //  @JsonProperty("updated_at")
   private LocalDateTime updatedAt;
+
+  @Column(columnDefinition = "Point")
+  private Point location;
 
 //  @PrePersist
 //  @PreUpdate

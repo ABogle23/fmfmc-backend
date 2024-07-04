@@ -6,6 +6,8 @@ import com.icl.fmfmc_backend.entity.*;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -122,12 +124,13 @@ public class FoursquareClient {
             .map(cat -> new Category(cat.getId(), cat.getName()))
             .collect(Collectors.toList()));
     establishment.setGeocodes(
-        new GeoCoordinates(dto.getGeocodes().getMain().getLatitude(), dto.getGeocodes().getMain().getLongitude()));
+        new GeoCoordinates(dto.getGeocodes().getMain().getLongitude(), dto.getGeocodes().getMain().getLatitude()));
     establishment.setClosedStatus(dto.getClosedBucket());
     establishment.setPopularity(dto.getPopularity());
     establishment.setPrice(dto.getPrice());
     establishment.setRating(dto.getRating());
     establishment.setCreatedAt(LocalDateTime.now());
+    establishment.setLocation(new GeometryFactory().createPoint(new Coordinate(dto.getGeocodes().getMain().getLongitude(), dto.getGeocodes().getMain().getLatitude())));
     return establishment;
   }
 }

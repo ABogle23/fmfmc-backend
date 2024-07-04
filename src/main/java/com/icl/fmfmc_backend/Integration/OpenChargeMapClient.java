@@ -9,6 +9,8 @@ import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import com.icl.fmfmc_backend.service.ChargerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -116,7 +118,8 @@ public class OpenChargeMapClient {
     charger.setConnections(dto.getConnections().stream()
             .map(conn -> new Connection(conn.getId(), conn.getReference(), conn.getConnectionTypeID(), conn.getCurrentTypeID(), conn.getAmps(), conn.getVoltage(), conn.getPowerKW(), conn.getQuantity(), conn.getStatusTypeID(), conn.getStatusType(), conn.getLevelID(), conn.getCreatedAt(), conn.getUpdatedAt()))
             .collect(Collectors.toList()));
-    charger.setGeocodes(new GeoCoordinates(dto.getLocation().getLatitude(), dto.getLocation().getLongitude()));
+    charger.setGeocodes(new GeoCoordinates(dto.getLocation().getLongitude(), dto.getLocation().getLatitude()));
+    charger.setLocation(new GeometryFactory().createPoint(new Coordinate(dto.getLocation().getLongitude(), dto.getLocation().getLatitude())));
     return charger;
   }
 
