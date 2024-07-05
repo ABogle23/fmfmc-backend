@@ -47,7 +47,7 @@ public class RouteController {
 
     logger.info("Route is valid");
     RouteResult dummyRouteResult = routingService.getRoute(routeRequest);
-
+    logger.info("Returning route result");
     return ResponseEntity.ok(dummyRouteResult);
 
 //

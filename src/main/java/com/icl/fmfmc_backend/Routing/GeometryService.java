@@ -29,7 +29,7 @@ public class GeometryService {
 
 
 
-    // Function to buffer a polyline represented as a string
+    // buffer a polyline represented as a string
     public Polygon bufferPolyline(String polyline, double width) {
         // Convert the string to coordinates and then to a LineString
         LineString lineString = createLineStringFromText(polyline);
@@ -37,13 +37,13 @@ public class GeometryService {
         return (Polygon) lineString.buffer(width);
     }
 
-    // Function to buffer a polyline represented as coordinates
+    // buffer a polyline represented as coordinates
     public Polygon bufferPolyline(Coordinate[] coordinates, double widthInKm) {
         LineString lineString = geometryFactory.createLineString(coordinates);
         return (Polygon) lineString.buffer(widthInKm);
     }
 
-    // Helper method to parse a polyline string to a LineString
+    // parse a polyline string to a LineString
     public LineString createLineStringFromText(String polyline) {
         String[] coords = polyline.split(";");
         Coordinate[] points = Arrays.stream(coords)

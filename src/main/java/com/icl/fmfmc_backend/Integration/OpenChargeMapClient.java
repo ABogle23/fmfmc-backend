@@ -64,9 +64,9 @@ public class OpenChargeMapClient {
                             .queryParam("verbose", false)
                         .queryParam("maxresults", 2000)
                         // 50.719334, -3.513779 2.7 Exeter Centre
-                                                .queryParam("latitude", 50.267355)
-                                                    .queryParam("longitude", -4.060051)
-                                                    .queryParam("distance", 129)
+                                                .queryParam("latitude",56.176372)
+                                                    .queryParam("longitude",-3.524786)
+                                                    .queryParam("distance",192)
 //                        .queryParam(
 //                            "polygon",
 //                            "y`yoHnd}]wa`@wn`G_n}AcvwEwp{Bj{dAmuCn_bGdn~ErzoH~cb@itcAhaAgppA")
@@ -86,7 +86,7 @@ public class OpenChargeMapClient {
         Charger charger = convertToCharger(dto);
         try {
           chargerService.saveCharger(charger);
-          logger.info("Charger processed and saved successfully.");
+//          logger.info("Charger processed and saved successfully.");
         } catch (Exception e) {
           logger.error("Error saving charger: {}", e.getMessage());
         }
@@ -145,3 +145,8 @@ public class OpenChargeMapClient {
 //        logger.error("Error saving charger with id {}: {}", charger.getId(), e.getMessage());
 //        }
 //        }
+
+
+
+//around cornwall devon
+// .queryParam("latitude", 50.267355).queryParam("longitude", -4.060051).queryParam("distance", 129)

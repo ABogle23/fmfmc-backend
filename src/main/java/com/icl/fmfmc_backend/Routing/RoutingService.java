@@ -13,14 +13,17 @@ import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import com.icl.fmfmc_backend.Integration.OSRClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
+import java.text.DecimalFormat;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -50,18 +53,35 @@ public class RoutingService {
                 .getCoordinates());
 
     // buffer LineString
-    Polygon bufferedLineString = geometryService.bufferLineString(lineString, 0.009); // 500m is 0.0045
+    Polygon bufferedLineString =
+        geometryService.bufferLineString(lineString, 0.009); // 500m is 0.0045
     System.out.println("Original LineString: " + lineString.toText());
-    System.out.println("Buffered Polygon: " + bufferedLineString.toText());
+    System.out.println("Buffered Polygon: " + bufferedLineString);
 
-    // find chargers based on buffered LineString
-    List<Charger> chargersWithinPolygon = chargerService.getChargersWithinPolygon(bufferedLineString);
-
-    // build result
+    // convert polyline & polygon to Strings
     String polyline = getPolylineAsString(osrDirectionsServiceGeoJSONResponse);
     String tmpPolygon = PolylineUtility.encodePolygon(bufferedLineString);
 
-    RouteResult dummyRouteResult = getRouteResult(routeRequest, polyline, tmpPolygon, chargersWithinPolygon);
+    // find chargers based on buffered LineString
+    List<Charger> chargersWithinPolygon =
+        chargerService.getChargersWithinPolygon(bufferedLineString);
+
+    // find FoodEstablishments based on buffered LineString
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+    String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(bufferedLineString);
+    System.out.println("tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat);
+    params.add("polygon", tmpPolygonFoursquareFormat);
+    List<FoodEstablishment> foodEstablishmentsWithinPolygon =
+        foodEstablishmentService.getFoodEstablishmentsByParam(params);
+
+    // build result
+    RouteResult dummyRouteResult =
+        getRouteResult(
+            routeRequest,
+            polyline,
+            tmpPolygon,
+            chargersWithinPolygon,
+            foodEstablishmentsWithinPolygon);
 
     return dummyRouteResult;
   }
@@ -75,12 +95,13 @@ public class RoutingService {
     return polyline;
   }
 
-  private RouteResult getRouteResult(RouteRequest routeRequest, String polyline, String tmpPolygon, List<Charger> chargers) {
-//    List<Charger> chargers = chargerService.getAllChargers();
-    List<FoodEstablishment> foodEstablishments =
-        foodEstablishmentService.getAllFoodEstablishments().stream()
-            .limit(2)
-            .collect(Collectors.toList());
+  private RouteResult getRouteResult(
+      RouteRequest routeRequest, String polyline, String tmpPolygon, List<Charger> chargers, List<FoodEstablishment> foodEstablishments) {
+    //    List<Charger> chargers = chargerService.getAllChargers();
+//    List<FoodEstablishment> foodEstablishments =
+//        foodEstablishmentService.getAllFoodEstablishments().stream()
+//            .limit(2)
+//            .collect(Collectors.toList());
     RouteResult dummyRouteResult =
         new RouteResult(
             polyline,
@@ -89,8 +110,6 @@ public class RoutingService {
             3600.0,
             chargers,
             foodEstablishments,
-            //            List.of(new Charger(), new Charger()),
-            //            List.of(new FoodEstablishment(), new FoodEstablishment()),
             routeRequest);
     return dummyRouteResult;
   }
@@ -111,6 +130,40 @@ public class RoutingService {
         osrClient.getDirectionsGeoJSON(osrDirectionsServiceGeoJSONRequest);
     return osrDirectionsServiceGeoJSONResponse;
   }
+
+
+  public static String polygonStringToFoursquareFormat(Polygon polygon) {
+
+    int step = 40;
+    Coordinate[] coordinates = polygon.getExteriorRing().getCoordinates();
+    StringBuilder formattedString = new StringBuilder();
+
+    // Iterate over coordinates, skipping 'step - 1' coordinates each time
+    for (int i = 0; i < coordinates.length; i += step) {
+      // Use CoordinateFormatter to format latitude then longitude
+      formattedString.append(CoordinateFormatter.formatCoordinate(coordinates[i].y))
+              .append(",")
+              .append(CoordinateFormatter.formatCoordinate(coordinates[i].x));
+
+      // Append a tilde separator except potentially after the last coordinate
+      if (i + step < coordinates.length) {
+        formattedString.append("~");
+      }
+    }
+
+    // Ensure the polygon is closed (first and last coordinates should be the same)
+    if (!coordinates[0].equals2D(coordinates[coordinates.length - 1])) {
+      formattedString.append("~")
+              .append(CoordinateFormatter.formatCoordinate(coordinates[0].y))
+              .append(",")
+              .append(CoordinateFormatter.formatCoordinate(coordinates[0].x));
+    }
+
+    return formattedString.toString();
+  }
+
+
+
 }
 
 // [[-5.527232277582699,50.125797154650854],[-5.230125079140789,50.232877561473444],[-4.78339855527325,50.291757884188414]]
