@@ -138,20 +138,20 @@ public class RoutingService {
     Coordinate[] coordinates = polygon.getExteriorRing().getCoordinates();
     StringBuilder formattedString = new StringBuilder();
 
-    // Iterate over coordinates, skipping 'step - 1' coordinates each time
+    // iterate over coordinates skipping {step} coordinates each time
     for (int i = 0; i < coordinates.length; i += step) {
-      // Use CoordinateFormatter to format latitude then longitude
+      // use CoordinateFormatter to trim lat long to 3dp
       formattedString.append(CoordinateFormatter.formatCoordinate(coordinates[i].y))
               .append(",")
               .append(CoordinateFormatter.formatCoordinate(coordinates[i].x));
 
-      // Append a tilde separator except potentially after the last coordinate
+      // append '~' separator except after last coordinate
       if (i + step < coordinates.length) {
         formattedString.append("~");
       }
     }
 
-    // Ensure the polygon is closed (first and last coordinates should be the same)
+    // ensure the polygon is closed (first and last coordinates should be the same)
     if (!coordinates[0].equals2D(coordinates[coordinates.length - 1])) {
       formattedString.append("~")
               .append(CoordinateFormatter.formatCoordinate(coordinates[0].y))
