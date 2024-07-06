@@ -8,29 +8,6 @@ import org.springframework.util.MultiValueMap;
 @Getter
 public class FoursquareRequest {
 
-  //  private final String ll;
-  //
-  //  private final Integer radius;
-  //  private final String categories;
-  //  private final String fields =
-  //      "fsq_id,name,categories,closed_bucket,distance,geocodes,location,price,rating,popularity";
-  //
-  //  private final Integer minPrice;
-  //  private final Integer maxPrice;
-  //  private final String openAt;
-  //
-  //  private final Boolean openNow;
-  //
-  //  private final String neLatLong;
-  //
-  //  private final String swLatLong;
-  //
-  //  private final Integer limit = 50;
-  //
-  //  private final String polygon;
-  //
-  //  private final String sortBy;
-
   private final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
 
   public FoursquareRequest(
@@ -60,22 +37,22 @@ public class FoursquareRequest {
       this.queryParams.add("fields", fields);
     }
     if (minPrice != null) {
-      this.queryParams.add("minPrice", minPrice.toString());
+      this.queryParams.add("min_price", minPrice.toString());
     }
     if (maxPrice != null) {
-      this.queryParams.add("maxPrice", maxPrice.toString());
+      this.queryParams.add("max_price", maxPrice.toString());
     }
     if (openAt != null) {
-      this.queryParams.add("openAt", openAt);
+      this.queryParams.add("open_at", openAt);
     }
     if (openNow != null) {
-      this.queryParams.add("openNow", openNow.toString());
+      this.queryParams.add("open_now", openNow.toString());
     }
     if (neLatLong != null) {
-      this.queryParams.add("neLatLong", neLatLong);
+      this.queryParams.add("ne", neLatLong);
     }
     if (swLatLong != null) {
-      this.queryParams.add("swLatLong", swLatLong);
+      this.queryParams.add("sw", swLatLong);
     }
     if (limit != null) {
       this.queryParams.add("limit", limit.toString());
@@ -84,7 +61,7 @@ public class FoursquareRequest {
       this.queryParams.add("polygon", polygon);
     }
     if (sortBy != null) {
-      this.queryParams.add("sortBy", sortBy);
+      this.queryParams.add("sort", sortBy);
     }
   }
 }

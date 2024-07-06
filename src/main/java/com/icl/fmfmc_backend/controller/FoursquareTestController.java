@@ -4,11 +4,13 @@ import com.icl.fmfmc_backend.Integration.FoursquareClient;
 import com.icl.fmfmc_backend.dto.FoursquareResponseDTO;
 import com.icl.fmfmc_backend.entity.FoursquareRequest;
 import com.icl.fmfmc_backend.entity.FoursquareRequestBuilder;
+import com.icl.fmfmc_backend.entity.enums.FoodCategory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 @RestController
 @RequestMapping("/test")
@@ -32,8 +34,9 @@ public class FoursquareTestController {
         new FoursquareRequestBuilder()
             .setLl("51.472440,-0.042947")
             .setRadius(10000)
-//                .setCategories(17142)
-                .setMinPrice(4)
+                .setCategories(List.of(FoodCategory.FOOD_RETAILER))
+                .setMinPrice(3)
+                .setMaxPrice(4)
             .createFoursquareRequest();
     FoursquareResponseDTO foursquareResponseDTO = foursquareClient.getFoodEstablishmentFromFoursquarePlacesApi(foursquareRequest);
 //    return "API call successful!";

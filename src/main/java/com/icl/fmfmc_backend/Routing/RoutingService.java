@@ -5,9 +5,7 @@ import com.icl.fmfmc_backend.dto.OSRDirectionsServiceGeoJSONRequest;
 import com.icl.fmfmc_backend.dto.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.dto.RouteRequest;
 import com.icl.fmfmc_backend.dto.RouteResult;
-import com.icl.fmfmc_backend.entity.Charger;
-import com.icl.fmfmc_backend.entity.FoodEstablishment;
-import com.icl.fmfmc_backend.entity.GeoCoordinates;
+import com.icl.fmfmc_backend.entity.*;
 import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import com.icl.fmfmc_backend.Integration.OSRClient;
@@ -67,13 +65,15 @@ public class RoutingService {
         chargerService.getChargersWithinPolygon(bufferedLineString);
 
     // find FoodEstablishments based on buffered LineString
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(bufferedLineString);
     System.out.println("tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat);
-    params.add("polygon", null);
-//    List<FoodEstablishment> foodEstablishmentsWithinPolygon =
-//        foodEstablishmentService.getFoodEstablishmentsByParam(params);
-    List<FoodEstablishment> foodEstablishmentsWithinPolygon = null;
+
+    FoursquareRequest params = new FoursquareRequestBuilder().setCategories(routeRequest.getEatingOptions()).setPolygon(tmpPolygonFoursquareFormat).createFoursquareRequest();
+
+    List<FoodEstablishment> foodEstablishmentsWithinPolygon =
+        foodEstablishmentService.getFoodEstablishmentsByParam(params);
+//    List<FoodEstablishment> foodEstablishmentsWithinPolygon = null;
+
 
     // build result
     RouteResult dummyRouteResult =

@@ -72,8 +72,7 @@ public class RouteRequest {
   public void setEatingOptions(List<String> options) {
     if (options != null && !options.isEmpty()) {
       this.eatingOptions = options.stream()
-              .map(String::toUpperCase)
-              .map(FoodCategory::valueOf)
+              .map(FoodCategory::getFoodCategoryFromDisplayName)
               .collect(Collectors.toList());
     }
   }
