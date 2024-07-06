@@ -2,10 +2,7 @@ package com.icl.fmfmc_backend.service;
 
 import com.icl.fmfmc_backend.Integration.FoursquareClient;
 import com.icl.fmfmc_backend.dto.FoursquareResponseDTO;
-import com.icl.fmfmc_backend.entity.AddressInfo;
-import com.icl.fmfmc_backend.entity.Category;
-import com.icl.fmfmc_backend.entity.FoodEstablishment;
-import com.icl.fmfmc_backend.entity.GeoCoordinates;
+import com.icl.fmfmc_backend.entity.*;
 import com.icl.fmfmc_backend.repository.FoodEstablishmentRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,9 +75,9 @@ public class FoodEstablishmentService {
 //        return foodEstablishmentRepo.findAll();
 //    }
 
-    public List<FoodEstablishment> getFoodEstablishmentsByParam(MultiValueMap<String, String> parameters) {
+    public List<FoodEstablishment> getFoodEstablishmentsByParam(FoursquareRequest foursquareRequest) {
         List<FoodEstablishment> savedEstablishments = new ArrayList<>();
-        FoursquareResponseDTO response = foursquareClient.getFoodEstablishmentFromFoursquarePlacesApi(parameters);
+        FoursquareResponseDTO response = foursquareClient.getFoodEstablishmentFromFoursquarePlacesApi(foursquareRequest);
 
         if (response != null && response.getResults() != null) {
             response.getResults().forEach(placeDTO -> {
@@ -88,6 +85,7 @@ public class FoodEstablishmentService {
                 savedEstablishments.add(establishment);
             });
         }
+        log.info("Fetched {} food establishments from Foursquare", savedEstablishments.size());
         return savedEstablishments;
     }
 

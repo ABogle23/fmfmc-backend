@@ -70,9 +70,10 @@ public class RoutingService {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(bufferedLineString);
     System.out.println("tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat);
-    params.add("polygon", tmpPolygonFoursquareFormat);
-    List<FoodEstablishment> foodEstablishmentsWithinPolygon =
-        foodEstablishmentService.getFoodEstablishmentsByParam(params);
+    params.add("polygon", null);
+//    List<FoodEstablishment> foodEstablishmentsWithinPolygon =
+//        foodEstablishmentService.getFoodEstablishmentsByParam(params);
+    List<FoodEstablishment> foodEstablishmentsWithinPolygon = null;
 
     // build result
     RouteResult dummyRouteResult =

@@ -3,10 +3,13 @@ package com.icl.fmfmc_backend.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.icl.fmfmc_backend.entity.enums.FoodCategory;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import jakarta.validation.constraints.*;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 //@Validated
 @Data
@@ -45,7 +48,7 @@ public class RouteRequest {
   private Double evRange = 300.0;
 
   // charging preferences
-  // TODO: add connectortype
+  // TODO: add connectortype, speed, network operator, minNoChargePoints
 
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Minimum charge level must be non-negative")
@@ -53,8 +56,45 @@ public class RouteRequest {
   @JsonProperty("minChargeLevel")
   private Double minChargeLevel = 20.0;
 
+
+
+
+
+
   // dining preferences
   // TODO: add cuisine type, price range, etc.
+
+  @JsonProperty("eatingOptions")
+
+  private List<FoodCategory> eatingOptions = getDefaultEatingOptions();
+
+  @JsonSetter("eatingOptions")
+  public void setEatingOptions(List<String> options) {
+    if (options != null && !options.isEmpty()) {
+      this.eatingOptions = options.stream()
+              .map(String::toUpperCase)
+              .map(FoodCategory::valueOf)
+              .collect(Collectors.toList());
+    }
+  }
+
+  private List<FoodCategory> getDefaultEatingOptions() {
+    return List.of(FoodCategory.RESTAURANT, FoodCategory.CAFE, FoodCategory.BAR, FoodCategory.FOOD_RETAILER);
+  }
+
+
+  @Min(value = 1, message = "Price range must be non-negative")
+  @Max(value = 4, message = "Price range must be less than or equal to 100")
+  @JsonProperty("priceRange")
+  private Integer priceRange;
+
+  @JsonSetter(nulls = Nulls.SKIP)
+  @Min(value = 200, message = "Price range must be equal or greater than 200")
+  @Max(value = 500, message = "Price range must be less than or equal to 500")
+  @JsonProperty("maxWalkingDistance")
+  private Integer maxWalkingDistance = 500;
+
+
 
   // time constraints
 

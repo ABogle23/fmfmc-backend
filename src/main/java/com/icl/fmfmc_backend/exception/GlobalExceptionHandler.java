@@ -1,6 +1,7 @@
 package com.icl.fmfmc_backend.exception;
 
 import com.icl.fmfmc_backend.dto.ApiErrorResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -9,10 +10,16 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.http.HttpStatus;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
 
     // handles all validation errors where @Valid annotations are present.
     // https://medium.com/@tericcabrel/validate-request-body-and-parameter-in-spring-boot-53ca77f97fe9
@@ -34,5 +41,26 @@ public class GlobalExceptionHandler {
         }
     }
 
-    // TODO: more exceptions
+
+    // handles invalid JSON input errors
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        String error = "Invalid input provided.";
+        String field = inferFieldFromException(ex);  // infer the field from exception msg
+
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                HttpStatus.BAD_REQUEST.value(), "Validation Failed", List.of(field + ": " + error));
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    private String inferFieldFromException(HttpMessageNotReadableException ex) {
+        if (ex.getCause().getMessage().contains("eatingOptions")) {
+            return "eatingOptions";
+        } else if (ex.getCause().getMessage().contains("connectorType")) {
+            return "connectorType";
+        }
+        return "Unknown";
+    }
+
+
 }

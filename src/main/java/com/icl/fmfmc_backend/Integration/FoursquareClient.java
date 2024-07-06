@@ -44,7 +44,7 @@ public class FoursquareClient {
   //    }
 
   public FoursquareResponseDTO getFoodEstablishmentFromFoursquarePlacesApi(
-      MultiValueMap<String, String> parameters) {
+      FoursquareRequest foursquareRequest) {
     int bufferSize = 16 * 1024 * 1024; // 16 MB
     int timeoutSeconds = 180;
 
@@ -73,20 +73,7 @@ public class FoursquareClient {
             .uri(
                 uriBuilder ->
                     uriBuilder
-                        .queryParams(parameters)
-                        .queryParam("limit", 50)
-                        // 50.719334, -3.513779 2.7 Exeter Centre
-                        //                    .queryParam("ll", "50.267355,-4.060051")
-                        //                    .queryParam("radius", 20000) // metres
-                        .queryParam("categories", "13065")
-                        .queryParam(
-                            "fields",
-                            "fsq_id,name,categories,closed_bucket,distance,geocodes,location,price,rating,popularity")
-                        //                        .queryParam(
-                        //                            "polygon",
-                        //
-                        // "y`yoHnd}]wa`@wn`G_n}AcvwEwp{Bj{dAmuCn_bGdn~ErzoH~cb@itcAhaAgppA")
-//                            .queryParam("polygon", polygonParam)
+                            .queryParams(foursquareRequest.getQueryParams())
                         .build())
             .retrieve()
             .bodyToMono(FoursquareResponseDTO.class)
@@ -112,7 +99,8 @@ public class FoursquareClient {
     //                    error -> logger.error("Error fetching food establishments: {}",
     // error.getMessage()))
     //            .block();
-
+    logger.info("Fetched foodEstablishments from Foursquare");
+    logger.info("Fetched foodEstablishments from Foursquare: {}", responseDTO.getResults());
     return responseDTO;
   }
 }
