@@ -13,13 +13,14 @@ public class FoodCategoryToFoursquareCategoryIDMapper {
       new EnumMap<>(FoodCategory.class);
 
   static {
-    categoryToFoursquareIdMap.put(FoodCategory.CAFE, "13032"); // Example ID
-    categoryToFoursquareIdMap.put(FoodCategory.BAR, "13003"); // Example ID
-    categoryToFoursquareIdMap.put(FoodCategory.RESTAURANT, "13065"); // Example ID
-    categoryToFoursquareIdMap.put(FoodCategory.FOOD_RETAILER, "17069,17099,17142"); // Example ID
+    categoryToFoursquareIdMap.put(FoodCategory.CAFE, "13032");
+    categoryToFoursquareIdMap.put(FoodCategory.BAR, "13003");
+    categoryToFoursquareIdMap.put(FoodCategory.RESTAURANT, "13065");
+    categoryToFoursquareIdMap.put(FoodCategory.FOOD_RETAILER, "17069,17099,17142");
   }
 
   public String mapCategoriesToFoursquareIds(List<FoodCategory> categories) {
+    // add null check
     return categories.stream().map(categoryToFoursquareIdMap::get).collect(Collectors.joining(","));
   }
 }

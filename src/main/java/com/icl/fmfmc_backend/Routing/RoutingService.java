@@ -21,6 +21,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -52,7 +53,7 @@ public class RoutingService {
 
     // buffer LineString
     Polygon bufferedLineString =
-        geometryService.bufferLineString(lineString, 0.009); // 500m is 0.0045
+        GeometryService.bufferLineString(lineString, 0.009); // 500m is 0.0045
     System.out.println("Original LineString: " + lineString.toText());
     System.out.println("Buffered Polygon: " + bufferedLineString);
 
@@ -63,17 +64,26 @@ public class RoutingService {
     // find chargers based on buffered LineString
     List<Charger> chargersWithinPolygon =
         chargerService.getChargersWithinPolygon(bufferedLineString);
+    chargersWithinPolygon = chargerService.getChargersByConnectionType(routeRequest.getConnectionTypes());
+    logger.info("Chargers within query: " + chargersWithinPolygon.size());
+    chargersWithinPolygon = chargerService.getChargersByChargeSpeed(routeRequest.getMinKwChargeSpeed(), routeRequest.getMaxKwChargeSpeed());
+    logger.info("Chargers within query: " + chargersWithinPolygon.size());
+    chargersWithinPolygon = chargerService.getChargersByMinNoChargePoints(routeRequest.getMinNoChargePoints());
+    logger.info("Chargers within query: " + chargersWithinPolygon.size());
 
     // find FoodEstablishments based on buffered LineString
     String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(bufferedLineString);
     System.out.println("tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat);
 
-    FoursquareRequest params = new FoursquareRequestBuilder().setCategories(routeRequest.getEatingOptions()).setPolygon(tmpPolygonFoursquareFormat).createFoursquareRequest();
+    FoursquareRequest params =
+        new FoursquareRequestBuilder()
+            .setCategories(routeRequest.getEatingOptions())
+            .setPolygon(tmpPolygonFoursquareFormat)
+            .createFoursquareRequest();
 
-    List<FoodEstablishment> foodEstablishmentsWithinPolygon =
-        foodEstablishmentService.getFoodEstablishmentsByParam(params);
-//    List<FoodEstablishment> foodEstablishmentsWithinPolygon = null;
-
+//    List<FoodEstablishment> foodEstablishmentsWithinPolygon =
+//        foodEstablishmentService.getFoodEstablishmentsByParam(params);
+        List<FoodEstablishment> foodEstablishmentsWithinPolygon = Collections.emptyList();
 
     // build result
     RouteResult dummyRouteResult =
@@ -97,21 +107,19 @@ public class RoutingService {
   }
 
   private RouteResult getRouteResult(
-      RouteRequest routeRequest, String polyline, String tmpPolygon, List<Charger> chargers, List<FoodEstablishment> foodEstablishments) {
+      RouteRequest routeRequest,
+      String polyline,
+      String tmpPolygon,
+      List<Charger> chargers,
+      List<FoodEstablishment> foodEstablishments) {
     //    List<Charger> chargers = chargerService.getAllChargers();
-//    List<FoodEstablishment> foodEstablishments =
-//        foodEstablishmentService.getAllFoodEstablishments().stream()
-//            .limit(2)
-//            .collect(Collectors.toList());
+    //    List<FoodEstablishment> foodEstablishments =
+    //        foodEstablishmentService.getAllFoodEstablishments().stream()
+    //            .limit(2)
+    //            .collect(Collectors.toList());
     RouteResult dummyRouteResult =
         new RouteResult(
-            polyline,
-            tmpPolygon,
-            100.0,
-            3600.0,
-            chargers,
-            foodEstablishments,
-            routeRequest);
+            polyline, tmpPolygon, 100.0, 3600.0, chargers, foodEstablishments, routeRequest);
     return dummyRouteResult;
   }
 
@@ -132,7 +140,6 @@ public class RoutingService {
     return osrDirectionsServiceGeoJSONResponse;
   }
 
-
   public static String polygonStringToFoursquareFormat(Polygon polygon) {
 
     int step = 40;
@@ -142,9 +149,10 @@ public class RoutingService {
     // iterate over coordinates skipping {step} coordinates each time
     for (int i = 0; i < coordinates.length; i += step) {
       // use CoordinateFormatter to trim lat long to 3dp
-      formattedString.append(CoordinateFormatter.formatCoordinate(coordinates[i].y))
-              .append(",")
-              .append(CoordinateFormatter.formatCoordinate(coordinates[i].x));
+      formattedString
+          .append(CoordinateFormatter.formatCoordinate(coordinates[i].y))
+          .append(",")
+          .append(CoordinateFormatter.formatCoordinate(coordinates[i].x));
 
       // append '~' separator except after last coordinate
       if (i + step < coordinates.length) {
@@ -154,17 +162,15 @@ public class RoutingService {
 
     // ensure the polygon is closed (first and last coordinates should be the same)
     if (!coordinates[0].equals2D(coordinates[coordinates.length - 1])) {
-      formattedString.append("~")
-              .append(CoordinateFormatter.formatCoordinate(coordinates[0].y))
-              .append(",")
-              .append(CoordinateFormatter.formatCoordinate(coordinates[0].x));
+      formattedString
+          .append("~")
+          .append(CoordinateFormatter.formatCoordinate(coordinates[0].y))
+          .append(",")
+          .append(CoordinateFormatter.formatCoordinate(coordinates[0].x));
     }
 
     return formattedString.toString();
   }
-
-
-
 }
 
 // [[-5.527232277582699,50.125797154650854],[-5.230125079140789,50.232877561473444],[-4.78339855527325,50.291757884188414]]

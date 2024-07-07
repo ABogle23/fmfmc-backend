@@ -3,9 +3,12 @@ package com.icl.fmfmc_backend.service;
 
 import com.icl.fmfmc_backend.entity.Charger;
 import com.icl.fmfmc_backend.entity.Connection;
+import com.icl.fmfmc_backend.entity.enums.ConnectionType;
+import com.icl.fmfmc_backend.entity.enums.ConnectionTypeToOcmMapper;
 import com.icl.fmfmc_backend.repository.ChargerRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ import org.locationtech.jts.geom.Polygon;
 @Slf4j
 public class ChargerService {
     private final ChargerRepo chargerRepo;
+    private final ConnectionTypeToOcmMapper connectionTypeToOcmMapper = new ConnectionTypeToOcmMapper();
 
     public List<Charger> getAllChargers(){
         return chargerRepo.findAll();
@@ -38,6 +42,19 @@ public class ChargerService {
     public List<Charger> getChargersWithinPolygon(Polygon polygon) {
         return chargerRepo.findAllWithinPolygon(polygon);
     }
+
+    public List<Charger> getChargersByConnectionType(List<ConnectionType> type) {
+        List<Integer> dbIds = connectionTypeToOcmMapper.mapConnectionTypeToDbIds(type);
+        return chargerRepo.findByConnectionTypeIds(dbIds);
+    }
+
+    public List<Charger> getChargersByChargeSpeed(Integer minKwSpeed, Integer maxKwSpeed) {
+        return chargerRepo.findByConnectionChargerSpeed(minKwSpeed, maxKwSpeed);
+    }
+    public List<Charger> getChargersByMinNoChargePoints(Integer minNoChargePoints) {
+        return chargerRepo.findByMinNoChargePoints(minNoChargePoints);
+    }
+
 
     @Transactional
     public Charger saveCharger (Charger charger){
