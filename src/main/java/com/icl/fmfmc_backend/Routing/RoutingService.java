@@ -6,14 +6,13 @@ import com.icl.fmfmc_backend.dto.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.dto.RouteRequest;
 import com.icl.fmfmc_backend.dto.RouteResult;
 import com.icl.fmfmc_backend.entity.*;
+import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import com.icl.fmfmc_backend.Integration.OSRClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -64,11 +63,41 @@ public class RoutingService {
     // find chargers based on buffered LineString
     List<Charger> chargersWithinPolygon =
         chargerService.getChargersWithinPolygon(bufferedLineString);
-    chargersWithinPolygon = chargerService.getChargersByConnectionType(routeRequest.getConnectionTypes());
+    //    chargersWithinPolygon =
+    // chargerService.getChargersByConnectionType(routeRequest.getConnectionTypes());
+    //    logger.info("Chargers within query: " + chargersWithinPolygon.size());
+    //    chargersWithinPolygon =
+    // chargerService.getChargersByChargeSpeed(routeRequest.getMinKwChargeSpeed(),
+    // routeRequest.getMaxKwChargeSpeed());
+    //    logger.info("Chargers within query: " + chargersWithinPolygon.size());
+    //    chargersWithinPolygon =
+    // chargerService.getChargersByMinNoChargePoints(routeRequest.getMinNoChargePoints());
+    //    logger.info("Chargers within query: " + chargersWithinPolygon.size());
+    //    chargersWithinPolygon = chargerService.getChargersWithinRadius(new
+    // GeometryFactory().createPoint(new Coordinate(-0.043221, 51.472276)), 1000.0);;
+    //    logger.info("Chargers within query: " + chargersWithinPolygon.size());
+    chargersWithinPolygon =
+        chargerService.getChargersByParams(
+            null,
+//            new GeometryFactory().createPoint(new Coordinate(-0.043221, 51.472276)),
+                new GeometryFactory().createPoint(new Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())),
+            2000.0,
+//            List.of(ConnectionType.CCS, ConnectionType.CHADEMO, ConnectionType.TYPE2),
+                null,
+            3,
+            400,
+            1);
     logger.info("Chargers within query: " + chargersWithinPolygon.size());
-    chargersWithinPolygon = chargerService.getChargersByChargeSpeed(routeRequest.getMinKwChargeSpeed(), routeRequest.getMaxKwChargeSpeed());
-    logger.info("Chargers within query: " + chargersWithinPolygon.size());
-    chargersWithinPolygon = chargerService.getChargersByMinNoChargePoints(routeRequest.getMinNoChargePoints());
+    chargersWithinPolygon =
+            chargerService.findChargersByParam(
+                    null,
+                    new GeometryFactory().createPoint(new Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())),
+                    2000.0,
+                    null,
+                    3,
+                    400,
+                    1);
+    ;
     logger.info("Chargers within query: " + chargersWithinPolygon.size());
 
     // find FoodEstablishments based on buffered LineString
@@ -81,9 +110,9 @@ public class RoutingService {
             .setPolygon(tmpPolygonFoursquareFormat)
             .createFoursquareRequest();
 
-//    List<FoodEstablishment> foodEstablishmentsWithinPolygon =
-//        foodEstablishmentService.getFoodEstablishmentsByParam(params);
-        List<FoodEstablishment> foodEstablishmentsWithinPolygon = Collections.emptyList();
+    //    List<FoodEstablishment> foodEstablishmentsWithinPolygon =
+    //        foodEstablishmentService.getFoodEstablishmentsByParam(params);
+    List<FoodEstablishment> foodEstablishmentsWithinPolygon = Collections.emptyList();
 
     // build result
     RouteResult dummyRouteResult =
