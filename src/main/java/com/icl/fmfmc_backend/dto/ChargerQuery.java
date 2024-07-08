@@ -1,5 +1,6 @@
 package com.icl.fmfmc_backend.dto;
 
+import com.icl.fmfmc_backend.entity.enums.AccessType;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +16,7 @@ public class ChargerQuery {
     private Point point;
     private Double radius;
     private List<ConnectionType> connectionTypeIds;
+    private List<AccessType> accessTypeIds;
     private Integer minKwChargeSpeed;
     private Integer maxKwChargeSpeed;
     private Integer minNoChargePoints;

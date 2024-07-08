@@ -3,6 +3,7 @@ package com.icl.fmfmc_backend.service;
 import com.icl.fmfmc_backend.dto.ChargerQuery;
 import com.icl.fmfmc_backend.entity.Charger;
 import com.icl.fmfmc_backend.entity.Connection;
+import com.icl.fmfmc_backend.entity.enums.AccessTypeToOcmMapper;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import com.icl.fmfmc_backend.entity.enums.ConnectionTypeToOcmMapper;
 import com.icl.fmfmc_backend.repository.ChargerRepo;
@@ -32,6 +33,7 @@ public class ChargerService {
   private final ChargerRepo chargerRepo;
   private final ConnectionTypeToOcmMapper connectionTypeToOcmMapper =
       new ConnectionTypeToOcmMapper();
+  private final AccessTypeToOcmMapper accessTypeToOcmMapper = new AccessTypeToOcmMapper();
 
   public List<Charger> getAllChargers() {
     return chargerRepo.findAll();
@@ -68,6 +70,7 @@ public class ChargerService {
   }
 
   public List<Charger> getChargersByParams(ChargerQuery query) {
+
     List<Integer> mappedConnectionTypeIds =
         connectionTypeToOcmMapper.mapConnectionTypeToDbIds(query.getConnectionTypeIds());
     String connectionTypeIds =
@@ -75,11 +78,20 @@ public class ChargerService {
             ",",
             mappedConnectionTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
     System.out.println(connectionTypeIds);
+
+    List<Integer> mappedAccessTypeIds =
+        accessTypeToOcmMapper.mapAccessTypeToDbIds(query.getAccessTypeIds());
+    String accessTypeIds =
+        String.join(
+            ",", mappedAccessTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
+    System.out.println(connectionTypeIds);
+
     return chargerRepo.findChargersByParams(
         query.getPolygon(),
         query.getPoint(),
         query.getRadius(),
         connectionTypeIds,
+        accessTypeIds,
         query.getMinKwChargeSpeed(),
         query.getMaxKwChargeSpeed(),
         query.getMinNoChargePoints());

@@ -3,6 +3,7 @@ package com.icl.fmfmc_backend.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.icl.fmfmc_backend.entity.enums.AccessType;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import com.icl.fmfmc_backend.entity.enums.EnumUtils;
 import com.icl.fmfmc_backend.entity.enums.FoodCategory;
@@ -13,7 +14,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//@Validated
+// @Validated
 @Data
 public class RouteRequest {
 
@@ -35,7 +36,7 @@ public class RouteRequest {
   @JsonProperty("endLong")
   private Double endLong;
 
-    // vehicle info
+  // vehicle info
 
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Starting battery must be non-negative")
@@ -58,15 +59,28 @@ public class RouteRequest {
   @JsonProperty("minChargeLevel")
   private Double minChargeLevel = 20.0;
 
-
   @JsonProperty("connectionTypes")
   private List<ConnectionType> connectionTypes;
 
   @JsonSetter("connectionTypes")
   public void setConnectionTypes(List<String> options) {
     if (options != null && !options.isEmpty()) {
-      this.connectionTypes = options.stream()
-              .map(option -> EnumUtils.getEnumFromApiName(ConnectionType.class,option))
+      this.connectionTypes =
+          options.stream()
+              .map(option -> EnumUtils.getEnumFromApiName(ConnectionType.class, option))
+              .collect(Collectors.toList());
+    }
+  }
+
+  @JsonProperty("accessTypes")
+  private List<AccessType> accessTypes;
+
+  @JsonSetter("accessTypes")
+  public void setAccessTypes(List<String> options) {
+    if (options != null && !options.isEmpty()) {
+      this.accessTypes =
+          options.stream()
+              .map(option -> EnumUtils.getEnumFromApiName(AccessType.class, option))
               .collect(Collectors.toList());
     }
   }
@@ -87,8 +101,6 @@ public class RouteRequest {
 
   // Operator/Network
 
-
-
   // dining preferences
   // TODO: add cuisine type, price range, etc.
 
@@ -98,16 +110,17 @@ public class RouteRequest {
   @JsonSetter("eatingOptions")
   public void setEatingOptions(List<String> options) {
     if (options != null && !options.isEmpty()) {
-      this.eatingOptions = options.stream()
-              .map(option -> EnumUtils.getEnumFromApiName(FoodCategory.class,option))
+      this.eatingOptions =
+          options.stream()
+              .map(option -> EnumUtils.getEnumFromApiName(FoodCategory.class, option))
               .collect(Collectors.toList());
     }
   }
 
   private List<FoodCategory> getDefaultEatingOptions() {
-    return List.of(FoodCategory.RESTAURANT, FoodCategory.CAFE, FoodCategory.BAR, FoodCategory.FOOD_RETAILER);
+    return List.of(
+        FoodCategory.RESTAURANT, FoodCategory.CAFE, FoodCategory.BAR, FoodCategory.FOOD_RETAILER);
   }
-
 
   @Min(value = 1, message = "Minimum Price range must be non-negative")
   @Max(value = 4, message = "Minimum Price range must be less than or equal to 4")
@@ -125,8 +138,6 @@ public class RouteRequest {
   @JsonProperty("maxWalkingDistance")
   private Integer maxWalkingDistance = 500;
 
-
-
   // time constraints
 
   @JsonSetter(nulls = Nulls.SKIP)
@@ -140,6 +151,4 @@ public class RouteRequest {
   @JsonSetter(nulls = Nulls.SKIP)
   @JsonProperty("breakDuration")
   private LocalTime breakDuration = LocalTime.of(1, 0);
-
-
 }

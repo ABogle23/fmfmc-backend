@@ -94,22 +94,24 @@ public class RoutingService {
             .minKwChargeSpeed(routeRequest.getMinKwChargeSpeed())
             .maxKwChargeSpeed(routeRequest.getMaxKwChargeSpeed())
             .minNoChargePoints(routeRequest.getMinNoChargePoints())
+            .accessTypeIds(routeRequest.getAccessTypes())
             .build();
     chargersWithinPolygon = chargerService.getChargersByParams(query);
 
     logger.info("Chargers within query: " + chargersWithinPolygon.size());
 
-//    chargersWithinPolygon =
-//            chargerService.findChargersByParam(
-//                    null,
-//                    new GeometryFactory().createPoint(new Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())),
-//                    2000.0,
-//                    List.of(ConnectionType.CCS, ConnectionType.CHADEMO, ConnectionType.TYPE2),
-//                    null,
-//                    4,
-//                    null);
-//    ;
-//    logger.info("Chargers within query: " + chargersWithinPolygon.size());
+    //    chargersWithinPolygon =
+    //            chargerService.findChargersByParam(
+    //                    null,
+    //                    new GeometryFactory().createPoint(new
+    // Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())),
+    //                    2000.0,
+    //                    List.of(ConnectionType.CCS, ConnectionType.CHADEMO, ConnectionType.TYPE2),
+    //                    null,
+    //                    4,
+    //                    null);
+    //    ;
+    //    logger.info("Chargers within query: " + chargersWithinPolygon.size());
 
     // find FoodEstablishments based on buffered LineString
     String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(bufferedLineString);
