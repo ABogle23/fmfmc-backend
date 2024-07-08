@@ -1,5 +1,6 @@
 package com.icl.fmfmc_backend.service;
 
+import com.icl.fmfmc_backend.dto.ChargerQuery;
 import com.icl.fmfmc_backend.entity.Charger;
 import com.icl.fmfmc_backend.entity.Connection;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
@@ -66,29 +67,22 @@ public class ChargerService {
     return chargerRepo.findChargersWithinRadius(minNoChargePoints, radius);
   }
 
-  public List<Charger> getChargersByParams(
-      Polygon polygon,
-      Point point,
-      Double radius,
-      List<ConnectionType> connectionTypes,
-      Integer minKwChargeSpeed,
-      Integer maxKwChargeSpeed,
-      Integer minNoChargePoints) {
+  public List<Charger> getChargersByParams(ChargerQuery query) {
     List<Integer> mappedConnectionTypeIds =
-        connectionTypeToOcmMapper.mapConnectionTypeToDbIds(connectionTypes);
+        connectionTypeToOcmMapper.mapConnectionTypeToDbIds(query.getConnectionTypeIds());
     String connectionTypeIds =
         String.join(
             ",",
             mappedConnectionTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
     System.out.println(connectionTypeIds);
     return chargerRepo.findChargersByParams(
-        polygon,
-        point,
-        radius,
+        query.getPolygon(),
+        query.getPoint(),
+        query.getRadius(),
         connectionTypeIds,
-        minKwChargeSpeed,
-        maxKwChargeSpeed,
-        minNoChargePoints);
+        query.getMinKwChargeSpeed(),
+        query.getMaxKwChargeSpeed(),
+        query.getMinNoChargePoints());
   }
 
   @PersistenceContext private EntityManager entityManager;
@@ -126,7 +120,7 @@ public class ChargerService {
     // connection type IDs
     if (connectionTypes != null && !connectionTypes.isEmpty()) {
       List<Integer> connectionTypeIds =
-              connectionTypeToOcmMapper.mapConnectionTypeToDbIds(connectionTypes);
+          connectionTypeToOcmMapper.mapConnectionTypeToDbIds(connectionTypes);
       predicates.add(connection.get("connectionTypeID").in(connectionTypeIds));
     }
 

@@ -1,10 +1,7 @@
 package com.icl.fmfmc_backend.Routing;
 
 import com.icl.fmfmc_backend.controller.RouteController;
-import com.icl.fmfmc_backend.dto.OSRDirectionsServiceGeoJSONRequest;
-import com.icl.fmfmc_backend.dto.OSRDirectionsServiceGeoJSONResponse;
-import com.icl.fmfmc_backend.dto.RouteRequest;
-import com.icl.fmfmc_backend.dto.RouteResult;
+import com.icl.fmfmc_backend.dto.*;
 import com.icl.fmfmc_backend.entity.*;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import com.icl.fmfmc_backend.service.ChargerService;
@@ -76,29 +73,43 @@ public class RoutingService {
     //    chargersWithinPolygon = chargerService.getChargersWithinRadius(new
     // GeometryFactory().createPoint(new Coordinate(-0.043221, 51.472276)), 1000.0);;
     //    logger.info("Chargers within query: " + chargersWithinPolygon.size());
-    chargersWithinPolygon =
-        chargerService.getChargersByParams(
-            null,
-//            new GeometryFactory().createPoint(new Coordinate(-0.043221, 51.472276)),
-                new GeometryFactory().createPoint(new Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())),
-            2000.0,
-//            List.of(ConnectionType.CCS, ConnectionType.CHADEMO, ConnectionType.TYPE2),
-                null,
-            3,
-            400,
-            1);
+    //    chargersWithinPolygon =
+    //        chargerService.getChargersByParams(
+    //            null,
+    //                new GeometryFactory().createPoint(new
+    // Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())),
+    //            2000.0,
+    //            List.of(ConnectionType.CCS, ConnectionType.CHADEMO, ConnectionType.TYPE2),
+    //            null,
+    //                4,
+    //            null);
+
+    ChargerQuery query =
+        ChargerQuery.builder()
+            .polygon(bufferedLineString)
+            //            .point(new GeometryFactory().createPoint(new
+            // Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())))
+            //            .radius(2000.0)
+            .connectionTypeIds(routeRequest.getConnectionTypes())
+            .minKwChargeSpeed(routeRequest.getMinKwChargeSpeed())
+            .maxKwChargeSpeed(routeRequest.getMaxKwChargeSpeed())
+            .minNoChargePoints(routeRequest.getMinNoChargePoints())
+            .build();
+    chargersWithinPolygon = chargerService.getChargersByParams(query);
+
     logger.info("Chargers within query: " + chargersWithinPolygon.size());
-    chargersWithinPolygon =
-            chargerService.findChargersByParam(
-                    null,
-                    new GeometryFactory().createPoint(new Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())),
-                    2000.0,
-                    null,
-                    3,
-                    400,
-                    1);
-    ;
-    logger.info("Chargers within query: " + chargersWithinPolygon.size());
+
+//    chargersWithinPolygon =
+//            chargerService.findChargersByParam(
+//                    null,
+//                    new GeometryFactory().createPoint(new Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())),
+//                    2000.0,
+//                    List.of(ConnectionType.CCS, ConnectionType.CHADEMO, ConnectionType.TYPE2),
+//                    null,
+//                    4,
+//                    null);
+//    ;
+//    logger.info("Chargers within query: " + chargersWithinPolygon.size());
 
     // find FoodEstablishments based on buffered LineString
     String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(bufferedLineString);
