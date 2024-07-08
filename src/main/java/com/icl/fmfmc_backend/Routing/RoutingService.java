@@ -53,6 +53,16 @@ public class RoutingService {
     System.out.println("Original LineString: " + lineString.toText());
     System.out.println("Buffered Polygon: " + bufferedLineString);
 
+    // Build Route Object with LineString and buffered LineString
+    Route route =
+        new Route(
+            lineString,
+            bufferedLineString,
+            osrDirectionsServiceGeoJSONResponse.getFeatures().get(0).getProperties().getSummary().getDistance(),
+            osrDirectionsServiceGeoJSONResponse.getFeatures().get(0).getProperties().getSummary().getDuration());
+
+
+
     // convert polyline & polygon to Strings
     String polyline = getPolylineAsString(osrDirectionsServiceGeoJSONResponse);
     String tmpPolygon = PolylineUtility.encodePolygon(bufferedLineString);
