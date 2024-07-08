@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import lombok.Data;
+import org.locationtech.jts.geom.LineString;
 
 @Data
 public class OSRDirectionsServiceGeoJSONResponse {
