@@ -53,9 +53,9 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
                WHERE 
                (:polygon IS NULL OR ST_Within(c.location, :polygon) = TRUE)
                AND (:point IS NULL OR :radius IS NULL OR ST_Distance_Sphere(c.location, :point) <= :radius)
-               AND (:connectionTypeIds IS NULL OR :connectionTypeIds = '' OR FIND_IN_SET(cc.connection_typeid, :connectionTypeIds) > 0)
+               AND ((:connectionTypeIds IS NULL OR :connectionTypeIds = '' OR FIND_IN_SET(cc.connection_typeid, :connectionTypeIds) > 0)
                AND (COALESCE(:minKwChargeSpeed, 0) = 0 OR cc.powerkw >= :minKwChargeSpeed)
-               AND (:maxKwChargeSpeed IS NULL OR cc.powerkw <= :maxKwChargeSpeed)
+               AND (:maxKwChargeSpeed IS NULL OR cc.powerkw <= :maxKwChargeSpeed))
                AND c.number_of_points >= COALESCE(:minNoChargePoints, 1)
                """, nativeQuery = true)
   List<Charger> findChargersByParams(
