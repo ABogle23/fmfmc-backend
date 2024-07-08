@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.dto;
+package com.icl.fmfmc_backend.dto.Charger;
 
 import com.icl.fmfmc_backend.entity.enums.AccessType;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;

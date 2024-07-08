@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.entity;
+package com.icl.fmfmc_backend.entity.FoodEstablishment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Embeddable;

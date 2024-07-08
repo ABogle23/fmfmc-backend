@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.entity;
+package com.icl.fmfmc_backend.entity.Charger;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;

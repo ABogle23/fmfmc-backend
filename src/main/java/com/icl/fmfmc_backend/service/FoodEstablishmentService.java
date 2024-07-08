@@ -1,8 +1,11 @@
 package com.icl.fmfmc_backend.service;
 
 import com.icl.fmfmc_backend.Integration.FoursquareClient;
-import com.icl.fmfmc_backend.dto.FoursquareResponseDTO;
+import com.icl.fmfmc_backend.dto.FoodEstablishment.FoursquareResponseDTO;
 import com.icl.fmfmc_backend.entity.*;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.Category;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
 import com.icl.fmfmc_backend.repository.FoodEstablishmentRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +13,6 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.MultiValueMap;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.exception;
 
-import com.icl.fmfmc_backend.dto.ApiErrorResponse;
+import com.icl.fmfmc_backend.dto.Api.ApiErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -10,12 +10,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.http.HttpStatus;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {

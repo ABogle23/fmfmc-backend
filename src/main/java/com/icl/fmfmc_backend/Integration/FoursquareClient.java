@@ -1,27 +1,17 @@
 package com.icl.fmfmc_backend.Integration;
 
 import com.icl.fmfmc_backend.config.FoursquareProperties;
-import com.icl.fmfmc_backend.dto.FoursquareResponseDTO;
-import com.icl.fmfmc_backend.entity.*;
-import com.icl.fmfmc_backend.service.FoodEstablishmentService;
+import com.icl.fmfmc_backend.dto.FoodEstablishment.FoursquareResponseDTO;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
-import java.util.List;
-import java.util.ArrayList;
 
 // https://docs.foursquare.com/developer/reference/place-search
 

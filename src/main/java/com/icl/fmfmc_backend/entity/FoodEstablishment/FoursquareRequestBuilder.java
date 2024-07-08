@@ -1,8 +1,7 @@
-package com.icl.fmfmc_backend.entity;
+package com.icl.fmfmc_backend.entity.FoodEstablishment;
 
 import com.icl.fmfmc_backend.entity.enums.FoodCategory;
 import com.icl.fmfmc_backend.entity.enums.FoodCategoryToFoursquareCategoryIDMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 

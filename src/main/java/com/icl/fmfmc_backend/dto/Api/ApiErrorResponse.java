@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.dto;
+package com.icl.fmfmc_backend.dto.Api;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

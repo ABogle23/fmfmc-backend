@@ -1,12 +1,6 @@
-package com.icl.fmfmc_backend.dto;
+package com.icl.fmfmc_backend.dto.Charger;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.icl.fmfmc_backend.entity.AddressInfo;
-import com.icl.fmfmc_backend.entity.Charger;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import lombok.Data;
 
 import java.time.LocalDateTime;

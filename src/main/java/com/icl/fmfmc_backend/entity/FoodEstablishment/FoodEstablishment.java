@@ -1,10 +1,10 @@
-package com.icl.fmfmc_backend.entity;
+package com.icl.fmfmc_backend.entity.FoodEstablishment;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.icl.fmfmc_backend.entity.AddressInfo;
+import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
 import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;

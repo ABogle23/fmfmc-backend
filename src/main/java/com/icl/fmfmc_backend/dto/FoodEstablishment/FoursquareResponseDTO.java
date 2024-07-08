@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.dto;
+package com.icl.fmfmc_backend.dto.FoodEstablishment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

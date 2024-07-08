@@ -1,8 +1,8 @@
 package com.icl.fmfmc_backend.Integration;
 
 import com.icl.fmfmc_backend.config.OpenRouteServiceProperties;
-import com.icl.fmfmc_backend.dto.OSRDirectionsServiceGeoJSONRequest;
-import com.icl.fmfmc_backend.dto.OSRDirectionsServiceGeoJSONResponse;
+import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONRequest;
+import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.exception.CommonResponseHandler;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

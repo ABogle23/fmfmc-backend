@@ -1,9 +1,19 @@
-package com.icl.fmfmc_backend.Routing;
+package com.icl.fmfmc_backend.service;
 
+import com.icl.fmfmc_backend.Routing.GeometryService;
+import com.icl.fmfmc_backend.Routing.PolylineUtility;
 import com.icl.fmfmc_backend.controller.RouteController;
-import com.icl.fmfmc_backend.dto.*;
+import com.icl.fmfmc_backend.dto.Api.RouteRequest;
+import com.icl.fmfmc_backend.dto.Api.RouteResult;
+import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
+import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONRequest;
+import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.entity.*;
-import com.icl.fmfmc_backend.entity.enums.ConnectionType;
+import com.icl.fmfmc_backend.entity.Charger.Charger;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequestBuilder;
+import com.icl.fmfmc_backend.entity.Routing.Route;
 import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import com.icl.fmfmc_backend.Integration.OSRClient;
@@ -13,10 +23,7 @@ import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
-import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
 

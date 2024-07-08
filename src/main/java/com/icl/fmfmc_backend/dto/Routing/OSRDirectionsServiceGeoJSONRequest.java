@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.dto;
+package com.icl.fmfmc_backend.dto.Routing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.Max;

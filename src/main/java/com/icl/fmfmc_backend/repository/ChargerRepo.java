@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.repository;
 
-import com.icl.fmfmc_backend.entity.Charger;
+import com.icl.fmfmc_backend.entity.Charger.Charger;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.data.jpa.repository.JpaRepository;

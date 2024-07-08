@@ -1,12 +1,10 @@
 package com.icl.fmfmc_backend.controller;
 
 import com.icl.fmfmc_backend.Integration.FoursquareClient;
-import com.icl.fmfmc_backend.dto.FoursquareResponseDTO;
-import com.icl.fmfmc_backend.entity.FoursquareRequest;
-import com.icl.fmfmc_backend.entity.FoursquareRequestBuilder;
+import com.icl.fmfmc_backend.dto.FoodEstablishment.FoursquareResponseDTO;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequestBuilder;
 import com.icl.fmfmc_backend.entity.enums.FoodCategory;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

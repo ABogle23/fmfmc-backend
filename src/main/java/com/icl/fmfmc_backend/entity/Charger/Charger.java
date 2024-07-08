@@ -1,9 +1,9 @@
-package com.icl.fmfmc_backend.entity;
+package com.icl.fmfmc_backend.entity.Charger;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.icl.fmfmc_backend.entity.AddressInfo;
+import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import jakarta.persistence.*;
 import lombok.*;
 import org.locationtech.jts.geom.Point;

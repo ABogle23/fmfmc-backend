@@ -1,5 +1,7 @@
-package com.icl.fmfmc_backend.entity;
+package com.icl.fmfmc_backend.entity.Routing;
 
+import com.icl.fmfmc_backend.entity.Charger.Charger;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import lombok.Data;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;

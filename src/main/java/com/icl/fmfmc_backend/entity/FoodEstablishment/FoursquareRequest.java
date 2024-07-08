@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.entity;
+package com.icl.fmfmc_backend.entity.FoodEstablishment;
 
 import lombok.Builder;
 import lombok.Getter;

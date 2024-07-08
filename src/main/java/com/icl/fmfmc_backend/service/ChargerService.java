@@ -1,8 +1,8 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.dto.ChargerQuery;
-import com.icl.fmfmc_backend.entity.Charger;
-import com.icl.fmfmc_backend.entity.Connection;
+import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
+import com.icl.fmfmc_backend.entity.Charger.Charger;
+import com.icl.fmfmc_backend.entity.Charger.Connection;
 import com.icl.fmfmc_backend.entity.enums.AccessTypeToOcmMapper;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import com.icl.fmfmc_backend.entity.enums.ConnectionTypeToOcmMapper;
@@ -14,7 +14,6 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

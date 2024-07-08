@@ -1,11 +1,11 @@
-package com.icl.fmfmc_backend.dto;
+package com.icl.fmfmc_backend.dto.Api;
 
-import com.icl.fmfmc_backend.entity.Charger;
-import com.icl.fmfmc_backend.entity.FoodEstablishment;
+import com.icl.fmfmc_backend.entity.Charger.Charger;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.util.RouteMatcher;
+
 import java.util.List;
 
 @Data
