@@ -15,6 +15,8 @@ public class Route {
 
   private LineString lineStringRoute;
 
+  private LineString routeSnappedToStops;
+
   private Polygon bufferedLineString;
 
   private double routeLength;

@@ -49,8 +49,11 @@ public class RoutingService {
     logger.info("Fetching route from routing service");
 
     // get initial route
+    Double[] startCoordinates = {routeRequest.getStartLong(), routeRequest.getStartLat()};
+    Double[] endCoordinates = {routeRequest.getEndLong(), routeRequest.getEndLat()};
+    List<Double[]> startAndEndCoordinates = List.of(startCoordinates, endCoordinates);
     OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse =
-        getOsrDirectionsServiceGeoJSONResponse(routeRequest);
+        getOsrDirectionsServiceGeoJSONResponse(startAndEndCoordinates);
 
     // get LineString
     LineString lineString =
@@ -111,9 +114,15 @@ public class RoutingService {
     logger.info("Chargers within query: " + chargersWithinPolygon.size());
 
     // filter chargers to those reachable from the route based on battery level
-
     List<Charger> suitableChargers = findSuitableChargers(route, chargersWithinPolygon);
     logger.info("Suitable chargers: " + suitableChargers.size());
+
+
+    // Snap route to Chargers and FoodEstablishments
+    LineString routeSnappedToStops = snapRouteToStops(route, suitableChargers);
+    route.setRouteSnappedToStops(routeSnappedToStops);
+    polyline = PolylineUtility.encodeLineString(routeSnappedToStops);
+
 
     // find FoodEstablishments based on buffered LineString
     String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(bufferedLineString);
@@ -136,6 +145,41 @@ public class RoutingService {
             routeRequest, polyline, tmpPolygon, suitableChargers, foodEstablishmentsWithinPolygon);
 
     return dummyRouteResult;
+  }
+
+  private LineString snapRouteToStops(Route route, List<Charger> suitableChargers) {
+
+    List<Double[]> routeCoordinates = new ArrayList<>();
+
+    Point startPoint = route.getLineStringRoute().getStartPoint();
+    Double[] startCoordinates = {startPoint.getX(), startPoint.getY()};
+    routeCoordinates.add(startCoordinates);
+
+    for (Charger charger : suitableChargers) {
+      Point chargerLocation = charger.getLocation();
+      Double[] chargerCoordinates = {chargerLocation.getX(), chargerLocation.getY()};
+      routeCoordinates.add(chargerCoordinates);
+    }
+
+    Point endPoint = route.getLineStringRoute().getEndPoint();
+    Double[] endCoordinates = {endPoint.getX(), endPoint.getY()};
+    routeCoordinates.add(endCoordinates);
+
+
+    OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse =
+            getOsrDirectionsServiceGeoJSONResponse(routeCoordinates);
+
+    // get LineString
+    LineString lineString =
+            geometryService.createLineString(
+                    osrDirectionsServiceGeoJSONResponse
+                            .getFeatures()
+                            .get(0)
+                            .getGeometry()
+                            .getCoordinates());
+
+
+    return lineString;
   }
 
   /* Assisting Functions */
@@ -167,14 +211,11 @@ public class RoutingService {
   }
 
   private OSRDirectionsServiceGeoJSONResponse getOsrDirectionsServiceGeoJSONResponse(
-      RouteRequest routeRequest) {
+      List<Double[]> coordinates) {
     logger.info("Fetching initial route");
-    Double[] start = {routeRequest.getStartLong(), routeRequest.getStartLat()};
-    Double[] end = {routeRequest.getEndLong(), routeRequest.getEndLat()};
-    List<Double[]> startAndEndCoordinates = List.of(start, end);
 
     OSRDirectionsServiceGeoJSONRequest osrDirectionsServiceGeoJSONRequest =
-        new OSRDirectionsServiceGeoJSONRequest(startAndEndCoordinates);
+        new OSRDirectionsServiceGeoJSONRequest(coordinates);
 
     System.out.println(osrDirectionsServiceGeoJSONRequest);
 
@@ -182,6 +223,24 @@ public class RoutingService {
         osrClient.getDirectionsGeoJSON(osrDirectionsServiceGeoJSONRequest);
     return osrDirectionsServiceGeoJSONResponse;
   }
+
+  private OSRDirectionsServiceGeoJSONResponse getOsrDirectionsServiceGeoJSONResponseMultiPoint(
+          RouteRequest routeRequest) {
+    logger.info("Fetching optimised route");
+    Double[] start = {routeRequest.getStartLong(), routeRequest.getStartLat()};
+    Double[] end = {routeRequest.getEndLong(), routeRequest.getEndLat()};
+    List<Double[]> startAndEndCoordinates = List.of(start, end);
+
+    OSRDirectionsServiceGeoJSONRequest osrDirectionsServiceGeoJSONRequest =
+            new OSRDirectionsServiceGeoJSONRequest(startAndEndCoordinates);
+
+    System.out.println(osrDirectionsServiceGeoJSONRequest);
+
+    OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse =
+            osrClient.getDirectionsGeoJSON(osrDirectionsServiceGeoJSONRequest);
+    return osrDirectionsServiceGeoJSONResponse;
+  }
+
 
   public static String polygonStringToFoursquareFormat(Polygon polygon) {
 
@@ -378,6 +437,10 @@ public class RoutingService {
     // add the last found closest charger if any
     if (closestCharger != null) {
       chargersAtIntervals.add(closestCharger);
+    }
+
+    for (Charger charger : chargersAtIntervals) {
+      logger.info("Charger Location: " + charger.getLocation());
     }
 
     return chargersAtIntervals;
