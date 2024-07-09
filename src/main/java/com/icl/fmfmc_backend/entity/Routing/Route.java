@@ -33,6 +33,10 @@ public class Route {
 
   private Double minChargeLevel;
 
+  private Double chargeLevelAfterEachStopPct;
+
+  private Double chargeLevelAfterEachStop;
+
   public Route(
       LineString route,
       Polygon bufferedLineString,
@@ -47,14 +51,16 @@ public class Route {
     this.evRange = routeRequest.getEvRange();
     this.minChargeLevelPct = routeRequest.getMinChargeLevel();
     this.minChargeLevel = routeRequest.getMinChargeLevel() * routeRequest.getEvRange();
+    this.chargeLevelAfterEachStopPct = routeRequest.getChargeLevelAfterEachStop();
+    this.chargeLevelAfterEachStop = routeRequest.getChargeLevelAfterEachStop() * routeRequest.getEvRange();
   }
 
   public void addChargerToRoute(Charger charger) {
     chargersOnRoute.add(charger);
   }
 
-  public void rechargeBattery(Double chargeLevel) {
-    currentBattery = evRange * chargeLevel;
+  public void rechargeBattery() {
+    currentBattery = evRange * chargeLevelAfterEachStopPct;
   }
 
 }

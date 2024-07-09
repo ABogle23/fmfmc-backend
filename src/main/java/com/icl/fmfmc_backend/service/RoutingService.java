@@ -360,7 +360,7 @@ public class RoutingService {
           closestCharger = null; // reset for  next interval
           closestDistance = Double.MAX_VALUE;
 
-          route.rechargeBattery(1.0); // recharge to full
+          route.rechargeBattery(); // recharge to getChargeLevelAfterEachStopPct (defaults to 90%)
           logger.info("Recharging to full");
           nextTargetDistance += calculateMaxTravelDistance(route);
           // stop if the next interval is beyond the route end
