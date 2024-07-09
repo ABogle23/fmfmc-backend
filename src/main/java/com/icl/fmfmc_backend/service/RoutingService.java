@@ -31,10 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -246,12 +243,16 @@ public class RoutingService {
   printChargerDistanceMap(chargerDistanceMap);
 
 
-    return potentialChargers.stream()
-        .filter(
-            charger ->
-                isChargerWithinTravelDistance(
-                    route.getLineStringRoute(), charger.getLocation(), maxTravelDistance))
-        .collect(Collectors.toList());
+//    return potentialChargers.stream()
+//        .filter(
+//            charger ->
+//                isChargerWithinTravelDistance(
+//                    route.getLineStringRoute(), charger.getLocation(), maxTravelDistance))
+//        .collect(Collectors.toList());
+
+    return findChargersAtIntervals(chargerDistanceMap, maxTravelDistance, route.getRouteLength());
+
+
   }
 
   private Double calculateMaxTravelDistance(
@@ -328,6 +329,54 @@ public class RoutingService {
     }
 
     return closestCoordinate;
+  }
+
+  private List<Charger> findChargersAtIntervals(LinkedHashMap<Charger, Double> sortedChargers, Double intervalDistance, Double totalRouteLength) {
+    List<Charger> chargersAtIntervals = new ArrayList<>();
+    Double nextTargetDistance = intervalDistance;
+    Charger closestCharger = null;
+    Double closestDistance = Double.MAX_VALUE;
+
+    logger.info("Total route length: " + totalRouteLength);
+
+    // stop if charger is beyond the total route length
+    for (Map.Entry<Charger, Double> entry : sortedChargers.entrySet()) {
+      Double chargerDistance = entry.getValue();
+      if (chargerDistance > totalRouteLength) {
+        break;
+      }
+
+      if (chargerDistance <= nextTargetDistance) {
+        // find closest charger to the target dist without exceeding it
+        if (closestCharger == null || Math.abs(nextTargetDistance - chargerDistance) < Math.abs(nextTargetDistance - closestDistance)) {
+          closestCharger = entry.getKey();
+          closestDistance = chargerDistance;
+        }
+      } else {
+        // once charger distance exceeds the target, add the last closest charger and move to next interval
+        if (closestCharger != null) {
+          chargersAtIntervals.add(closestCharger);
+          closestCharger = null; // reset for  next interval
+          closestDistance = Double.MAX_VALUE;
+          nextTargetDistance += intervalDistance;
+          // stop if the next interval is beyond the route end
+          if (nextTargetDistance > totalRouteLength) break;
+        }
+
+        // check if the current charger should be considered for next interval
+        if (chargerDistance <= nextTargetDistance) {
+          closestCharger = entry.getKey();
+          closestDistance = chargerDistance;
+        }
+      }
+    }
+
+    // add the last found closest charger if any
+    if (closestCharger != null) {
+      chargersAtIntervals.add(closestCharger);
+    }
+
+    return chargersAtIntervals;
   }
 
 
