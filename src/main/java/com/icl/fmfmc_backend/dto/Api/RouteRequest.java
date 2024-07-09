@@ -47,8 +47,8 @@ public class RouteRequest {
   @JsonSetter(nulls = Nulls.SKIP)
   @NotNull(message = "EV range is required")
   @Min(value = 1, message = "EV range must be greater than 0")
-  @JsonProperty("evRange")
-  private Double evRange = 300.0;
+  @JsonProperty("evRange") // metres
+  private Double evRange = 300000.0;
 
   // charging preferences
   // TODO: add connectortype, speed, network operator, minNoChargePoints

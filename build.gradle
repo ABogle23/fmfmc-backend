@@ -41,7 +41,7 @@ dependencies {
 
 	implementation 'org.hibernate:hibernate-core:6.4.2.Final'
 	implementation 'org.hibernate:hibernate-spatial:6.4.2.Final'
-
+	implementation 'net.sf.geographiclib:GeographicLib-Java:2.0'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'mysql:mysql-connector-java'
 	annotationProcessor 'org.projectlombok:lombok'
