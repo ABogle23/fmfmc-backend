@@ -17,6 +17,7 @@ import com.icl.fmfmc_backend.entity.Routing.Route;
 import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import com.icl.fmfmc_backend.Integration.OSRClient;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
@@ -31,7 +32,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -65,7 +68,8 @@ public class RoutingService {
     Polygon bufferedLineString =
         GeometryService.bufferLineString(lineString, 0.009); // 500m is 0.0045
     System.out.println("Original LineString: " + lineString.toText().substring(0, 100) + "...");
-    System.out.println("Buffered Polygon: " + bufferedLineString.toText().substring(0, 100) + "...");
+    System.out.println(
+        "Buffered Polygon: " + bufferedLineString.toText().substring(0, 100) + "...");
 
     // Build Route Object with LineString and buffered LineString
     Route route =
@@ -111,13 +115,13 @@ public class RoutingService {
 
     // filter chargers to those reachable from the route based on battery level
 
-    List<Charger> suitableChargers =
-        findSuitableChargers(route.getLineStringRoute(), chargersWithinPolygon, routeRequest);
+    List<Charger> suitableChargers = findSuitableChargers(route, chargersWithinPolygon);
     logger.info("Suitable chargers: " + suitableChargers.size());
 
     // find FoodEstablishments based on buffered LineString
     String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(bufferedLineString);
-    System.out.println("tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat.substring(0, 100) + "...");
+    System.out.println(
+        "tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat.substring(0, 100) + "...");
 
     FoursquareRequest params =
         new FoursquareRequestBuilder()
@@ -216,47 +220,84 @@ public class RoutingService {
 
   // ROUTING RELATED FUNCTIONS
 
-
-
-
-  private List<Charger> findSuitableChargers(LineString route, List<Charger> potentialChargers, RouteRequest request) {
-    double maxTravelDistance = calculateMaxTravelDistance(request.getStartingBattery(), request.getMinChargeLevel(), request.getEvRange());
+  private List<Charger> findSuitableChargers(Route route, List<Charger> potentialChargers) {
+    Double maxTravelDistance =
+        calculateMaxTravelDistance(
+            route.getCurrentBattery(), route.getMinChargeLevel(), route.getEvRange());
     logger.info("Max travel distance: " + maxTravelDistance);
 
+    LinkedHashMap<Charger, Double> chargerDistanceMap = new LinkedHashMap<>();
+
+    // map chargers to travel distance along route
+    for (Charger charger : potentialChargers) {
+      Double distanceToCharger =
+          calculateDistanceAlongRouteToNearestPoint(
+              route.getLineStringRoute(), charger.getLocation());
+      chargerDistanceMap.put(charger, distanceToCharger);
+    }
+
+    // sort chargerDistanceMap map by distance
+    chargerDistanceMap = chargerDistanceMap.entrySet().stream()
+            .sorted(Map.Entry.comparingByValue())
+            .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+  printChargerDistanceMap(chargerDistanceMap);
+
+
     return potentialChargers.stream()
-            .filter(charger -> isChargerWithinTravelDistance(route, charger.getLocation(), maxTravelDistance))
-            .collect(Collectors.toList());
+        .filter(
+            charger ->
+                isChargerWithinTravelDistance(
+                    route.getLineStringRoute(), charger.getLocation(), maxTravelDistance))
+        .collect(Collectors.toList());
   }
 
-  private double calculateMaxTravelDistance(double startingBattery, double minChargeLevel, double evRange) {
-    double usableBattery = startingBattery - minChargeLevel;
-    return ((usableBattery / 100) * evRange) * 1000;
+  private Double calculateMaxTravelDistance(
+      Double currentBattery, Double minChargeLevel, Double evRange) {
+    Double usableBattery = currentBattery - minChargeLevel;
+    return usableBattery;
   }
 
-  private boolean isChargerWithinTravelDistance(LineString route, Point chargerLocation, double maxDistance) {
-    double distanceToCharger = calculateDistanceAlongRouteToNearestPoint(route, chargerLocation);
+  private boolean isChargerWithinTravelDistance(
+      LineString route, Point chargerLocation, Double maxDistance) {
+    Double distanceToCharger = calculateDistanceAlongRouteToNearestPoint(route, chargerLocation);
     logger.info("Distance to charger: " + distanceToCharger);
     return distanceToCharger <= maxDistance;
   }
 
-  private double calculateDistanceAlongRouteToNearestPoint(LineString route, Point chargerLocation) {
+  private Double getDistanceToChargerOnRoute(
+      LineString route, Point chargerLocation, Double maxDistance) {
+    Double distanceToCharger = calculateDistanceAlongRouteToNearestPoint(route, chargerLocation);
+    logger.info("Distance to charger: " + distanceToCharger);
+    return distanceToCharger;
+  }
+
+  private Double calculateDistanceAlongRouteToNearestPoint(
+      LineString route, Point chargerLocation) {
     Coordinate[] nearestCoordinatesOnRoute = DistanceOp.nearestPoints(route, chargerLocation);
     Point nearestPointOnRoute = new GeometryFactory().createPoint(nearestCoordinatesOnRoute[0]);
-    nearestPointOnRoute = new GeometryFactory().createPoint(findClosestCoordinateOnLine(route, chargerLocation));
-  logger.info("==========Next Charger==========");
-    logger.info("Nearest point on route: " + nearestPointOnRoute + " to charger: " + chargerLocation);
+    nearestPointOnRoute =
+        new GeometryFactory().createPoint(findClosestCoordinateOnLine(route, chargerLocation));
+    logger.info("==========Next Charger==========");
+    logger.info(
+        "Nearest point on route: " + nearestPointOnRoute + " to charger: " + chargerLocation);
 
-    double cumulativeDistance = 0;
+    Double cumulativeDistance = 0.0;
     Point lastPoint = (Point) route.getStartPoint();
 
     for (int i = 1; i < route.getNumPoints(); i++) {
       Point currentPoint = route.getPointN(i);
-      GeodesicData g = Geodesic.WGS84.Inverse(lastPoint.getY(), lastPoint.getX(), currentPoint.getY(), currentPoint.getX());
-      double segmentDistance = g.s12; // distance in meters
-//      if (i % 100 == 0) {
-//        logger.info("Cumulative distance - pt " + i + " : " + cumulativeDistance);
-//      }
-      if (currentPoint.equalsExact(nearestPointOnRoute,0.000001) || i == route.getNumPoints() - 1) {
+      GeodesicData g =
+          Geodesic.WGS84.Inverse(
+              lastPoint.getY(), lastPoint.getX(), currentPoint.getY(), currentPoint.getX());
+      Double segmentDistance = g.s12; // distance in meters
+      //      if (i % 100 == 0) {
+      //        logger.info("Cumulative distance - pt " + i + " : " + cumulativeDistance);
+      //      }
+      if (currentPoint.equalsExact(nearestPointOnRoute, 0.000001)
+          || i == route.getNumPoints() - 1) {
         cumulativeDistance += segmentDistance;
         break;
       }
@@ -270,14 +311,15 @@ public class RoutingService {
     return cumulativeDistance;
   }
 
-
   public Coordinate findClosestCoordinateOnLine(LineString lineString, Point chargerLocation) {
-    double minDistance = Double.MAX_VALUE;
+    Double minDistance = Double.MAX_VALUE;
     Coordinate closestCoordinate = null;
 
     for (Coordinate coordinate : lineString.getCoordinates()) {
-      GeodesicData geodesicData = Geodesic.WGS84.Inverse(chargerLocation.getY(), chargerLocation.getX(), coordinate.y, coordinate.x);
-      double distance = geodesicData.s12; // dist in meters
+      GeodesicData geodesicData =
+          Geodesic.WGS84.Inverse(
+              chargerLocation.getY(), chargerLocation.getX(), coordinate.y, coordinate.x);
+      Double distance = geodesicData.s12; // dist in meters
 
       if (distance < minDistance) {
         minDistance = distance;
@@ -288,5 +330,13 @@ public class RoutingService {
     return closestCoordinate;
   }
 
+
+  public void printChargerDistanceMap(LinkedHashMap<Charger, Double> map) {
+    for (Map.Entry<Charger, Double> entry : map.entrySet()) {
+      Charger charger = entry.getKey();
+      Double distance = entry.getValue();
+      System.out.println("Charger ID: " + charger.getId() + ", Distance: " + distance + " m");
+    }
+  }
 
 }

@@ -40,9 +40,9 @@ public class RouteRequest {
 
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Starting battery must be non-negative")
-  @Max(value = 100, message = "Starting battery must be non-negative")
+  @Max(value = 1, message = "Starting battery must be non-negative")
   @JsonProperty("startingBattery")
-  private Double startingBattery = 100.0;
+  private Double startingBattery = 1.0;
 
   @JsonSetter(nulls = Nulls.SKIP)
   @NotNull(message = "EV range is required")
@@ -55,9 +55,9 @@ public class RouteRequest {
 
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Minimum charge level must be non-negative")
-  @Max(value = 100, message = "Minimum charge level must be less than or equal to 100")
+  @Max(value = 1, message = "Minimum charge level must be less than or equal to 100")
   @JsonProperty("minChargeLevel")
-  private Double minChargeLevel = 20.0;
+  private Double minChargeLevel = 0.2;
 
   @JsonProperty("connectionTypes")
   private List<ConnectionType> connectionTypes;

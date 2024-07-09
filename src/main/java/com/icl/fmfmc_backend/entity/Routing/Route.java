@@ -21,7 +21,7 @@ public class Route {
 
   private double routeDuration;
 
-  private List<Charger> chargers = Collections.emptyList();
+  private List<Charger> chargersOnRoute = Collections.emptyList();
 
   private List<FoodEstablishment> foodEstablishments = Collections.emptyList();
 
@@ -43,9 +43,14 @@ public class Route {
     this.bufferedLineString = bufferedLineString;
     this.routeLength = routeLength;
     this.routeDuration = routeDuration;
-    this.currentBattery = routeRequest.getStartingBattery();
+    this.currentBattery = routeRequest.getStartingBattery() * routeRequest.getEvRange();
     this.evRange = routeRequest.getEvRange();
     this.minChargeLevelPct = routeRequest.getMinChargeLevel();
     this.minChargeLevel = routeRequest.getMinChargeLevel() * routeRequest.getEvRange();
   }
+
+  public void addChargerToRoute(Charger charger) {
+    chargersOnRoute.add(charger);
+  }
+
 }
