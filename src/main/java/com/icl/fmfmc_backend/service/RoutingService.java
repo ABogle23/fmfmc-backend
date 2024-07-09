@@ -216,56 +216,21 @@ public class RoutingService {
 
   // ROUTING RELATED FUNCTIONS
 
-//  private List<Charger> findSuitableChargers(
-//      LineString route, List<Charger> chargers, RouteRequest request) {
-//    double maxTravelDistance =
-//        calculateMaxTravelDistance(
-//            request.getStartingBattery(), request.getMinChargeLevel(), request.getEvRange());
-//    logger.info("Max travel distance: " + maxTravelDistance);
-//    Point lastPointBeforeRecharge = travelAlongRoute(route, maxTravelDistance);
-//    logger.info("Last point before recharge: " + lastPointBeforeRecharge);
-//    return chargers.stream()
-//        .filter(
-//            charger -> charger.getLocation().distance(lastPointBeforeRecharge) <= maxTravelDistance)
-//        .collect(Collectors.toList());
-//  }
+
+
+
+  private List<Charger> findSuitableChargers(LineString route, List<Charger> potentialChargers, RouteRequest request) {
+    double maxTravelDistance = calculateMaxTravelDistance(request.getStartingBattery(), request.getMinChargeLevel(), request.getEvRange());
+    logger.info("Max travel distance: " + maxTravelDistance);
+
+    return potentialChargers.stream()
+            .filter(charger -> isChargerWithinTravelDistance(route, charger.getLocation(), maxTravelDistance))
+            .collect(Collectors.toList());
+  }
 
   private double calculateMaxTravelDistance(double startingBattery, double minChargeLevel, double evRange) {
     double usableBattery = startingBattery - minChargeLevel;
     return ((usableBattery / 100) * evRange) * 1000;
-  }
-
-//  public Point travelAlongRoute(LineString route, double maxDistance) {
-//    double cumulativeDistance = 0;
-//    Point lastPoint = (Point) route.getStartPoint();
-//
-//    for (int i = 1; i < route.getNumPoints(); i++) {
-//      Point currentPoint = route.getPointN(i);
-//      GeodesicData g = Geodesic.WGS84.Inverse(lastPoint.getY(), lastPoint.getX(), currentPoint.getY(), currentPoint.getX());
-//      double segmentDistance = g.s12;  // distance in meters
-//
-//      if (i % 10 == 0) {
-//        logger.info("Cumulative distance - pt " + i + " : " + cumulativeDistance);
-//      }
-//
-//      if (cumulativeDistance + segmentDistance > maxDistance) {
-//        return lastPoint; // last valid point before exceeding maxDistance
-//      }
-//
-//      cumulativeDistance += segmentDistance;
-//      lastPoint = currentPoint;
-//    }
-//
-//    return lastPoint;
-//  }
-
-  private List<Charger> findSuitableChargers(LineString route, List<Charger> chargers, RouteRequest request) {
-    double maxTravelDistance = calculateMaxTravelDistance(request.getStartingBattery(), request.getMinChargeLevel(), request.getEvRange());
-    logger.info("Max travel distance: " + maxTravelDistance);
-
-    return chargers.stream()
-            .filter(charger -> isChargerWithinTravelDistance(route, charger.getLocation(), maxTravelDistance))
-            .collect(Collectors.toList());
   }
 
   private boolean isChargerWithinTravelDistance(LineString route, Point chargerLocation, double maxDistance) {
@@ -277,6 +242,7 @@ public class RoutingService {
   private double calculateDistanceAlongRouteToNearestPoint(LineString route, Point chargerLocation) {
     Coordinate[] nearestCoordinatesOnRoute = DistanceOp.nearestPoints(route, chargerLocation);
     Point nearestPointOnRoute = new GeometryFactory().createPoint(nearestCoordinatesOnRoute[0]);
+    nearestPointOnRoute = new GeometryFactory().createPoint(findClosestCoordinateOnLine(route, chargerLocation));
   logger.info("==========Next Charger==========");
     logger.info("Nearest point on route: " + nearestPointOnRoute + " to charger: " + chargerLocation);
 
@@ -290,7 +256,7 @@ public class RoutingService {
 //      if (i % 100 == 0) {
 //        logger.info("Cumulative distance - pt " + i + " : " + cumulativeDistance);
 //      }
-      if (currentPoint.equalsExact(nearestPointOnRoute,0.005) || i == route.getNumPoints() - 1) {
+      if (currentPoint.equalsExact(nearestPointOnRoute,0.000001) || i == route.getNumPoints() - 1) {
         cumulativeDistance += segmentDistance;
         break;
       }
@@ -302,6 +268,24 @@ public class RoutingService {
     logger.info("Cumulative distance: " + cumulativeDistance);
     logger.info("lastPoint: " + lastPoint);
     return cumulativeDistance;
+  }
+
+
+  public Coordinate findClosestCoordinateOnLine(LineString lineString, Point chargerLocation) {
+    double minDistance = Double.MAX_VALUE;
+    Coordinate closestCoordinate = null;
+
+    for (Coordinate coordinate : lineString.getCoordinates()) {
+      GeodesicData geodesicData = Geodesic.WGS84.Inverse(chargerLocation.getY(), chargerLocation.getX(), coordinate.y, coordinate.x);
+      double distance = geodesicData.s12; // dist in meters
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestCoordinate = coordinate;
+      }
+    }
+
+    return closestCoordinate;
   }
 
 
