@@ -55,9 +55,15 @@ public class RouteRequest {
 
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Minimum charge level must be non-negative")
-  @Max(value = 1, message = "Minimum charge level must be less than or equal to 100")
+  @Max(value = 1, message = "Minimum charge level must be less than or equal to 1")
   @JsonProperty("minChargeLevel")
   private Double minChargeLevel = 0.2;
+
+  @JsonSetter(nulls = Nulls.SKIP)
+  @Min(value = 0, message = "Charge level after each stop must be non-negative")
+  @Max(value = 1, message = "Charge level after each stop must be less than or equal to 1")
+  @JsonProperty("chargeLevelAfterEachStop")
+  private Double chargeLevelAfterEachStop = 1.0;
 
   @JsonProperty("connectionTypes")
   private List<ConnectionType> connectionTypes;
@@ -151,4 +157,21 @@ public class RouteRequest {
   @JsonSetter(nulls = Nulls.SKIP)
   @JsonProperty("breakDuration")
   private LocalTime breakDuration = LocalTime.of(1, 0);
+
+  // Route preference
+
+  @JsonSetter(nulls = Nulls.SKIP)
+  @Min(value = 0, message = "Charger search distance from route must be non-negative")
+  @Max(value = 1000, message = "Charger search distance from route must be less than or equal to 1000")
+  @JsonProperty("chargerSearchDistanceFromRoute")
+  private Double chargerSearchDistanceFromRoute = 1000.0;
+
+  @JsonSetter(nulls = Nulls.SKIP)
+  @Min(value = 0, message = "Charger search distance from route must be non-negative")
+  @Max(value = 2000, message = "Charger search distance from route must be less than or equal to 1000")
+  @JsonProperty("chargerSearchDistanceFromRoute")
+  private Double eatingOptionSearchDistanceFromRoute = 2000.0;
+
+
+
 }
