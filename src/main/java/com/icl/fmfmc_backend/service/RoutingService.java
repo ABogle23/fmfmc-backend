@@ -20,12 +20,19 @@ import com.icl.fmfmc_backend.Integration.OSRClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
+
+import org.locationtech.jts.algorithm.*;
+import net.sf.geographiclib.Geodesic;
+import net.sf.geographiclib.GeodesicData;
+
+import org.locationtech.jts.operation.distance.DistanceOp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -57,49 +64,33 @@ public class RoutingService {
     // buffer LineString
     Polygon bufferedLineString =
         GeometryService.bufferLineString(lineString, 0.009); // 500m is 0.0045
-    System.out.println("Original LineString: " + lineString.toText());
-    System.out.println("Buffered Polygon: " + bufferedLineString);
+    System.out.println("Original LineString: " + lineString.toText().substring(0, 100) + "...");
+    System.out.println("Buffered Polygon: " + bufferedLineString.toText().substring(0, 100) + "...");
 
     // Build Route Object with LineString and buffered LineString
     Route route =
         new Route(
             lineString,
             bufferedLineString,
-            osrDirectionsServiceGeoJSONResponse.getFeatures().get(0).getProperties().getSummary().getDistance(),
-            osrDirectionsServiceGeoJSONResponse.getFeatures().get(0).getProperties().getSummary().getDuration());
-
-
+            osrDirectionsServiceGeoJSONResponse
+                .getFeatures()
+                .get(0)
+                .getProperties()
+                .getSummary()
+                .getDistance(),
+            osrDirectionsServiceGeoJSONResponse
+                .getFeatures()
+                .get(0)
+                .getProperties()
+                .getSummary()
+                .getDuration(),
+            routeRequest);
 
     // convert polyline & polygon to Strings
     String polyline = getPolylineAsString(osrDirectionsServiceGeoJSONResponse);
     String tmpPolygon = PolylineUtility.encodePolygon(bufferedLineString);
 
     // find chargers based on buffered LineString
-    List<Charger> chargersWithinPolygon =
-        chargerService.getChargersWithinPolygon(bufferedLineString);
-    //    chargersWithinPolygon =
-    // chargerService.getChargersByConnectionType(routeRequest.getConnectionTypes());
-    //    logger.info("Chargers within query: " + chargersWithinPolygon.size());
-    //    chargersWithinPolygon =
-    // chargerService.getChargersByChargeSpeed(routeRequest.getMinKwChargeSpeed(),
-    // routeRequest.getMaxKwChargeSpeed());
-    //    logger.info("Chargers within query: " + chargersWithinPolygon.size());
-    //    chargersWithinPolygon =
-    // chargerService.getChargersByMinNoChargePoints(routeRequest.getMinNoChargePoints());
-    //    logger.info("Chargers within query: " + chargersWithinPolygon.size());
-    //    chargersWithinPolygon = chargerService.getChargersWithinRadius(new
-    // GeometryFactory().createPoint(new Coordinate(-0.043221, 51.472276)), 1000.0);;
-    //    logger.info("Chargers within query: " + chargersWithinPolygon.size());
-    //    chargersWithinPolygon =
-    //        chargerService.getChargersByParams(
-    //            null,
-    //                new GeometryFactory().createPoint(new
-    // Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())),
-    //            2000.0,
-    //            List.of(ConnectionType.CCS, ConnectionType.CHADEMO, ConnectionType.TYPE2),
-    //            null,
-    //                4,
-    //            null);
 
     ChargerQuery query =
         ChargerQuery.builder()
@@ -113,26 +104,20 @@ public class RoutingService {
             .minNoChargePoints(routeRequest.getMinNoChargePoints())
             .accessTypeIds(routeRequest.getAccessTypes())
             .build();
-    chargersWithinPolygon = chargerService.getChargersByParams(query);
+
+    List<Charger> chargersWithinPolygon = chargerService.getChargersByParams(query);
 
     logger.info("Chargers within query: " + chargersWithinPolygon.size());
 
-    //    chargersWithinPolygon =
-    //            chargerService.findChargersByParam(
-    //                    null,
-    //                    new GeometryFactory().createPoint(new
-    // Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())),
-    //                    2000.0,
-    //                    List.of(ConnectionType.CCS, ConnectionType.CHADEMO, ConnectionType.TYPE2),
-    //                    null,
-    //                    4,
-    //                    null);
-    //    ;
-    //    logger.info("Chargers within query: " + chargersWithinPolygon.size());
+    // filter chargers to those reachable from the route based on battery level
+
+    List<Charger> suitableChargers =
+        findSuitableChargers(route.getLineStringRoute(), chargersWithinPolygon, routeRequest);
+    logger.info("Suitable chargers: " + suitableChargers.size());
 
     // find FoodEstablishments based on buffered LineString
     String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(bufferedLineString);
-    System.out.println("tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat);
+    System.out.println("tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat.substring(0, 100) + "...");
 
     FoursquareRequest params =
         new FoursquareRequestBuilder()
@@ -147,21 +132,19 @@ public class RoutingService {
     // build result
     RouteResult dummyRouteResult =
         getRouteResult(
-            routeRequest,
-            polyline,
-            tmpPolygon,
-            chargersWithinPolygon,
-            foodEstablishmentsWithinPolygon);
+            routeRequest, polyline, tmpPolygon, suitableChargers, foodEstablishmentsWithinPolygon);
 
     return dummyRouteResult;
   }
+
+  /* Assisting Functions */
 
   private static String getPolylineAsString(
       OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse) {
     List<GeoCoordinates> routeCoordinates =
         osrDirectionsServiceGeoJSONResponse.getFeatures().get(0).getGeometry().getCoordinates();
     String polyline = PolylineUtility.encodeGeoCoordinatesToPolyline(routeCoordinates);
-    System.out.println("Encoded Polyline: " + polyline);
+    System.out.println("Encoded Polyline: " + polyline.substring(0, 100) + "...");
     return polyline;
   }
 
@@ -230,7 +213,96 @@ public class RoutingService {
 
     return formattedString.toString();
   }
-}
 
-// [[-5.527232277582699,50.125797154650854],[-5.230125079140789,50.232877561473444],[-4.78339855527325,50.291757884188414]]
-// [[-3.5406341629140705,50.71676536226637],[-3.5473912531536964,50.71491264223052],[-3.54012814556695,50.70548427596927]]
+  // ROUTING RELATED FUNCTIONS
+
+//  private List<Charger> findSuitableChargers(
+//      LineString route, List<Charger> chargers, RouteRequest request) {
+//    double maxTravelDistance =
+//        calculateMaxTravelDistance(
+//            request.getStartingBattery(), request.getMinChargeLevel(), request.getEvRange());
+//    logger.info("Max travel distance: " + maxTravelDistance);
+//    Point lastPointBeforeRecharge = travelAlongRoute(route, maxTravelDistance);
+//    logger.info("Last point before recharge: " + lastPointBeforeRecharge);
+//    return chargers.stream()
+//        .filter(
+//            charger -> charger.getLocation().distance(lastPointBeforeRecharge) <= maxTravelDistance)
+//        .collect(Collectors.toList());
+//  }
+
+  private double calculateMaxTravelDistance(double startingBattery, double minChargeLevel, double evRange) {
+    double usableBattery = startingBattery - minChargeLevel;
+    return ((usableBattery / 100) * evRange) * 1000;
+  }
+
+//  public Point travelAlongRoute(LineString route, double maxDistance) {
+//    double cumulativeDistance = 0;
+//    Point lastPoint = (Point) route.getStartPoint();
+//
+//    for (int i = 1; i < route.getNumPoints(); i++) {
+//      Point currentPoint = route.getPointN(i);
+//      GeodesicData g = Geodesic.WGS84.Inverse(lastPoint.getY(), lastPoint.getX(), currentPoint.getY(), currentPoint.getX());
+//      double segmentDistance = g.s12;  // distance in meters
+//
+//      if (i % 10 == 0) {
+//        logger.info("Cumulative distance - pt " + i + " : " + cumulativeDistance);
+//      }
+//
+//      if (cumulativeDistance + segmentDistance > maxDistance) {
+//        return lastPoint; // last valid point before exceeding maxDistance
+//      }
+//
+//      cumulativeDistance += segmentDistance;
+//      lastPoint = currentPoint;
+//    }
+//
+//    return lastPoint;
+//  }
+
+  private List<Charger> findSuitableChargers(LineString route, List<Charger> chargers, RouteRequest request) {
+    double maxTravelDistance = calculateMaxTravelDistance(request.getStartingBattery(), request.getMinChargeLevel(), request.getEvRange());
+    logger.info("Max travel distance: " + maxTravelDistance);
+
+    return chargers.stream()
+            .filter(charger -> isChargerWithinTravelDistance(route, charger.getLocation(), maxTravelDistance))
+            .collect(Collectors.toList());
+  }
+
+  private boolean isChargerWithinTravelDistance(LineString route, Point chargerLocation, double maxDistance) {
+    double distanceToCharger = calculateDistanceAlongRouteToNearestPoint(route, chargerLocation);
+    logger.info("Distance to charger: " + distanceToCharger);
+    return distanceToCharger <= maxDistance;
+  }
+
+  private double calculateDistanceAlongRouteToNearestPoint(LineString route, Point chargerLocation) {
+    Coordinate[] nearestCoordinatesOnRoute = DistanceOp.nearestPoints(route, chargerLocation);
+    Point nearestPointOnRoute = new GeometryFactory().createPoint(nearestCoordinatesOnRoute[0]);
+  logger.info("==========Next Charger==========");
+    logger.info("Nearest point on route: " + nearestPointOnRoute + " to charger: " + chargerLocation);
+
+    double cumulativeDistance = 0;
+    Point lastPoint = (Point) route.getStartPoint();
+
+    for (int i = 1; i < route.getNumPoints(); i++) {
+      Point currentPoint = route.getPointN(i);
+      GeodesicData g = Geodesic.WGS84.Inverse(lastPoint.getY(), lastPoint.getX(), currentPoint.getY(), currentPoint.getX());
+      double segmentDistance = g.s12; // distance in meters
+//      if (i % 100 == 0) {
+//        logger.info("Cumulative distance - pt " + i + " : " + cumulativeDistance);
+//      }
+      if (currentPoint.equalsExact(nearestPointOnRoute,0.005) || i == route.getNumPoints() - 1) {
+        cumulativeDistance += segmentDistance;
+        break;
+      }
+
+      cumulativeDistance += segmentDistance;
+      lastPoint = currentPoint;
+    }
+
+    logger.info("Cumulative distance: " + cumulativeDistance);
+    logger.info("lastPoint: " + lastPoint);
+    return cumulativeDistance;
+  }
+
+
+}
