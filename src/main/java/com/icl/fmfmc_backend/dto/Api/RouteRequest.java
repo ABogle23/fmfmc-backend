@@ -160,16 +160,20 @@ public class RouteRequest {
 
   // Route preference
 
+  // TODO: not yet implemented into Routing Service
+
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Charger search distance from route must be non-negative")
   @Max(value = 1000, message = "Charger search distance from route must be less than or equal to 1000")
   @JsonProperty("chargerSearchDistanceFromRoute")
   private Double chargerSearchDistanceFromRoute = 1000.0;
 
+  // TODO: not yet implemented into Routing Service
+
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Charger search distance from route must be non-negative")
   @Max(value = 2000, message = "Charger search distance from route must be less than or equal to 1000")
-  @JsonProperty("chargerSearchDistanceFromRoute")
+  @JsonProperty("eatingOptionSearchDistanceFromRoute")
   private Double eatingOptionSearchDistanceFromRoute = 2000.0;
 
 
