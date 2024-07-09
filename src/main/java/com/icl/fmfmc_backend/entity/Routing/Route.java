@@ -53,4 +53,8 @@ public class Route {
     chargersOnRoute.add(charger);
   }
 
+  public void rechargeBattery(Double chargeLevel) {
+    currentBattery = evRange * chargeLevel;
+  }
+
 }

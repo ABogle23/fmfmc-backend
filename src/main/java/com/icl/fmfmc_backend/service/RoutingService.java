@@ -220,7 +220,7 @@ public class RoutingService {
   private List<Charger> findSuitableChargers(Route route, List<Charger> potentialChargers) {
     Double maxTravelDistance =
         calculateMaxTravelDistance(
-            route.getCurrentBattery(), route.getMinChargeLevel(), route.getEvRange());
+            route);
     logger.info("Max travel distance: " + maxTravelDistance);
 
     LinkedHashMap<Charger, Double> chargerDistanceMap = new LinkedHashMap<>();
@@ -250,15 +250,13 @@ public class RoutingService {
 //                    route.getLineStringRoute(), charger.getLocation(), maxTravelDistance))
 //        .collect(Collectors.toList());
 
-    return findChargersAtIntervals(chargerDistanceMap, maxTravelDistance, route.getRouteLength());
+    return findChargersAtIntervals(chargerDistanceMap, route);
 
 
   }
 
-  private Double calculateMaxTravelDistance(
-      Double currentBattery, Double minChargeLevel, Double evRange) {
-    Double usableBattery = currentBattery - minChargeLevel;
-    return usableBattery;
+  private Double calculateMaxTravelDistance(Route route) {
+    return route.getCurrentBattery() - route.getMinChargeLevel();
   }
 
   private boolean isChargerWithinTravelDistance(
@@ -331,18 +329,21 @@ public class RoutingService {
     return closestCoordinate;
   }
 
-  private List<Charger> findChargersAtIntervals(LinkedHashMap<Charger, Double> sortedChargers, Double intervalDistance, Double totalRouteLength) {
+  private List<Charger> findChargersAtIntervals(LinkedHashMap<Charger, Double> sortedChargers, Route route) {
+
+    // TODO: optimise this to pick fastest chargers if reasonably close to interval, potentially make this a param.
+
     List<Charger> chargersAtIntervals = new ArrayList<>();
-    Double nextTargetDistance = intervalDistance;
+    Double nextTargetDistance = route.getCurrentBattery();
     Charger closestCharger = null;
     Double closestDistance = Double.MAX_VALUE;
 
-    logger.info("Total route length: " + totalRouteLength);
+    logger.info("Total route length: " + route.getRouteLength());
 
     // stop if charger is beyond the total route length
     for (Map.Entry<Charger, Double> entry : sortedChargers.entrySet()) {
       Double chargerDistance = entry.getValue();
-      if (chargerDistance > totalRouteLength) {
+      if (chargerDistance > route.getRouteLength()) {
         break;
       }
 
@@ -358,9 +359,12 @@ public class RoutingService {
           chargersAtIntervals.add(closestCharger);
           closestCharger = null; // reset for  next interval
           closestDistance = Double.MAX_VALUE;
-          nextTargetDistance += intervalDistance;
+
+          route.rechargeBattery(1.0); // recharge to full
+          logger.info("Recharging to full");
+          nextTargetDistance += calculateMaxTravelDistance(route);
           // stop if the next interval is beyond the route end
-          if (nextTargetDistance > totalRouteLength) break;
+          if (nextTargetDistance > route.getRouteLength()) break;
         }
 
         // check if the current charger should be considered for next interval

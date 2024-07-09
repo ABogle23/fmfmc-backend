@@ -48,6 +48,9 @@ public class RouteController {
 
     logger.info("Route is valid");
     RouteResult dummyRouteResult = routingService.getRoute(routeRequest);
+
+    //TODO: handle situation where no route can be found given the constraints
+
     logger.info("Returning route result");
     return ResponseEntity.ok(dummyRouteResult);
 
