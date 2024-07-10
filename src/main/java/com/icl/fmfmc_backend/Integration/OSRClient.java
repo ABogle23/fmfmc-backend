@@ -7,6 +7,7 @@ import com.icl.fmfmc_backend.exception.CommonResponseHandler;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -26,6 +27,9 @@ public class OSRClient {
     private final WebClient.Builder webClientBuilder = WebClient.builder();
 
     public OSRDirectionsServiceGeoJSONResponse getDirectionsGeoJSON(OSRDirectionsServiceGeoJSONRequest requestDto) {
+        int bufferSize = 16 * 1024 * 1024; // 16 MB
+        int timeoutSeconds = 180;
+
         WebClient webClient = buildWebClient();
 
         String baseUrl = orsProperties.getOSRDirectionsServiceBaseUrl();
@@ -47,11 +51,18 @@ public class OSRClient {
     }
 
     private WebClient buildWebClient() {
-        // Add headers e.g. api key
+        int bufferSize = 16 * 1024 * 1024; // Increase buffer size to 16 MB
+
+        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
+                .codecs(clientCodecConfigurer -> {
+                    clientCodecConfigurer.defaultCodecs().maxInMemorySize(bufferSize);
+                }).build();
+
         return webClientBuilder
                 .baseUrl(orsProperties.getOSRDirectionsServiceBaseUrl())
-                .defaultHeader(HttpHeaders.AUTHORIZATION,orsProperties.getApiKey())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, orsProperties.getApiKey())
                 .defaultHeader(HttpHeaders.ACCEPT, "application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8")
+                .exchangeStrategies(exchangeStrategies)
                 .build();
     }
 
