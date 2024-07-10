@@ -39,8 +39,8 @@ public class RouteRequest {
   // vehicle info
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @Min(value = 0, message = "Starting battery must be non-negative")
-  @Max(value = 1, message = "Starting battery must be non-negative")
+  @Min(value = 0, message = "Starting battery must be greater than 0")
+  @Max(value = 1, message = "Starting battery must be less than or equal to 1")
   @JsonProperty("startingBattery")
   private Double startingBattery = 1.0;
 

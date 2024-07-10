@@ -31,6 +31,7 @@ public class OpenChargeMapClient {
   private final OpenChargeMapProperties openChargeMapProperties;
   private final ChargerService chargerService;
 
+  // TODO: clean up methods
   public void getChargerFromOpenChargeMapApi(MultiValueMap<String, String> parameters) {
     int bufferSize = 64 * 1024 * 1024; // 64 MB
     int timeoutSeconds = 180;

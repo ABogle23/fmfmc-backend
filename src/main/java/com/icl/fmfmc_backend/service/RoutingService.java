@@ -151,18 +151,15 @@ public class RoutingService {
 
     List<Double[]> routeCoordinates = new ArrayList<>();
 
-    Point startPoint = route.getLineStringRoute().getStartPoint();
-    Double[] startCoordinates = {startPoint.getX(), startPoint.getY()};
+    Double[] startCoordinates = getPointAsDouble(route.getLineStringRoute().getStartPoint());
     routeCoordinates.add(startCoordinates);
 
     for (Charger charger : suitableChargers) {
-      Point chargerLocation = charger.getLocation();
-      Double[] chargerCoordinates = {chargerLocation.getX(), chargerLocation.getY()};
+      Double[] chargerCoordinates = getPointAsDouble(charger.getLocation());
       routeCoordinates.add(chargerCoordinates);
     }
 
-    Point endPoint = route.getLineStringRoute().getEndPoint();
-    Double[] endCoordinates = {endPoint.getX(), endPoint.getY()};
+    Double[] endCoordinates = getPointAsDouble(route.getLineStringRoute().getEndPoint());
     routeCoordinates.add(endCoordinates);
 
 
@@ -180,6 +177,10 @@ public class RoutingService {
 
 
     return lineString;
+  }
+
+  private Double[] getPointAsDouble(Point point) {
+    return new Double[]{point.getX(), point.getY()};
   }
 
   /* Assisting Functions */
@@ -223,24 +224,6 @@ public class RoutingService {
         osrClient.getDirectionsGeoJSON(osrDirectionsServiceGeoJSONRequest);
     return osrDirectionsServiceGeoJSONResponse;
   }
-
-  private OSRDirectionsServiceGeoJSONResponse getOsrDirectionsServiceGeoJSONResponseMultiPoint(
-          RouteRequest routeRequest) {
-    logger.info("Fetching optimised route");
-    Double[] start = {routeRequest.getStartLong(), routeRequest.getStartLat()};
-    Double[] end = {routeRequest.getEndLong(), routeRequest.getEndLat()};
-    List<Double[]> startAndEndCoordinates = List.of(start, end);
-
-    OSRDirectionsServiceGeoJSONRequest osrDirectionsServiceGeoJSONRequest =
-            new OSRDirectionsServiceGeoJSONRequest(startAndEndCoordinates);
-
-    System.out.println(osrDirectionsServiceGeoJSONRequest);
-
-    OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse =
-            osrClient.getDirectionsGeoJSON(osrDirectionsServiceGeoJSONRequest);
-    return osrDirectionsServiceGeoJSONResponse;
-  }
-
 
   public static String polygonStringToFoursquareFormat(Polygon polygon) {
 

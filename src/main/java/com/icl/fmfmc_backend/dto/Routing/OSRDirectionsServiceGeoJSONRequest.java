@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 public class OSRDirectionsServiceGeoJSONRequest {
 
-  // Default constructor
+  // default constructor
   private OSRDirectionsServiceGeoJSONRequest() {
     //    this.alternativeRoutes = new AlternativeRoutes(1);
     this.attributes = List.of("avgspeed", "detourfactor", "percentage");
@@ -23,9 +23,9 @@ public class OSRDirectionsServiceGeoJSONRequest {
     this.units = "m";
   }
 
-  // Additional constructor that allows overriding default values
+  // additional constructor that allows overriding default values
   public OSRDirectionsServiceGeoJSONRequest(List<Double[]> coordinates) {
-    this(); // Call the default constructor to set defaults
+    this(); // call the default constructor to set defaults
     this.coordinates = coordinates; // Override coordinates
   }
 
