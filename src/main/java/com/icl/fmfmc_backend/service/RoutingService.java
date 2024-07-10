@@ -46,7 +46,7 @@ public class RoutingService {
   private final GeometryService geometryService;
 
   public RouteResult getRoute(RouteRequest routeRequest) {
-    logger.info("Fetching route from routing service");
+    logger.info("Fetching initial route from routing service");
 
     // get initial route
     Double[] startCoordinates = {routeRequest.getStartLong(), routeRequest.getStartLat()};
@@ -149,6 +149,8 @@ public class RoutingService {
 
   private LineString snapRouteToStops(Route route, List<Charger> suitableChargers) {
 
+    logger.info("Snapping route to stops");
+
     List<Double[]> routeCoordinates = new ArrayList<>();
 
     Double[] startCoordinates = getPointAsDouble(route.getLineStringRoute().getStartPoint());
@@ -174,7 +176,6 @@ public class RoutingService {
                             .get(0)
                             .getGeometry()
                             .getCoordinates());
-
 
     return lineString;
   }
@@ -213,7 +214,7 @@ public class RoutingService {
 
   private OSRDirectionsServiceGeoJSONResponse getOsrDirectionsServiceGeoJSONResponse(
       List<Double[]> coordinates) {
-    logger.info("Fetching initial route");
+//    logger.info("Fetching initial route");
 
     OSRDirectionsServiceGeoJSONRequest osrDirectionsServiceGeoJSONRequest =
         new OSRDirectionsServiceGeoJSONRequest(coordinates);
@@ -298,7 +299,12 @@ public class RoutingService {
   }
 
   private Double calculateMaxTravelDistance(Route route) {
-    return route.getCurrentBattery() - route.getMinChargeLevel();
+    Double useableBattery = route.getCurrentBattery() - route.getMinChargeLevel();
+    if (useableBattery < route.getMinChargeLevel()) {
+      return route.getCurrentBattery(); // if battery is below minChargeLevel return current battery
+    } else {
+      return useableBattery;
+    }
   }
 
   private boolean isChargerWithinTravelDistance(
@@ -374,17 +380,20 @@ public class RoutingService {
   private List<Charger> findChargersAtIntervals(LinkedHashMap<Charger, Double> sortedChargers, Route route) {
 
     // TODO: optimise this to pick fastest chargers if reasonably close to interval, potentially make this a param.
-
+    // TODO: Calc charge time
     List<Charger> chargersAtIntervals = new ArrayList<>();
-    Double nextTargetDistance = route.getCurrentBattery();
+    Double nextTargetDistance = calculateMaxTravelDistance(route);
     Charger closestCharger = null;
     Double closestDistance = Double.MAX_VALUE;
+    Double lastChargerDistance = 0.0; // to track the last chargers dist to calc current battery lvls
 
     logger.info("Total route length: " + route.getRouteLength());
 
     // stop if charger is beyond the total route length
     for (Map.Entry<Charger, Double> entry : sortedChargers.entrySet()) {
       Double chargerDistance = entry.getValue();
+
+      // safety check
       if (chargerDistance > route.getRouteLength()) {
         break;
       }
@@ -395,39 +404,62 @@ public class RoutingService {
           closestCharger = entry.getKey();
           closestDistance = chargerDistance;
         }
-      } else {
+      }
+      else {
         // once charger distance exceeds the target, add the last closest charger and move to next interval
         if (closestCharger != null) {
           chargersAtIntervals.add(closestCharger);
-          closestCharger = null; // reset for  next interval
-          closestDistance = Double.MAX_VALUE;
 
+          // calc range used up to this charger and update
+          Double distanceTraveled = closestDistance - lastChargerDistance;
+          lastChargerDistance = closestDistance;  // update the last charger's distance
+          route.setCurrentBattery(route.getCurrentBattery() - distanceTraveled);
+          logger.info("Battery at: " + route.getCurrentBattery() + " m");
           route.rechargeBattery(); // recharge to getChargeLevelAfterEachStopPct (defaults to 90%)
-          logger.info("Recharging to full");
-          nextTargetDistance += calculateMaxTravelDistance(route);
+          logger.info("Recharging battery to: " + route.getCurrentBattery() + " m");
+          nextTargetDistance = closestDistance + calculateMaxTravelDistance(route);  // calc next interval distance
           // stop if the next interval is beyond the route end
           if (nextTargetDistance > route.getRouteLength()) break;
+          closestCharger = null; // reset for  next interval
+          closestDistance = Double.MAX_VALUE;
         }
 
         // check if the current charger should be considered for next interval
-        if (chargerDistance <= nextTargetDistance) {
-          closestCharger = entry.getKey();
-          closestDistance = chargerDistance;
-        }
+//        if (chargerDistance <= nextTargetDistance) {
+//          closestCharger = entry.getKey();
+//          closestDistance = chargerDistance;
+//        }
       }
     }
 
-    // add the last found closest charger if any
-    if (closestCharger != null) {
+    // add the last found closest charger if any and not already added
+    if (closestCharger != null && !chargersAtIntervals.contains(closestCharger)) {
       chargersAtIntervals.add(closestCharger);
+      double finalSegmentDistance = closestDistance - lastChargerDistance;
+      route.setCurrentBattery(route.getCurrentBattery() - (finalSegmentDistance));
+      logger.info("Battery at: " + route.getCurrentBattery() + " m");
+      route.rechargeBattery();
+      logger.info("Recharging battery to: " + route.getCurrentBattery() + " m");
     }
 
+    // final update to battery level at route end
+    route.setCurrentBattery(route.getCurrentBattery() - (route.getRouteLength() - closestDistance));
+
+//    for (Charger charger : chargersAtIntervals) {
+//      logger.info("Charger Location: " + charger.getLocation());
+//    }
+
+    logger.info("Distances for chargers added to chargersAtIntervals:");
     for (Charger charger : chargersAtIntervals) {
-      logger.info("Charger Location: " + charger.getLocation());
+      Double distance = sortedChargers.get(charger);
+      logger.info("Charger ID: " + charger.getId() + ", Distance: " + distance + " m");
     }
+    logger.info("Charge level at end of route: " + route.getCurrentBattery() + " m");
 
     return chargersAtIntervals;
   }
+
+
 
 
   public void printChargerDistanceMap(LinkedHashMap<Charger, Double> map) {

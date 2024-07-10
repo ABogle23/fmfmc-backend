@@ -33,7 +33,7 @@ public class OSRClient {
         WebClient webClient = buildWebClient();
 
         String baseUrl = orsProperties.getOSRDirectionsServiceBaseUrl();
-        logger.info("Base URL from properties: {}", baseUrl);
+//        logger.info("Base URL from properties: {}", baseUrl);
 
         logger.info("Attempting to fetch directions from OpenRouteService");
 
@@ -68,8 +68,8 @@ public class OSRClient {
 
     private OSRDirectionsServiceGeoJSONResponse processDirectionsResponse(OSRDirectionsServiceGeoJSONResponse response) {
         // TODO process response
-        System.out.println(response);
-        logger.info("Successfully fetched and processed directions");
+//        System.out.println(response);
+//        logger.info("Successfully fetched and processed directions");
         return response;
     }
 

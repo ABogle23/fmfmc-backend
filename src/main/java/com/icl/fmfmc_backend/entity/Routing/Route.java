@@ -41,8 +41,12 @@ public class Route {
 
   private Double chargeLevelAfterEachStop;
 
-  //TODO consider weather conditions in range calculation
+  private Double chargeLevelAtDestination;
 
+
+  // TODO: consider weather conditions in range calculation
+  // TODO: detailed segment information with distance and timings
+  // TODO: expand duration calculation to include charging time
   public Route(
       LineString route,
       Polygon bufferedLineString,
