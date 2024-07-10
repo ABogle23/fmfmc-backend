@@ -50,6 +50,10 @@ public class RouteRequest {
   @JsonProperty("evRange") // metres
   private Double evRange = 300000.0;
 
+  @Min(value = 1, message = "Battery capacity must be greater than 0")
+  @JsonProperty("batterySize") // kWh
+  private Double batteryCapacity;
+
   // charging preferences
   // TODO: add connectortype, speed, network operator, minNoChargePoints
 

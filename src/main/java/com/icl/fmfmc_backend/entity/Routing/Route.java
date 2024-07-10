@@ -31,6 +31,8 @@ public class Route {
 
   private Double evRange;
 
+  private Double batteryCapacity; // kWh
+
   private Double minChargeLevelPct;
 
   private Double minChargeLevel;
@@ -38,6 +40,8 @@ public class Route {
   private Double chargeLevelAfterEachStopPct;
 
   private Double chargeLevelAfterEachStop;
+
+  //TODO consider weather conditions in range calculation
 
   public Route(
       LineString route,
@@ -54,7 +58,17 @@ public class Route {
     this.minChargeLevelPct = routeRequest.getMinChargeLevel();
     this.minChargeLevel = routeRequest.getMinChargeLevel() * routeRequest.getEvRange();
     this.chargeLevelAfterEachStopPct = routeRequest.getChargeLevelAfterEachStop();
-    this.chargeLevelAfterEachStop = routeRequest.getChargeLevelAfterEachStop() * routeRequest.getEvRange();
+    this.chargeLevelAfterEachStop =
+        routeRequest.getChargeLevelAfterEachStop() * routeRequest.getEvRange();
+
+    if (routeRequest.getBatteryCapacity() != null) {
+      this.batteryCapacity = routeRequest.getBatteryCapacity();
+    }
+    else {
+        this.batteryCapacity = (routeRequest.getEvRange() * 200) / 1000000; // guesstimate
+    }
+    System.out.println("Battery capacity: " + this.batteryCapacity);
+
   }
 
   public void addChargerToRoute(Charger charger) {
@@ -64,5 +78,4 @@ public class Route {
   public void rechargeBattery() {
     currentBattery = evRange * chargeLevelAfterEachStopPct;
   }
-
 }
