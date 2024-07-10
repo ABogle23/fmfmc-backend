@@ -32,6 +32,7 @@ public class RouteController {
 
   @PostMapping("/find-route")
   public ResponseEntity<?> findRoute(@Valid @RequestBody RouteRequest routeRequest) {
+    long startTime = System.currentTimeMillis();
     logger.info("Received route request: {}", routeRequest);
 
 //    if (bindingResult.hasErrors()) {
@@ -51,7 +52,10 @@ public class RouteController {
 
     //TODO: handle situation where no route can be found given the constraints
 
-    logger.info("Returning route result");
+    long endTime = System.currentTimeMillis();
+    Double duration = (endTime - startTime) / 1000.0;
+
+    logger.info(String.format("Returning route result to client, Processing time: %.2f s", duration));
     return ResponseEntity.ok(dummyRouteResult);
 
 //
