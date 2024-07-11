@@ -15,7 +15,9 @@ public class RouteResult {
 
   private String routePolyline;
 
-  private String tmpPolygon;
+  private String chargerPolygon;
+
+  private String eatingOptionPolygon;
 
   private Double distance;
 

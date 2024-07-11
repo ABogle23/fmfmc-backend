@@ -96,6 +96,8 @@ public class RoutingService {
 
     // find chargers based on buffered LineString
 
+    long startTime = System.currentTimeMillis();
+
     ChargerQuery query =
         ChargerQuery.builder()
             .polygon(bufferedLineString)
@@ -110,6 +112,11 @@ public class RoutingService {
             .build();
 
     List<Charger> chargersWithinPolygon = chargerService.getChargersByParams(query);
+
+    long endTime = System.currentTimeMillis();
+    Double duration = (endTime - startTime) / 1000.0;
+    logger.info(String.format("Processing chargers SQL query, Processing time: %.2f s", duration));
+
 
     logger.info("Chargers within query: " + chargersWithinPolygon.size());
 
@@ -126,7 +133,8 @@ public class RoutingService {
 
     // find FoodEstablishments based on buffered LineString
     String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(bufferedLineString);
-    System.out.println(
+    logger.info("Fetching food establishments within polygon from Foursquare, Str Len: {}", tmpPolygonFoursquareFormat.length());
+    logger.info(
         "tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat.substring(0, 100) + "...");
 
     FoursquareRequest params =
@@ -135,14 +143,14 @@ public class RoutingService {
             .setPolygon(tmpPolygonFoursquareFormat)
             .createFoursquareRequest();
 
-    //    List<FoodEstablishment> foodEstablishmentsWithinPolygon =
-    //        foodEstablishmentService.getFoodEstablishmentsByParam(params);
+//        List<FoodEstablishment> foodEstablishmentsWithinPolygon =
+//            foodEstablishmentService.getFoodEstablishmentsByParam(params);
     List<FoodEstablishment> foodEstablishmentsWithinPolygon = Collections.emptyList();
 
     // build result
     RouteResult dummyRouteResult =
         getRouteResult(
-            routeRequest, polyline, tmpPolygon, suitableChargers, foodEstablishmentsWithinPolygon);
+            routeRequest, polyline, tmpPolygon, tmpPolygonFoursquareFormat, suitableChargers, foodEstablishmentsWithinPolygon);
 
     return dummyRouteResult;
   }
@@ -199,6 +207,7 @@ public class RoutingService {
       RouteRequest routeRequest,
       String polyline,
       String tmpPolygon,
+      String tmpPolygonFoursquareFormat,
       List<Charger> chargers,
       List<FoodEstablishment> foodEstablishments) {
     //    List<Charger> chargers = chargerService.getAllChargers();
@@ -208,7 +217,7 @@ public class RoutingService {
     //            .collect(Collectors.toList());
     RouteResult dummyRouteResult =
         new RouteResult(
-            polyline, tmpPolygon, 100.0, 3600.0, chargers, foodEstablishments, routeRequest);
+            polyline, tmpPolygon, tmpPolygonFoursquareFormat, 100.0, 3600.0, chargers, foodEstablishments, routeRequest);
     return dummyRouteResult;
   }
 

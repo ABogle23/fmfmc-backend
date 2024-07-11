@@ -16,7 +16,7 @@ public enum FoodCategory implements FmfmcEnum {
   GLUTEN_FREE_RESTAURANT("Gluten Free Restaurant","glutenFreeRestaurant"),
   BARBECUE("Barbecue","barbecue"),
   BURGER_JOINT("Burger Joint","burgerJoint"),
-  PIZZA_SHOP("Pizza Shop","pizzaShop"),
+  PIZZA_RESTAURANT("Pizza Restaurant","pizzaRestaurant"),
   MEXICAN_RESTAURANT("Mexican Restaurant","mexicanRestaurant"),
   FINE_DINING("Fine Dining","fineDining"),
   CASUAL_DINING("Casual Dining","casualDining"),
@@ -27,6 +27,7 @@ public enum FoodCategory implements FmfmcEnum {
   RAMEN_SHOP("Ramen Shop","ramenShop"),
   TAPAS_BAR("Tapas Bar","tapasBar"),
   DINER("Diner","diner"),
+  GREEK_RESTAURANT("Greek Restaurant","greekRestaurant"),
 
   // Sub-categories under Cafe
   INTERNET_CAFE("Internet Cafe","internetCafe"),
