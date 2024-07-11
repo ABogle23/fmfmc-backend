@@ -72,23 +72,25 @@ public class RoutingService {
         "Buffered Polygon: " + bufferedLineString.toText().substring(0, 100) + "...");
 
     // Build Route Object with LineString and buffered LineString
-    Route route =
-        new Route(
-            lineString,
-            bufferedLineString,
-            osrDirectionsServiceGeoJSONResponse
-                .getFeatures()
-                .get(0)
-                .getProperties()
-                .getSummary()
-                .getDistance(),
-            osrDirectionsServiceGeoJSONResponse
-                .getFeatures()
-                .get(0)
-                .getProperties()
-                .getSummary()
-                .getDuration(),
-            routeRequest);
+//    Route route =
+//        new Route(
+//            lineString,
+//            bufferedLineString,
+//            osrDirectionsServiceGeoJSONResponse
+//                .getFeatures()
+//                .get(0)
+//                .getProperties()
+//                .getSummary()
+//                .getDistance(),
+//            osrDirectionsServiceGeoJSONResponse
+//                .getFeatures()
+//                .get(0)
+//                .getProperties()
+//                .getSummary()
+//                .getDuration(),
+//            routeRequest);
+      Route route = new Route(osrDirectionsServiceGeoJSONResponse, routeRequest);
+
 
     // convert polyline & polygon to Strings
     String polyline = getPolylineAsString(osrDirectionsServiceGeoJSONResponse);
@@ -156,7 +158,15 @@ public class RoutingService {
     // build result
     RouteResult dummyRouteResult =
         getRouteResult(
-            routeRequest, polyline, tmpPolygon, tmpPolygonFoursquareFormat, suitableChargers, foodEstablishmentsWithinPolygon);
+            routeRequest,
+                polyline,
+                tmpPolygon,
+                tmpPolygonFoursquareFormat,
+                route.getRouteLength(),
+                route.getRouteDuration(),
+                route.getSegmentDetails(),
+                suitableChargers,
+                foodEstablishmentsWithinPolygon);
 
     return dummyRouteResult;
   }
@@ -191,6 +201,10 @@ public class RoutingService {
                             .getGeometry()
                             .getCoordinates());
 
+    // set segments
+    route.setDurationsAndDistances(osrDirectionsServiceGeoJSONResponse);
+    route.setTotalDurationAndDistance(osrDirectionsServiceGeoJSONResponse);
+
     return lineString;
   }
 
@@ -215,16 +229,15 @@ public class RoutingService {
       String polyline,
       String tmpPolygon,
       String tmpPolygonFoursquareFormat,
+      Double totalDistance,
+      Double totalDuration,
+      Route.SegmentDetails segmentDetails,
       List<Charger> chargers,
       List<FoodEstablishment> foodEstablishments) {
-    //    List<Charger> chargers = chargerService.getAllChargers();
-    //    List<FoodEstablishment> foodEstablishments =
-    //        foodEstablishmentService.getAllFoodEstablishments().stream()
-    //            .limit(2)
-    //            .collect(Collectors.toList());
+
     RouteResult dummyRouteResult =
         new RouteResult(
-            polyline, tmpPolygon, tmpPolygonFoursquareFormat, 100.0, 3600.0, chargers, foodEstablishments, routeRequest);
+            polyline, tmpPolygon, tmpPolygonFoursquareFormat, totalDistance, totalDuration, segmentDetails, chargers, foodEstablishments, routeRequest);
     return dummyRouteResult;
   }
 
