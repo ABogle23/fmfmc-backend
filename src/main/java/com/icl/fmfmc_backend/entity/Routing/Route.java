@@ -41,7 +41,9 @@ public class Route {
 
   private Double chargeLevelAfterEachStop;
 
-  private Double chargeLevelAtDestination;
+  private Double finalDestinationChargeLevelPct;
+
+  private Double finalDestinationChargeLevel;
 
 
   // TODO: consider weather conditions in range calculation
@@ -64,6 +66,9 @@ public class Route {
     this.chargeLevelAfterEachStopPct = routeRequest.getChargeLevelAfterEachStop();
     this.chargeLevelAfterEachStop =
         routeRequest.getChargeLevelAfterEachStop() * routeRequest.getEvRange();
+    this.finalDestinationChargeLevelPct = routeRequest.getFinalDestinationChargeLevel();
+    this.finalDestinationChargeLevel =
+            routeRequest.getFinalDestinationChargeLevel() * routeRequest.getEvRange();
 
     if (routeRequest.getBatteryCapacity() != null) {
       this.batteryCapacity = routeRequest.getBatteryCapacity();
