@@ -132,10 +132,16 @@ public class RoutingService {
 
 
     // find FoodEstablishments based on buffered LineString
-    String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(bufferedLineString);
+
+    Polygon foursquareBufferedLineString =
+            GeometryService.bufferLineString(lineString, 0.018); // 500m is 0.0045
+    String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(foursquareBufferedLineString);
     logger.info("Fetching food establishments within polygon from Foursquare, Str Len: {}", tmpPolygonFoursquareFormat.length());
-    logger.info(
-        "tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat.substring(0, 100) + "...");
+    if (tmpPolygonFoursquareFormat.length() > 100) {
+      logger.info("tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat.substring(0, 100) + "...");
+    } else {
+      logger.info("tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat);
+    }
 
     FoursquareRequest params =
         new FoursquareRequestBuilder()
@@ -192,6 +198,7 @@ public class RoutingService {
     return new Double[]{point.getX(), point.getY()};
   }
 
+
   /* Assisting Functions */
 
   private static String getPolylineAsString(
@@ -237,7 +244,7 @@ public class RoutingService {
 
   public static String polygonStringToFoursquareFormat(Polygon polygon) {
 
-    int step = 40;
+    int step = 75;
     Coordinate[] coordinates = polygon.getExteriorRing().getCoordinates();
     StringBuilder formattedString = new StringBuilder();
 

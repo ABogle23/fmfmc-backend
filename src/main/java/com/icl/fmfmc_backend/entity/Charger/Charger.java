@@ -76,7 +76,7 @@ public class Charger {
   private LocalDateTime updatedAt;
 
   @JsonIgnore
-  @Column(columnDefinition = "Point")
+  @Column(columnDefinition = "Point", nullable = false)
   private Point location;
 
 //  @PrePersist
