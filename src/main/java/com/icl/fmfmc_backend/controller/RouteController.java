@@ -50,7 +50,9 @@ public class RouteController {
     logger.info("Route is valid");
     RouteResult dummyRouteResult = routingService.getRoute(routeRequest);
 
-    //TODO: handle situation where no route can be found given the constraints
+    /* TODO: handle situation where no route can be found given the constraints
+             perhaps return a "404 with a message saying no route can be found"
+             or relax the constraints and try again on the clients behalf.   */
 
     long endTime = System.currentTimeMillis();
     Double duration = (endTime - startTime) / 1000.0;

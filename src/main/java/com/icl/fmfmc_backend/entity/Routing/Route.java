@@ -5,6 +5,8 @@ import com.icl.fmfmc_backend.dto.Api.RouteRequest;
 import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
+import com.icl.fmfmc_backend.entity.enums.ConnectionType;
+import com.icl.fmfmc_backend.service.ChargerService;
 import lombok.Data;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
@@ -21,6 +23,8 @@ public class Route {
   private GeometryService geometryService = new GeometryService();
 
   private static final double CHARGE_EFFICIENCY = 0.9; // used to calc charging time
+  private static final double CHARGE_OVERHEAD = 300; // time (s) to park, find & connect to charger etc
+
 
   private LineString lineStringRoute;
   private LineString routeSnappedToStops;
@@ -53,6 +57,8 @@ public class Route {
   private List<Charger> chargersOnRoute = new ArrayList<>();
   private List<FoodEstablishment> foodEstablishments = new ArrayList<>();
 
+  private List<ConnectionType> connectionTypes = new ArrayList<>();
+
   private Double currentBattery;
   private Double evRange;
   private Double batteryCapacity; // kWh
@@ -64,12 +70,11 @@ public class Route {
   private Double finalDestinationChargeLevel;
 
   // TODO: consider weather conditions in range calculation
-  // TODO: detailed segment information with distance and timings
-  // TODO: expand duration calculation to include charging time
 
   // Standard Constructor
 
   private Route(RouteRequest routeRequest) {
+    this.connectionTypes = routeRequest.getConnectionTypes();
     this.currentBattery = routeRequest.getStartingBattery() * routeRequest.getEvRange();
     this.evRange = routeRequest.getEvRange();
     this.minChargeLevelPct = routeRequest.getMinChargeLevel();
@@ -137,16 +142,17 @@ public class Route {
     chargersOnRoute.add(charger);
   }
 
-  public void rechargeBattery() {
-    addBatteryChargeTime(50.0);
+  public void rechargeBattery(Double chargeSpeed) {
+    addBatteryChargeTime(chargeSpeed);
     currentBattery = evRange * chargeLevelAfterEachStopPct;
   }
 
   public void addBatteryChargeTime(Double chargeSpeedkw) {
     Double rechargePct = ((chargeLevelAfterEachStop - currentBattery) / evRange);
     Double chargeTime = (batteryCapacity * rechargePct) / (chargeSpeedkw * CHARGE_EFFICIENCY);
-    chargeTime = chargeTime * 3600.0;
-    chargeTime = Math.round(chargeTime * 10) / 10.0;
+    chargeTime = chargeTime * 3600.0; // convert to seconds
+    chargeTime += CHARGE_OVERHEAD; // add charge overhead
+    chargeTime = Math.round(chargeTime * 10) / 10.0; // round to 1dp
     segmentDetails.addStop(chargeTime);
   }
 

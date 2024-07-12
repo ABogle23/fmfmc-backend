@@ -418,11 +418,16 @@ public class RoutingService {
 
     logger.info("Total route length: " + route.getRouteLength());
 
+    if (route.getRouteLength() < route.getCurrentBattery() - route.getMinChargeLevel()) {
+        logger.info("Battery level is sufficient to complete the route without charging");
+        return Collections.emptyList();
+    }
+
     // stop if charger is beyond the total route length
     for (Map.Entry<Charger, Double> entry : sortedChargers.entrySet()) {
       Double chargerDistance = entry.getValue();
 
-      // safety check
+      // exit loop if charger is beyond the total route length
       if (chargerDistance > route.getRouteLength()) {
         break;
       }
@@ -444,7 +449,8 @@ public class RoutingService {
           lastChargerDistance = closestDistance;  // update the last charger's distance
           route.setCurrentBattery(route.getCurrentBattery() - distanceTraveled);
           logger.info("Battery at: " + route.getCurrentBattery() + " m");
-          route.rechargeBattery(); // recharge to getChargeLevelAfterEachStopPct (defaults to 90%)
+          route.rechargeBattery(chargerService.getHighestPowerConnectionByTypeInCharger(closestCharger, route));
+          // recharge to getChargeLevelAfterEachStopPct (defaults to 90%)
           logger.info("Recharging battery to: " + route.getCurrentBattery() + " m");
           nextTargetDistance = closestDistance + calculateMaxTravelDistance(route);  // calc next interval distance
           // stop if the next interval is beyond the route end
@@ -467,7 +473,7 @@ public class RoutingService {
       double finalSegmentDistance = closestDistance - lastChargerDistance;
       route.setCurrentBattery(route.getCurrentBattery() - (finalSegmentDistance));
       logger.info("Battery at: " + route.getCurrentBattery() + " m");
-      route.rechargeBattery();
+      route.rechargeBattery(chargerService.getHighestPowerConnectionByTypeInCharger(closestCharger, route));
       logger.info("Recharging battery to: " + route.getCurrentBattery() + " m");
     }
 

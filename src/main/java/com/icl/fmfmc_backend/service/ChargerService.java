@@ -3,6 +3,7 @@ package com.icl.fmfmc_backend.service;
 import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.Charger.Connection;
+import com.icl.fmfmc_backend.entity.Routing.Route;
 import com.icl.fmfmc_backend.entity.enums.AccessTypeToOcmMapper;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import com.icl.fmfmc_backend.entity.enums.ConnectionTypeToOcmMapper;
@@ -94,6 +95,23 @@ public class ChargerService {
         query.getMinKwChargeSpeed(),
         query.getMaxKwChargeSpeed(),
         query.getMinNoChargePoints());
+  }
+
+  public Double getHighestPowerConnectionByTypeInCharger(Charger charger, Route route) {
+
+    List<Integer> mappedConnectionTypeIds =
+            connectionTypeToOcmMapper.mapConnectionTypeToDbIds(route.getConnectionTypes());
+    String connectionTypeIds =
+            String.join(
+                    ",",
+                    mappedConnectionTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
+    System.out.println(connectionTypeIds);
+
+    Double chargeSpeed = chargerRepo.findHighestPowerConnectionByTypeInCharger(
+            charger.getId(), connectionTypeIds
+            );
+    System.out.println("Highest power connection speed: " + chargeSpeed);
+    return chargeSpeed;
   }
 
   @PersistenceContext private EntityManager entityManager;

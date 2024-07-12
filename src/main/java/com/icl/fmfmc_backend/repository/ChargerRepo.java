@@ -1,6 +1,7 @@
 package com.icl.fmfmc_backend.repository;
 
 import com.icl.fmfmc_backend.entity.Charger.Charger;
+import com.icl.fmfmc_backend.entity.Charger.Connection;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -69,5 +70,15 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
           @Param("maxKwChargeSpeed") Integer maxKwChargeSpeed,
           @Param("minNoChargePoints") Integer minNoChargePoints);
 
+  @Query(value = """
+               SELECT cc.powerkw FROM fmfmc_db.charger_connections cc
+               WHERE cc.charger_id = :chargerId
+               AND (:connectionTypeIds IS NULL OR :connectionTypeIds = '' OR FIND_IN_SET(cc.connection_typeid, :connectionTypeIds) > 0)
+               ORDER BY cc.powerkw DESC
+               LIMIT 1
+               """, nativeQuery = true)
+  Double findHighestPowerConnectionByTypeInCharger(
+          @Param("chargerId") Long chargerId,
+          @Param("connectionTypeIds") String connectionTypeIds);
 
 }
