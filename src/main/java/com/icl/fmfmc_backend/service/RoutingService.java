@@ -99,8 +99,10 @@ public class RoutingService {
     LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
     route.setLineStringRoute(routeSnappedToFoodAdjacentCharger);
     bufferedLineString =
-            GeometryService.bufferLineString(lineString, 0.009); // 500m is 0.0045
+            GeometryService.bufferLineString(routeSnappedToFoodAdjacentCharger, 0.009); // 500m is 0.0045
     route.setBufferedLineString(bufferedLineString);
+
+
 
 
     /* -----FOR TESTING----- */
@@ -337,7 +339,7 @@ public class RoutingService {
                     Map.Entry::getKey,
                     Map.Entry::getValue,
                     (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-//  printChargerDistanceMap(chargerDistanceMap);
+  printChargerDistanceMap(chargerDistanceMap);
 
 //    return potentialChargers.stream()
 //        .filter(

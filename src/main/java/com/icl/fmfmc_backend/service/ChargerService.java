@@ -42,6 +42,7 @@ public class ChargerService {
   public Charger getChargerById(Long id) {
     Optional<Charger> optionalCharger = chargerRepo.findById(id);
     if (optionalCharger.isPresent()) {
+      log.info("Charger with id: {} found", id);
       return optionalCharger.get();
     }
     log.info("Charger with id: {} doesn't exist", id);
