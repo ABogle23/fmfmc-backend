@@ -35,7 +35,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 //TODO: Incorporate double safety check for final destination charge level
-//TODO: add deadspot detection e.g. home to Hull
 
 @RequiredArgsConstructor
 @Slf4j
@@ -317,7 +316,6 @@ public class RoutingService {
                     (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 //  printChargerDistanceMap(chargerDistanceMap);
 
-
 //    return potentialChargers.stream()
 //        .filter(
 //            charger ->
@@ -470,12 +468,6 @@ public class RoutingService {
           closestCharger = null; // reset for  next interval
           closestDistance = Double.MAX_VALUE;
         }
-
-        // check if the current charger should be considered for next interval
-//        if (chargerDistance <= nextTargetDistance) {
-//          closestCharger = entry.getKey();
-//          closestDistance = chargerDistance;
-//        }
       }
     }
 
