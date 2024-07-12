@@ -132,8 +132,9 @@ public class Route {
         geometryService.createLineString(
             routeResponse.getFeatures().get(0).getGeometry().getCoordinates());
     this.bufferedLineString = GeometryService.bufferLineString(lineStringRoute, 0.009);
-    this.routeLength =
-        routeResponse.getFeatures().get(0).getProperties().getSummary().getDistance();
+    this.routeLength = GeometryService.calculateLineStringLength(lineStringRoute);
+//    this.routeLength =
+//        routeResponse.getFeatures().get(0).getProperties().getSummary().getDistance();
     this.routeDuration =
         routeResponse.getFeatures().get(0).getProperties().getSummary().getDuration();
   }

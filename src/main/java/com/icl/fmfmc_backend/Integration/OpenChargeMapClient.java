@@ -65,10 +65,10 @@ public class OpenChargeMapClient {
                             .queryParam("verbose", false)
                         .queryParam("maxresults", 10000)
                         // 50.719334, -3.513779 2.7 Exeter Centre
-                                                .queryParam("latitude",51.50057)
-                                                    .queryParam("longitude",-0.10063)
-                                                    .queryParam("distance",43000)
-                            .queryParam("boundingbox","(51.35337096677284, -1.07000704890213),(50.618272038536674, 1.5203159573580225)")
+                                                .queryParam("latitude",58.146344)
+                                                    .queryParam("longitude",-4.354776)
+                                                    .queryParam("distance",110)
+//                            .queryParam("boundingbox","(51.35337096677284, -1.07000704890213),(50.618272038536674, 1.5203159573580225)")
 //                        .queryParam(
 //                            "polygon",
 //                            "y`yoHnd}]wa`@wn`G_n}AcvwEwp{Bj{dAmuCn_bGdn~ErzoH~cb@itcAhaAgppA")

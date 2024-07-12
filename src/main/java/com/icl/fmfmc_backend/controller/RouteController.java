@@ -52,7 +52,9 @@ public class RouteController {
 
     /* TODO: handle situation where no route can be found given the constraints
              perhaps return a "404 with a message saying no route can be found"
-             or relax the constraints and try again on the clients behalf.   */
+             or relax the constraints (to defaults maybe) and try again on the
+             clients behalf with a message "No valid route found, this is the
+             best attempt"   */
 
     long endTime = System.currentTimeMillis();
     Double duration = (endTime - startTime) / 1000.0;

@@ -70,10 +70,15 @@ public class RouteRequest {
   private Double chargeLevelAfterEachStop = 0.8;
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @DecimalMin(value = "0", message = "Charge level after each stop must be non-negative")
-  @DecimalMax(value = "0.5", message = "Charge level after each stop must be less than or equal to 1")
+  @DecimalMin(value = "0", message = "Final destination charge level after each stop must be non-negative")
+  @DecimalMax(value = "0.9", message = "Final destination charge level after each stop must be less or equal to 0.9")
   @JsonProperty("finalDestinationChargeLevel")
-  private Double finalDestinationChargeLevel = 0.5;
+  private Double finalDestinationChargeLevel = 0.8;
+
+  @AssertTrue(message = "Final destination charge level must not be higher than charge level after each stop")
+  public boolean isFinalDestinationChargeLevelValid() {
+    return finalDestinationChargeLevel < chargeLevelAfterEachStop;
+  }
 
   @JsonProperty("connectionTypes")
   private List<ConnectionType> connectionTypes;

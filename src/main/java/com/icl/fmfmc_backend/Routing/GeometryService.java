@@ -1,6 +1,8 @@
 package com.icl.fmfmc_backend.Routing;
 
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
+import net.sf.geographiclib.Geodesic;
+import net.sf.geographiclib.GeodesicData;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.operation.buffer.BufferOp;
 import org.locationtech.jts.operation.buffer.BufferParameters;
@@ -70,5 +72,24 @@ public class GeometryService {
     private Coordinate convertToJtsCoordinate(GeoCoordinates geoCoordinate) {
         return new Coordinate(geoCoordinate.getLongitude(), geoCoordinate.getLatitude());
     }
+
+
+
+    public static Double calculateLineStringLength(LineString route) {
+        Double totalLength = 0.0;
+        Point lastPoint = (Point) route.getStartPoint();
+
+        for (int i = 1; i < route.getNumPoints(); i++) {
+            Point currentPoint = route.getPointN(i);
+            GeodesicData geodesicData = Geodesic.WGS84.Inverse(
+                    lastPoint.getY(), lastPoint.getX(), currentPoint.getY(), currentPoint.getX());
+            Double segmentLength = geodesicData.s12; // Geodesic distance in meters
+
+            totalLength += segmentLength;
+            lastPoint = currentPoint;
+        }
+        return totalLength;
+    }
+
 
 }
