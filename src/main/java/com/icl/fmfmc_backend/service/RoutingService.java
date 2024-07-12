@@ -91,12 +91,35 @@ public class RoutingService {
 //                .getSummary()
 //                .getDuration(),
 //            routeRequest);
-      Route route = new Route(osrDirectionsServiceGeoJSONResponse, routeRequest);
+    Route route = new Route(osrDirectionsServiceGeoJSONResponse, routeRequest);
+
+
+    /* -----FOR TESTING----- */
+    route.setFoodAdjacentCharger(chargerService.getChargerById(52920L));
+    LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
+    route.setLineStringRoute(routeSnappedToFoodAdjacentCharger);
+    bufferedLineString =
+            GeometryService.bufferLineString(lineString, 0.009); // 500m is 0.0045
+    route.setBufferedLineString(bufferedLineString);
+
+
+    /* -----FOR TESTING----- */
+
 
 
     // convert polyline & polygon to Strings
     String polyline = getPolylineAsString(osrDirectionsServiceGeoJSONResponse);
     String tmpPolygon = PolylineUtility.encodePolygon(bufferedLineString);
+
+
+
+
+
+
+
+
+
+
 
     // find chargers based on buffered LineString
 
