@@ -96,7 +96,7 @@ public class RoutingService {
 
     /* -----FOR TESTING----- */
 
-    route.setFoodAdjacentCharger(chargerService.getChargerById(51624L));
+    route.setFoodAdjacentCharger(chargerService.getChargerById(4623L));
     LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
     route.setLineStringRoute(routeSnappedToFoodAdjacentCharger);
     bufferedLineString =
@@ -420,7 +420,7 @@ public class RoutingService {
         closestCoordinate = coordinate;
       }
     }
-    logger.info("Closest coordinate found: " + closestCoordinate + " with distance: " + minDistance);
+//    logger.info("Closest coordinate found: " + closestCoordinate + " with distance: " + minDistance);
 
     return closestCoordinate;
   }
@@ -456,8 +456,11 @@ public class RoutingService {
 
       if (route.getFoodAdjacentCharger() != null && entry.getKey().equals(route.getFoodAdjacentCharger())) {
 
+        closestCharger = entry.getKey();
+        closestDistance = chargerDistance;
 
         chargersAtIntervals.add(route.getFoodAdjacentCharger());
+        route.setFoodAdjacentChargerUsed(true);
 
         // calc range used up to this charger and update
         Double distanceTraveled = closestDistance - lastChargerDistance;
@@ -470,10 +473,13 @@ public class RoutingService {
         nextTargetDistance = closestDistance + calculateMaxTravelDistance(route);  // calc next interval distance
         logger.info("Next target distance: " + nextTargetDistance + " m");
         // stop if the next interval is beyond the route end
-//        if (nextTargetDistance > route.getRouteLength()) break;
+        if (nextTargetDistance > route.getRouteLength()) {
+          System.out.println("BREAKING: Adding food adjacent charger");
+          break;
+        }
         closestCharger = null; // reset for  next interval
         closestDistance = Double.MAX_VALUE;
-
+        continue;
       }
 
       // exit loop if charger is beyond the total route length
@@ -518,10 +524,28 @@ public class RoutingService {
       }
     }
 
+    // Add foodAdjacentCharger if not already added
+    if (!route.getFoodAdjacentChargerUsed() && route.getFoodAdjacentCharger() != null) {
+      closestCharger = route.getFoodAdjacentCharger();
+      closestDistance = sortedChargers.get(route.getFoodAdjacentCharger());
+      System.out.println(sortedChargers.get(route.getFoodAdjacentCharger()));
+      chargersAtIntervals.add(route.getFoodAdjacentCharger());
+      route.setFoodAdjacentChargerUsed(true);
+      Double distanceTraveled = closestDistance - lastChargerDistance;
+      lastChargerDistance = closestDistance;  // update the last charger's distance
+      route.setCurrentBattery(route.getCurrentBattery() - distanceTraveled);
+      route.rechargeBattery(chargerService.getHighestPowerConnectionByTypeInCharger(closestCharger, route));
+      // recharge to getChargeLevelAfterEachStopPct (defaults to 90%)
+      logger.info("Recharging battery to: " + route.getCurrentBattery() + " m");
+      nextTargetDistance = closestDistance + calculateMaxTravelDistance(route);  // calc next interval distance
+      logger.info("Next target distance: " + nextTargetDistance + " m");
+    }
+
     // add the last found closest charger if any and not already added
     if (closestCharger != null && !chargersAtIntervals.contains(closestCharger)) {
+      logger.info("Adding charger in outer loop");
       chargersAtIntervals.add(closestCharger);
-      double finalSegmentDistance = closestDistance - lastChargerDistance;
+      Double finalSegmentDistance = closestDistance - lastChargerDistance;
       route.setCurrentBattery(route.getCurrentBattery() - (finalSegmentDistance));
       logger.info("Battery at: " + route.getCurrentBattery() + " m");
       route.rechargeBattery(chargerService.getHighestPowerConnectionByTypeInCharger(closestCharger, route));
