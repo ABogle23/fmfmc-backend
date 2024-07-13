@@ -14,10 +14,8 @@ import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequestBuilder;
 import com.icl.fmfmc_backend.entity.Routing.Route;
-import com.icl.fmfmc_backend.service.ChargerService;
-import com.icl.fmfmc_backend.service.FoodEstablishmentService;
+
 import com.icl.fmfmc_backend.Integration.OSRClient;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
