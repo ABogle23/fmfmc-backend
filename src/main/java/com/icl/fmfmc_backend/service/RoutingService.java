@@ -95,7 +95,8 @@ public class RoutingService {
 
 
     /* -----FOR TESTING----- */
-    route.setFoodAdjacentCharger(chargerService.getChargerById(52920L));
+
+    route.setFoodAdjacentCharger(chargerService.getChargerById(51624L));
     LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
     route.setLineStringRoute(routeSnappedToFoodAdjacentCharger);
     bufferedLineString =
@@ -112,14 +113,6 @@ public class RoutingService {
     // convert polyline & polygon to Strings
     String polyline = getPolylineAsString(osrDirectionsServiceGeoJSONResponse);
     String tmpPolygon = PolylineUtility.encodePolygon(bufferedLineString);
-
-
-
-
-
-
-
-
 
 
 
@@ -461,6 +454,28 @@ public class RoutingService {
     for (Map.Entry<Charger, Double> entry : sortedChargers.entrySet()) {
       Double chargerDistance = entry.getValue();
 
+      if (route.getFoodAdjacentCharger() != null && entry.getKey().equals(route.getFoodAdjacentCharger())) {
+
+
+        chargersAtIntervals.add(route.getFoodAdjacentCharger());
+
+        // calc range used up to this charger and update
+        Double distanceTraveled = closestDistance - lastChargerDistance;
+        lastChargerDistance = closestDistance;  // update the last charger's distance
+        route.setCurrentBattery(route.getCurrentBattery() - distanceTraveled);
+        logger.info("Battery at: " + route.getCurrentBattery() + " m");
+        route.rechargeBattery(chargerService.getHighestPowerConnectionByTypeInCharger(route.getFoodAdjacentCharger(), route));
+        // recharge to getChargeLevelAfterEachStopPct (defaults to 90%)
+        logger.info("Recharging battery to: " + route.getCurrentBattery() + " m");
+        nextTargetDistance = closestDistance + calculateMaxTravelDistance(route);  // calc next interval distance
+        logger.info("Next target distance: " + nextTargetDistance + " m");
+        // stop if the next interval is beyond the route end
+//        if (nextTargetDistance > route.getRouteLength()) break;
+        closestCharger = null; // reset for  next interval
+        closestDistance = Double.MAX_VALUE;
+
+      }
+
       // exit loop if charger is beyond the total route length
       if (chargerDistance > route.getRouteLength()) {
         break;
@@ -489,7 +504,14 @@ public class RoutingService {
           nextTargetDistance = closestDistance + calculateMaxTravelDistance(route);  // calc next interval distance
           logger.info("Next target distance: " + nextTargetDistance + " m");
           // stop if the next interval is beyond the route end
-          if (nextTargetDistance > route.getRouteLength()) break;
+          if (nextTargetDistance > route.getRouteLength()) {
+
+            if (!route.getFoodAdjacentChargerUsed() && route.getFoodAdjacentCharger() != null) {
+              // TODO: Implement edge case
+            }
+
+            break;
+          }
           closestCharger = null; // reset for  next interval
           closestDistance = Double.MAX_VALUE;
         }

@@ -56,7 +56,8 @@ public class Route {
 
   private List<Charger> chargersOnRoute = new ArrayList<>();
   private List<FoodEstablishment> foodEstablishments = new ArrayList<>();
-  private Charger foodAdjacentCharger; // must be stopped at
+  private Charger foodAdjacentCharger = null; // must be stopped at
+  private Boolean foodAdjacentChargerUsed = false;
 
   private List<ConnectionType> connectionTypes = new ArrayList<>();
 
