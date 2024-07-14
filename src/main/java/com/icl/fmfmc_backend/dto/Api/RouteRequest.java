@@ -173,6 +173,11 @@ public class RouteRequest {
   @JsonProperty("breakDuration")
   private LocalTime breakDuration = LocalTime.of(1, 0);
 
+  // TODO: not yet implemented into Routing Service
+  @JsonSetter(nulls = Nulls.SKIP)
+  @JsonProperty("idealStop")
+  private LocalTime idealStop;
+
   // Route preference
 
   // TODO: not yet implemented into Routing Service
