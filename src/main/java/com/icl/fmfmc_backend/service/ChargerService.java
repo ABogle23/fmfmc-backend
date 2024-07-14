@@ -98,6 +98,34 @@ public class ChargerService {
         query.getMinNoChargePoints());
   }
 
+  public List<Point> getChargerLocationsByParams(ChargerQuery query) {
+
+    List<Integer> mappedConnectionTypeIds =
+            connectionTypeToOcmMapper.mapConnectionTypeToDbIds(query.getConnectionTypeIds());
+    String connectionTypeIds =
+            String.join(
+                    ",",
+                    mappedConnectionTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
+    System.out.println(connectionTypeIds);
+
+    List<Integer> mappedAccessTypeIds =
+            accessTypeToOcmMapper.mapAccessTypeToDbIds(query.getAccessTypeIds());
+    String accessTypeIds =
+            String.join(
+                    ",", mappedAccessTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
+    System.out.println(connectionTypeIds);
+
+    return chargerRepo.findChargerLocationsByParams(
+            query.getPolygon(),
+            query.getPoint(),
+            query.getRadius(),
+            connectionTypeIds,
+            accessTypeIds,
+            query.getMinKwChargeSpeed(),
+            query.getMaxKwChargeSpeed(),
+            query.getMinNoChargePoints());
+  }
+
   public Double getHighestPowerConnectionByTypeInCharger(Charger charger, Route route) {
 
     List<Integer> mappedConnectionTypeIds =
