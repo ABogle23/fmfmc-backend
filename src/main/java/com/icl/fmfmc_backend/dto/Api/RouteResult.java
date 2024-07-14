@@ -17,6 +17,7 @@ public class RouteResult {
   // TODO: create constructor that takes Route object as argument
   // TODO: including battery levels before and after stops and end
 
+  private String originalRoutePolyline;
   private String routePolyline;
   private String chargerPolygon;
   private String eatingOptionPolygon;

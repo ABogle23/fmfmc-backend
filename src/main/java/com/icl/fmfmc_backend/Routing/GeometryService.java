@@ -9,6 +9,7 @@ import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Arrays;
+import org.locationtech.jts.linearref.LengthIndexedLine;
 
 @Service
 public class GeometryService {
@@ -91,5 +92,12 @@ public class GeometryService {
         return totalLength;
     }
 
+
+    public LineString extractLineStringPortion(LineString lineString, Double startFraction, Double endFraction) {
+        LengthIndexedLine indexedLine = new LengthIndexedLine(lineString);
+        double totalLength = indexedLine.getEndIndex();
+        LineString subLine = (LineString) indexedLine.extractLine(startFraction * totalLength, endFraction * totalLength);
+        return subLine;
+    }
 
 }

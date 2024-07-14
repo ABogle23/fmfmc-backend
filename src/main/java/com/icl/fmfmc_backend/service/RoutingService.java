@@ -72,29 +72,12 @@ public class RoutingService {
         "Buffered Polygon: " + bufferedLineString.toText().substring(0, 100) + "...");
 
     // Build Route Object with LineString and buffered LineString
-//    Route route =
-//        new Route(
-//            lineString,
-//            bufferedLineString,
-//            osrDirectionsServiceGeoJSONResponse
-//                .getFeatures()
-//                .get(0)
-//                .getProperties()
-//                .getSummary()
-//                .getDistance(),
-//            osrDirectionsServiceGeoJSONResponse
-//                .getFeatures()
-//                .get(0)
-//                .getProperties()
-//                .getSummary()
-//                .getDuration(),
-//            routeRequest);
     Route route = new Route(osrDirectionsServiceGeoJSONResponse, routeRequest);
 
 
     /* -----FOR TESTING----- */
 
-    route.setFoodAdjacentCharger(chargerService.getChargerById(4623L));
+    route.setFoodAdjacentCharger(chargerService.getChargerById(24369L));
     LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
     route.setLineStringRoute(routeSnappedToFoodAdjacentCharger);
     bufferedLineString =
@@ -110,6 +93,8 @@ public class RoutingService {
 
     // convert polyline & polygon to Strings
     String polyline = getPolylineAsString(osrDirectionsServiceGeoJSONResponse);
+    lineString = geometryService.extractLineStringPortion(lineString, 0.25,0.75); // FOR TESTING
+    polyline = PolylineUtility.encodeLineString(lineString); // FOR TESTING
     String tmpPolygon = PolylineUtility.encodePolygon(bufferedLineString);
 
 
@@ -148,7 +133,7 @@ public class RoutingService {
     // Snap route to Chargers and FoodEstablishments
     LineString routeSnappedToStops = snapRouteToStops(route, suitableChargers);
     route.setRouteSnappedToStops(routeSnappedToStops);
-    polyline = PolylineUtility.encodeLineString(routeSnappedToStops);
+    String snappedPolyline = PolylineUtility.encodeLineString(routeSnappedToStops);
 
 
     // find FoodEstablishments based on buffered LineString
@@ -178,6 +163,7 @@ public class RoutingService {
         getRouteResult(
             routeRequest,
                 polyline,
+                snappedPolyline,
                 tmpPolygon,
                 tmpPolygonFoursquareFormat,
                 route.getRouteLength(),
@@ -244,6 +230,7 @@ public class RoutingService {
 
   private RouteResult getRouteResult(
       RouteRequest routeRequest,
+      String originalRoutePolyline,
       String polyline,
       String tmpPolygon,
       String tmpPolygonFoursquareFormat,
@@ -255,7 +242,7 @@ public class RoutingService {
 
     RouteResult dummyRouteResult =
         new RouteResult(
-            polyline, tmpPolygon, tmpPolygonFoursquareFormat, totalDistance, totalDuration, segmentDetails, chargers, foodEstablishments, routeRequest);
+            originalRoutePolyline, polyline, tmpPolygon, tmpPolygonFoursquareFormat, totalDistance, totalDuration, segmentDetails, chargers, foodEstablishments, routeRequest);
     return dummyRouteResult;
   }
 
@@ -434,6 +421,7 @@ public class RoutingService {
 
     // TODO: optimise this to pick fastest chargers if reasonably close to interval, potentially make this a param.
     // TODO: increase accuracy of distance to charger by adding detour dist from route to charger.
+    // TODO: clean up code asap, break up into functions.
 
     List<Charger> chargersAtIntervals = new ArrayList<>();
     Double nextTargetDistance = calculateMaxTravelDistance(route);
