@@ -10,6 +10,7 @@ import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequestBuilder;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
@@ -44,16 +45,21 @@ public class PoiService {
   private final ChargerService chargerService;
   private final FoodEstablishmentService foodEstablishmentService;
   private final GeometryService geometryService;
-  private final ClusteringService clusteringService;
+
+  @Setter
+  private ClusteringStrategy clusteringStrategy;
 
   public Tuple2<FoodEstablishment, Charger> getFoodEstablishmentOnRoute(
       Route route, RouteRequest routeRequest) {
     logger.info("Getting food establishment");
+
+    this.setClusteringStrategy(new OutlierAdjustedKMeansClusteringService());
+
     LineString lineString = route.getLineStringRoute();
     lineString = GeometryService.extractLineStringPortion(lineString, 0.25, 0.75);
-    Polygon polygon = GeometryService.bufferLineString(lineString, 0.027); // 3km
+    Polygon polygon = GeometryService.bufferLineString(lineString, 0.009*6.5); // 6.5km
     List<Point> chargerLocations = getChargerLocationsInPolygon(route, routeRequest, polygon);
-    List<Point> clusteredChargers = ClusteringService.clusterChargers(chargerLocations, 4);
+    List<Point> clusteredChargers = clusteringStrategy.clusterChargers(chargerLocations, 4);
 
     for (Point charger : clusteredChargers) {
       System.out.println(charger.getY() + "," + charger.getX() + ",yellow,circle");
@@ -63,7 +69,7 @@ public class PoiService {
         getFoodEstablishmentsAroundClusters(routeRequest, clusteredChargers);
 
     List<FoodEstablishment> foodEstablishmentsInRange =
-        getFoodEstablishmentsInProximityToChargers(
+        getFoodEstablishmentsInRangeofChargers(
             chargerLocations, foodEstablishmentsAroundClusters, routeRequest);
 
     FoodEstablishment optimalFoodEstablishment =
@@ -92,6 +98,10 @@ public class PoiService {
             .build();
 
     List<Point> chargersWithinPolygon = chargerService.getChargerLocationsByParams(query);
+
+    for (Point charger : chargersWithinPolygon) {
+      System.out.println(charger.getY() + "," + charger.getX() + ",red,circle");
+    }
 
     return chargersWithinPolygon;
   }
@@ -130,7 +140,7 @@ public class PoiService {
     return new String[] {y, x};
   }
 
-  private List<FoodEstablishment> getFoodEstablishmentsInProximityToChargers(
+  private List<FoodEstablishment> getFoodEstablishmentsInRangeofChargers(
       List<Point> clusteredChargers,
       List<FoodEstablishment> foodEstablishmentsAroundClusters,
       RouteRequest routeRequest) {
@@ -152,6 +162,8 @@ public class PoiService {
       }
     }
 
+    System.out.println("Food Establishments in range: " + foodEstablishmentsInRange.size());
+
     return foodEstablishmentsInRange;
   }
 
@@ -167,13 +179,15 @@ public class PoiService {
     Double score = 0.0;
 
     score += establishment.getPopularity() != null ? establishment.getPopularity() : 0;
-    score += establishment.getRating() != null ? establishment.getRating() : 0;
+    score += establishment.getRating() != null ? establishment.getRating() / 10 : 0;
     score +=
         (establishment.getPrice() != null && establishment.getPrice() != 4)
-            ? (double) (4 - establishment.getPrice()) / 4
+            ? (double) (4 - establishment.getPrice()) / 8
             : 0;
-
     // TODO: add additional scoring criteria
+
+    System.out.println("Score: " + score + " for " + establishment.getName());
+
     return score;
   }
 
