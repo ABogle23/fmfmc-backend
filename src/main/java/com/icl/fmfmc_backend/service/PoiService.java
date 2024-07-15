@@ -46,12 +46,13 @@ public class PoiService {
     public FoodEstablishment getFoodEstablishmentOnRoute(Route route, RouteRequest routeRequest) {
         logger.info("Getting food establishment");
         LineString lineString = route.getLineStringRoute();
+        lineString = GeometryService.extractLineStringPortion(lineString, 0.25, 0.75);
         Polygon polygon = GeometryService.bufferLineString(lineString, 0.027); // 3km
         List<Point> chargerLocations = getChargerLocationsInPolygon(route, routeRequest, polygon);
-        List<Point> clusteredChargers = ClusteringService.clusterChargers(chargerLocations, 5);
+        List<Point> clusteredChargers = ClusteringService.clusterChargers(chargerLocations, 4);
 
         for (Point charger : clusteredChargers) {
-            System.out.println(charger.getY() + "," + charger.getX());
+            System.out.println(charger.getY() + "," + charger.getX() + ",yellow,circle");
         }
 
         return null;

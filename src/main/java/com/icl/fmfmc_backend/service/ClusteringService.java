@@ -15,7 +15,7 @@ public class ClusteringService {
 
     public static List<Point> clusterChargers(List<Point> chargers, int k) {
         // randomly create centroids
-        List<Point> centroids = initializeCentroids(chargers, k);
+        List<Point> centroids = initializeCentroidsPlusPlus(chargers, k);
         List<Point> oldCentroids = null;
 
         // converge centroids
@@ -30,6 +30,11 @@ public class ClusteringService {
             System.out.println("calculating centroids");
         }
 
+        List<List<Point>> finalClusters = assignToClusters(chargers, centroids);
+        for (int i = 0; i < finalClusters.size(); i++) {
+            System.out.println("Centroid " + (i + 1) + " has " + finalClusters.get(i).size() + " chargers.");
+        }
+
         return centroids;
     }
 
@@ -39,6 +44,40 @@ public class ClusteringService {
         for (int i = 0; i < k; i++) {
             Point centroid = points.get(random.nextInt(points.size()));
             centroids.add(centroid);
+        }
+        return centroids;
+    }
+
+    private static List<Point> initializeCentroidsPlusPlus(List<Point> points, int k) {
+        List<Point> centroids = new ArrayList<>();
+        Random random = new Random();
+        // pick first centroid at random
+        centroids.add(points.get(random.nextInt(points.size())));
+
+        for (int i = 1; i < k; i++) {
+            double[] distances = new double[points.size()];
+            for (int j = 0; j < points.size(); j++) {
+                Point p = points.get(j);
+                double minDist = Double.MAX_VALUE;
+                for (Point centroid : centroids) {
+                    double dist = p.distance(centroid);
+                    if (dist < minDist) {
+                        minDist = dist;
+                    }
+                }
+                distances[j] = minDist;
+            }
+            // pick new centroid weighted by distance
+            double total = Arrays.stream(distances).sum();
+            double r = total * random.nextDouble();
+            double sum = 0;
+            for (int j = 0; j < distances.length; j++) {
+                sum += distances[j];
+                if (sum >= r) {
+                    centroids.add(points.get(j));
+                    break;
+                }
+            }
         }
         return centroids;
     }

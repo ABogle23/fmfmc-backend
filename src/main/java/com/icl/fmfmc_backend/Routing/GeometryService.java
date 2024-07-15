@@ -93,7 +93,7 @@ public class GeometryService {
     }
 
 
-    public LineString extractLineStringPortion(LineString lineString, Double startFraction, Double endFraction) {
+    public static LineString extractLineStringPortion(LineString lineString, Double startFraction, Double endFraction) {
         LengthIndexedLine indexedLine = new LengthIndexedLine(lineString);
         double totalLength = indexedLine.getEndIndex();
         LineString subLine = (LineString) indexedLine.extractLine(startFraction * totalLength, endFraction * totalLength);
