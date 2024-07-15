@@ -374,7 +374,7 @@ public class RoutingService {
     for (int i = 0; i < route.getNumPoints(); i++) {
       Point currentPoint = route.getPointN(i);
 
-      Double segmentDistance = calculateDistanceBetweenPoints(
+      Double segmentDistance = GeometryService.calculateDistanceBetweenPoints(
               lastPoint.getY(), lastPoint.getX(), currentPoint.getY(), currentPoint.getX()); // dist in meters
       //      if (i % 100 == 0) {
       //        logger.info("Cumulative distance - pt " + i + " : " + cumulativeDistance);
@@ -401,7 +401,7 @@ public class RoutingService {
 
     for (Coordinate coordinate : lineString.getCoordinates()) {
 
-      Double distance = calculateDistanceBetweenPoints(
+      Double distance = GeometryService.calculateDistanceBetweenPoints(
               chargerLocation.getY(), chargerLocation.getX(), coordinate.y, coordinate.x); // dist in meters
 
       if (distance < minDistance) {
@@ -414,10 +414,7 @@ public class RoutingService {
     return closestCoordinate;
   }
 
-  public double calculateDistanceBetweenPoints(double lat1, double lon1, double lat2, double lon2) {
-    GeodesicData geodesicData = Geodesic.WGS84.Inverse(lat1, lon1, lat2, lon2);
-    return geodesicData.s12;  // dist in meters
-  }
+
 
 
 

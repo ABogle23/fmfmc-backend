@@ -100,4 +100,19 @@ public class GeometryService {
         return subLine;
     }
 
+    public static double calculateDistanceBetweenPoints(double lat1, double lon1, double lat2, double lon2) {
+        GeodesicData geodesicData = Geodesic.WGS84.Inverse(lat1, lon1, lat2, lon2);
+        return geodesicData.s12;  // dist in meters
+    }
+
+    public static double calculateDistanceBetweenPoints(Point pointA, Point pointB) {
+        double lat1 = pointA.getY();
+        double lon1 = pointA.getX();
+        double lat2 = pointB.getY();
+        double lon2 = pointB.getX();
+
+        GeodesicData geodesicData = Geodesic.WGS84.Inverse(lat1, lon1, lat2, lon2);
+        return geodesicData.s12;  // dist in meters
+    }
+
 }
