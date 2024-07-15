@@ -5,8 +5,9 @@ import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.controller.RouteController;
 import com.icl.fmfmc_backend.dto.Api.RouteRequest;
 import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
-import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequestBuilder;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,7 @@ public class PoiService {
     private final GeometryService geometryService;
     private final ClusteringService clusteringService;
 
-    public FoodEstablishment getFoodEstablishmentOnRoute(Route route, RouteRequest routeRequest) {
+    public List<FoodEstablishment> getFoodEstablishmentOnRoute(Route route, RouteRequest routeRequest) {
         logger.info("Getting food establishment");
         LineString lineString = route.getLineStringRoute();
         lineString = GeometryService.extractLineStringPortion(lineString, 0.25, 0.75);
@@ -54,6 +55,11 @@ public class PoiService {
         for (Point charger : clusteredChargers) {
             System.out.println(charger.getY() + "," + charger.getX() + ",yellow,circle");
         }
+
+        List<FoodEstablishment> foodEstablishmentsAroundClusters =  getFoodEstablishmentsAroundClusters(routeRequest, clusteredChargers);
+
+
+
 
         return null;
     }
@@ -75,7 +81,29 @@ public class PoiService {
         return chargersWithinPolygon;
     }
 
+    public List<FoodEstablishment> getFoodEstablishmentsAroundClusters(RouteRequest routeRequest, List<Point> clusteredChargers) {
 
+        String[] coordinates = getLatLongAsString(clusteredChargers.get(0));
+
+        FoursquareRequest params =
+                new FoursquareRequestBuilder()
+                        .setCategories(routeRequest.getEatingOptions())
+                        .setLl(coordinates[0] + "," + coordinates[1])
+                        .setRadius(5000)
+                        .createFoursquareRequest();
+
+        List<FoodEstablishment> foodEstablishments =
+            foodEstablishmentService.getFoodEstablishmentsByParam(params);
+
+        return foodEstablishments;
+
+    }
+
+    public static String[] getLatLongAsString(Point point) {
+        String y = Double.toString(point.getY());
+        String x = Double.toString(point.getX());
+        return new String[]{y, x};
+    }
 
 
 }

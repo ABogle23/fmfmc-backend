@@ -78,7 +78,7 @@ public class RoutingService {
 
     /* -----FOR TESTING----- */
 
-    FoodEstablishment poiServiceTest = poiService.getFoodEstablishmentOnRoute(route, routeRequest);
+    List<FoodEstablishment> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route, routeRequest);
 
 //    route.setFoodAdjacentCharger(chargerService.getChargerById(24369L));
 //    LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
@@ -173,7 +173,7 @@ public class RoutingService {
                 route.getRouteDuration(),
                 route.getSegmentDetails(),
                 suitableChargers,
-                foodEstablishmentsWithinPolygon);
+                poiServiceTestResults);
 
     return dummyRouteResult;
   }
