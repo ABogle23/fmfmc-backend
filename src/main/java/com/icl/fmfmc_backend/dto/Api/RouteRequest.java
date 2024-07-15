@@ -196,6 +196,4 @@ public class RouteRequest {
   @JsonProperty("eatingOptionSearchDistanceFromRoute")
   private Double eatingOptionSearchDistanceFromRoute = 2000.0;
 
-
-
 }

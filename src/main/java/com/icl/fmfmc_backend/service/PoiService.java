@@ -1,6 +1,5 @@
 package com.icl.fmfmc_backend.service;
 
-
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.controller.RouteController;
 import com.icl.fmfmc_backend.dto.Api.RouteRequest;
@@ -19,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /* TODO:
@@ -39,93 +39,125 @@ import java.util.List;
 @Slf4j
 public class PoiService {
 
-    private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
-    private final ChargerService chargerService;
-    private final FoodEstablishmentService foodEstablishmentService;
-    private final GeometryService geometryService;
-    private final ClusteringService clusteringService;
+  private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
+  private final ChargerService chargerService;
+  private final FoodEstablishmentService foodEstablishmentService;
+  private final GeometryService geometryService;
+  private final ClusteringService clusteringService;
 
-    public List<FoodEstablishment> getFoodEstablishmentOnRoute(Route route, RouteRequest routeRequest) {
-        logger.info("Getting food establishment");
-        LineString lineString = route.getLineStringRoute();
-        lineString = GeometryService.extractLineStringPortion(lineString, 0.25, 0.75);
-        Polygon polygon = GeometryService.bufferLineString(lineString, 0.027); // 3km
-        List<Point> chargerLocations = getChargerLocationsInPolygon(route, routeRequest, polygon);
-        List<Point> clusteredChargers = ClusteringService.clusterChargers(chargerLocations, 4);
+  public List<FoodEstablishment> getFoodEstablishmentOnRoute(
+      Route route, RouteRequest routeRequest) {
+    logger.info("Getting food establishment");
+    LineString lineString = route.getLineStringRoute();
+    lineString = GeometryService.extractLineStringPortion(lineString, 0.25, 0.75);
+    Polygon polygon = GeometryService.bufferLineString(lineString, 0.027); // 3km
+    List<Point> chargerLocations = getChargerLocationsInPolygon(route, routeRequest, polygon);
+    List<Point> clusteredChargers = ClusteringService.clusterChargers(chargerLocations, 4);
 
-        for (Point charger : clusteredChargers) {
-            System.out.println(charger.getY() + "," + charger.getX() + ",yellow,circle");
+    for (Point charger : clusteredChargers) {
+      System.out.println(charger.getY() + "," + charger.getX() + ",yellow,circle");
+    }
+
+    List<FoodEstablishment> foodEstablishmentsAroundClusters =
+        getFoodEstablishmentsAroundClusters(routeRequest, clusteredChargers);
+
+    List<FoodEstablishment> foodEstablishmentsInRange =
+        getFoodEstablishmentsInProximityToChargers(
+            chargerLocations, foodEstablishmentsAroundClusters, routeRequest);
+
+    FoodEstablishment optimalFoodEstablishment =
+        getOptimalFoodEstablishment(foodEstablishmentsInRange, routeRequest);
+
+    return List.of(optimalFoodEstablishment);
+  }
+
+  public List<Point> getChargerLocationsInPolygon(
+      Route route, RouteRequest routeRequest, Polygon polygon) {
+    logger.info("Getting chargers in polygon");
+    ChargerQuery query =
+        ChargerQuery.builder()
+            .polygon(polygon)
+            .connectionTypeIds(routeRequest.getConnectionTypes())
+            .minKwChargeSpeed(routeRequest.getMinKwChargeSpeed())
+            .maxKwChargeSpeed(routeRequest.getMaxKwChargeSpeed())
+            .minNoChargePoints(routeRequest.getMinNoChargePoints())
+            .accessTypeIds(routeRequest.getAccessTypes())
+            .build();
+
+    List<Point> chargersWithinPolygon = chargerService.getChargerLocationsByParams(query);
+
+    return chargersWithinPolygon;
+  }
+
+  public List<FoodEstablishment> getFoodEstablishmentsAroundClusters(
+      RouteRequest routeRequest, List<Point> clusteredChargers) {
+
+    String[] coordinates = getLatLongAsString(clusteredChargers.get(0));
+
+    FoursquareRequest params =
+        new FoursquareRequestBuilder()
+            .setCategories(routeRequest.getEatingOptions())
+            .setLl(coordinates[0] + "," + coordinates[1])
+            .setRadius(5000)
+            .createFoursquareRequest();
+
+    List<FoodEstablishment> foodEstablishments =
+        foodEstablishmentService.getFoodEstablishmentsByParam(params);
+
+    return foodEstablishments;
+  }
+
+  public static String[] getLatLongAsString(Point point) {
+    String y = Double.toString(point.getY());
+    String x = Double.toString(point.getX());
+    return new String[] {y, x};
+  }
+
+  private List<FoodEstablishment> getFoodEstablishmentsInProximityToChargers(
+      List<Point> clusteredChargers,
+      List<FoodEstablishment> foodEstablishmentsAroundClusters,
+      RouteRequest routeRequest) {
+
+    Double maxWalkingDistance = routeRequest.getMaxWalkingDistance().doubleValue();
+    System.out.println("Max walking distance: " + maxWalkingDistance);
+    List<FoodEstablishment> foodEstablishmentsInRange = new ArrayList<>();
+
+    for (FoodEstablishment foodEstablishment : foodEstablishmentsAroundClusters) {
+      for (Point charger : clusteredChargers) {
+        Double distance =
+            GeometryService.calculateDistanceBetweenPoints(
+                charger, foodEstablishment.getLocation());
+        System.out.println("Name: " + foodEstablishment.getName() + ", Distance: " + distance);
+        if (distance <= maxWalkingDistance) {
+          foodEstablishmentsInRange.add(foodEstablishment);
+          break;
         }
-
-        List<FoodEstablishment> foodEstablishmentsAroundClusters =  getFoodEstablishmentsAroundClusters(routeRequest, clusteredChargers);
-
-        List<FoodEstablishment> foodEstablishmentsInRange = getFoodEstablishmentsInProximityToChargers(chargerLocations, foodEstablishmentsAroundClusters, routeRequest);
-
-
-        return foodEstablishmentsInRange;
+      }
     }
 
-    private List<FoodEstablishment> getFoodEstablishmentsInProximityToChargers(List<Point> clusteredChargers, List<FoodEstablishment> foodEstablishmentsAroundClusters, RouteRequest routeRequest) {
+    return foodEstablishmentsInRange;
+  }
 
-        Double maxWalkingDistance = routeRequest.getMaxWalkingDistance().doubleValue();
-        System.out.println("Max walking distance: " + maxWalkingDistance);
-        List<FoodEstablishment> foodEstablishmentsInRange = new ArrayList<>();
+  private FoodEstablishment getOptimalFoodEstablishment(
+      List<FoodEstablishment> foodEstablishmentsInRange, RouteRequest routeRequest) {
 
-        for (FoodEstablishment foodEstablishment : foodEstablishmentsAroundClusters) {
-            for (Point charger : clusteredChargers) {
-                Double distance = GeometryService.calculateDistanceBetweenPoints(charger, foodEstablishment.getLocation());
-                System.out.println("Name: " + foodEstablishment.getName() + ", Distance: " + distance);
-                if (distance <= maxWalkingDistance) {
-                    foodEstablishmentsInRange.add(foodEstablishment);
-                    break;
-                }
-            }
-        }
+    return foodEstablishmentsInRange.stream()
+            .max(Comparator.comparingDouble(e -> calculateScore(e, routeRequest)))
+            .orElse(null);
 
+  }
 
-        return foodEstablishmentsInRange;
-    }
+  public Double calculateScore(FoodEstablishment establishment, RouteRequest routeRequest) {
+    Double score = 0.0;
 
-    public List<Point> getChargerLocationsInPolygon(Route route, RouteRequest routeRequest, Polygon polygon) {
-        logger.info("Getting chargers in polygon");
-        ChargerQuery query =
-                ChargerQuery.builder()
-                        .polygon(polygon)
-                        .connectionTypeIds(routeRequest.getConnectionTypes())
-                        .minKwChargeSpeed(routeRequest.getMinKwChargeSpeed())
-                        .maxKwChargeSpeed(routeRequest.getMaxKwChargeSpeed())
-                        .minNoChargePoints(routeRequest.getMinNoChargePoints())
-                        .accessTypeIds(routeRequest.getAccessTypes())
-                        .build();
+    score += establishment.getPopularity() != null ? establishment.getPopularity() : 0;
+    score += establishment.getRating() != null ? establishment.getRating() : 0;
+    score +=
+        (establishment.getPrice() != null && establishment.getPrice() != 4)
+            ? (double) (4 - establishment.getPrice()) / 4
+            : 0;
 
-        List<Point> chargersWithinPolygon = chargerService.getChargerLocationsByParams(query);
-
-        return chargersWithinPolygon;
-    }
-
-    public List<FoodEstablishment> getFoodEstablishmentsAroundClusters(RouteRequest routeRequest, List<Point> clusteredChargers) {
-
-        String[] coordinates = getLatLongAsString(clusteredChargers.get(0));
-
-        FoursquareRequest params =
-                new FoursquareRequestBuilder()
-                        .setCategories(routeRequest.getEatingOptions())
-                        .setLl(coordinates[0] + "," + coordinates[1])
-                        .setRadius(5000)
-                        .createFoursquareRequest();
-
-        List<FoodEstablishment> foodEstablishments =
-            foodEstablishmentService.getFoodEstablishmentsByParam(params);
-
-        return foodEstablishments;
-
-    }
-
-    public static String[] getLatLongAsString(Point point) {
-        String y = Double.toString(point.getY());
-        String x = Double.toString(point.getX());
-        return new String[]{y, x};
-    }
-
-
+    // TODO: add additional scoring criteria
+    return score;
+  }
 }
