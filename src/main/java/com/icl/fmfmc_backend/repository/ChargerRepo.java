@@ -91,6 +91,31 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
           @Param("maxKwChargeSpeed") Integer maxKwChargeSpeed,
           @Param("minNoChargePoints") Integer minNoChargePoints);
 
+
+
+  @Query(value = """
+             SELECT c.* FROM fmfmc_db.chargers c
+             JOIN fmfmc_db.charger_connections cc ON c.id = cc.charger_id
+             WHERE 
+             (:point IS NOT NULL AND :radius IS NOT NULL AND ST_Distance_Sphere(c.location, :point) <= :radius)
+             AND ((:connectionTypeIds IS NULL OR :connectionTypeIds = '' OR FIND_IN_SET(cc.connection_typeid, :connectionTypeIds) > 0)
+             AND (COALESCE(:minKwChargeSpeed, 0) = 0 OR cc.powerkw >= :minKwChargeSpeed)
+             AND (:maxKwChargeSpeed IS NULL OR cc.powerkw <= :maxKwChargeSpeed))
+             AND c.number_of_points >= COALESCE(:minNoChargePoints, 1)
+             AND (:accessTypeIds IS NULL OR :accessTypeIds = '' OR FIND_IN_SET(c.usage_typeid, :accessTypeIds) > 0)
+             ORDER BY ST_Distance_Sphere(c.location, :point) ASC
+             LIMIT 1
+             """, nativeQuery = true)
+  Charger findNearestChargerByParam(
+          @Param("point") Point point,
+          @Param("radius") Double radius,
+          @Param("connectionTypeIds") String connectionTypeIds,
+          @Param("accessTypeIds") String accessTypeIds,
+          @Param("minKwChargeSpeed") Integer minKwChargeSpeed,
+          @Param("maxKwChargeSpeed") Integer maxKwChargeSpeed,
+          @Param("minNoChargePoints") Integer minNoChargePoints);
+
+
   @Query(value = """
                SELECT cc.powerkw FROM fmfmc_db.charger_connections cc
                WHERE cc.charger_id = :chargerId

@@ -28,6 +28,7 @@ import org.locationtech.jts.operation.distance.DistanceOp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import reactor.util.function.Tuple2;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -78,14 +79,15 @@ public class RoutingService {
 
     /* -----FOR TESTING----- */
 
-    List<FoodEstablishment> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route, routeRequest);
+    Tuple2<FoodEstablishment, Charger> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route, routeRequest);
 
-//    route.setFoodAdjacentCharger(chargerService.getChargerById(24369L));
-//    LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
-//    route.setLineStringRoute(routeSnappedToFoodAdjacentCharger);
-//    bufferedLineString =
-//            GeometryService.bufferLineString(routeSnappedToFoodAdjacentCharger, 0.009); // 500m is 0.0045
-//    route.setBufferedLineString(bufferedLineString);
+
+    route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
+    LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
+    route.setLineStringRoute(routeSnappedToFoodAdjacentCharger);
+    bufferedLineString =
+            GeometryService.bufferLineString(routeSnappedToFoodAdjacentCharger, 0.009); // 500m is 0.0045
+    route.setBufferedLineString(bufferedLineString);
 
 
 
@@ -173,7 +175,7 @@ public class RoutingService {
                 route.getRouteDuration(),
                 route.getSegmentDetails(),
                 suitableChargers,
-                poiServiceTestResults);
+                List.of(poiServiceTestResults.getT1()));
 
     return dummyRouteResult;
   }

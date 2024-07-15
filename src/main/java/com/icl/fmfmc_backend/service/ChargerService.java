@@ -131,6 +131,36 @@ public class ChargerService {
             .collect(Collectors.toList());
   }
 
+
+  public Charger getNearestChargerByParams(ChargerQuery query) {
+
+    List<Integer> mappedConnectionTypeIds =
+            connectionTypeToOcmMapper.mapConnectionTypeToDbIds(query.getConnectionTypeIds());
+    String connectionTypeIds =
+            String.join(
+                    ",",
+                    mappedConnectionTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
+    System.out.println(connectionTypeIds);
+
+    List<Integer> mappedAccessTypeIds =
+            accessTypeToOcmMapper.mapAccessTypeToDbIds(query.getAccessTypeIds());
+    String accessTypeIds =
+            String.join(
+                    ",", mappedAccessTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
+    System.out.println(connectionTypeIds);
+
+    Charger nearestCharger =  chargerRepo.findNearestChargerByParam(
+            query.getPoint(),
+            query.getRadius(),
+            connectionTypeIds,
+            accessTypeIds,
+            query.getMinKwChargeSpeed(),
+            query.getMaxKwChargeSpeed(),
+            query.getMinNoChargePoints());
+
+    return nearestCharger;
+  }
+
   public Double getHighestPowerConnectionByTypeInCharger(Charger charger, Route route) {
 
     List<Integer> mappedConnectionTypeIds =
