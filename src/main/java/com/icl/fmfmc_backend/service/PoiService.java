@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /* TODO:
@@ -58,10 +59,31 @@ public class PoiService {
 
         List<FoodEstablishment> foodEstablishmentsAroundClusters =  getFoodEstablishmentsAroundClusters(routeRequest, clusteredChargers);
 
+        List<FoodEstablishment> foodEstablishmentsInRange = getFoodEstablishmentsInProximityToChargers(chargerLocations, foodEstablishmentsAroundClusters, routeRequest);
 
 
+        return foodEstablishmentsInRange;
+    }
 
-        return null;
+    private List<FoodEstablishment> getFoodEstablishmentsInProximityToChargers(List<Point> clusteredChargers, List<FoodEstablishment> foodEstablishmentsAroundClusters, RouteRequest routeRequest) {
+
+        Double maxWalkingDistance = routeRequest.getMaxWalkingDistance().doubleValue();
+        System.out.println("Max walking distance: " + maxWalkingDistance);
+        List<FoodEstablishment> foodEstablishmentsInRange = new ArrayList<>();
+
+        for (FoodEstablishment foodEstablishment : foodEstablishmentsAroundClusters) {
+            for (Point charger : clusteredChargers) {
+                Double distance = GeometryService.calculateDistanceBetweenPoints(charger, foodEstablishment.getLocation());
+                System.out.println("Name: " + foodEstablishment.getName() + ", Distance: " + distance);
+                if (distance <= maxWalkingDistance) {
+                    foodEstablishmentsInRange.add(foodEstablishment);
+                    break;
+                }
+            }
+        }
+
+
+        return foodEstablishmentsInRange;
     }
 
     public List<Point> getChargerLocationsInPolygon(Route route, RouteRequest routeRequest, Polygon polygon) {
