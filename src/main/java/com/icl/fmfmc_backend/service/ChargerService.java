@@ -115,7 +115,7 @@ public class ChargerService {
                     ",", mappedAccessTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
     System.out.println(connectionTypeIds);
 
-    return chargerRepo.findChargerLocationsByParams(
+    List<Object> projections =  chargerRepo.findChargerLocationsByParams(
             query.getPolygon(),
             query.getPoint(),
             query.getRadius(),
@@ -124,6 +124,11 @@ public class ChargerService {
             query.getMinKwChargeSpeed(),
             query.getMaxKwChargeSpeed(),
             query.getMinNoChargePoints());
+
+    return projections.stream()
+            .map(projection -> (org.geolatte.geom.Point) projection)
+            .map(GeolatteToPointConverter::convert)
+            .collect(Collectors.toList());
   }
 
   public Double getHighestPowerConnectionByTypeInCharger(Charger charger, Route route) {

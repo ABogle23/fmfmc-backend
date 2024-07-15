@@ -1,7 +1,6 @@
 package com.icl.fmfmc_backend.repository;
 
 import com.icl.fmfmc_backend.entity.Charger.Charger;
-import com.icl.fmfmc_backend.entity.Charger.Connection;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -82,7 +81,7 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
                AND c.number_of_points >= COALESCE(:minNoChargePoints, 1)
                AND (:accessTypeIds IS NULL OR :accessTypeIds = '' OR FIND_IN_SET(c.usage_typeid, :accessTypeIds) > 0)
                """, nativeQuery = true)
-  List<Point> findChargerLocationsByParams(
+  List<Object> findChargerLocationsByParams(
           @Param("polygon") Polygon polygon,
           @Param("point") Point point,
           @Param("radius") Double radius,
