@@ -44,6 +44,7 @@ public class RoutingService {
   private final ChargerService chargerService;
   private final FoodEstablishmentService foodEstablishmentService;
   private final GeometryService geometryService;
+  private final PoiService poiService;
 
   public RouteResult getRoute(RouteRequest routeRequest) {
     logger.info("Fetching initial route from routing service");
@@ -66,7 +67,7 @@ public class RoutingService {
 
     // buffer LineString
     Polygon bufferedLineString =
-        GeometryService.bufferLineString(lineString, 0.009); // 500m is 0.0045
+        GeometryService.bufferLineString(lineString, 0.018); // 500m is 0.0045
     System.out.println("Original LineString: " + lineString.toText().substring(0, 100) + "...");
     System.out.println(
         "Buffered Polygon: " + bufferedLineString.toText().substring(0, 100) + "...");
@@ -76,6 +77,8 @@ public class RoutingService {
 
 
     /* -----FOR TESTING----- */
+
+    FoodEstablishment poiServiceTest = poiService.getFoodEstablishmentOnRoute(route, routeRequest);
 
     route.setFoodAdjacentCharger(chargerService.getChargerById(24369L));
     LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
