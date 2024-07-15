@@ -1,6 +1,7 @@
 package com.icl.fmfmc_backend.service;
 
 import com.icl.fmfmc_backend.Routing.GeometryService;
+import com.icl.fmfmc_backend.Routing.PolylineUtility;
 import com.icl.fmfmc_backend.controller.RouteController;
 import com.icl.fmfmc_backend.dto.Api.RouteRequest;
 import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
@@ -58,6 +59,10 @@ public class PoiService {
     LineString lineString = route.getLineStringRoute();
     lineString = GeometryService.extractLineStringPortion(lineString, 0.25, 0.75);
     Polygon polygon = GeometryService.bufferLineString(lineString, 0.009*6.5); // 6.5km
+
+    // For testing
+    route.setEatingOptionSearch(PolylineUtility.polygonStringToFoursquareFormat(polygon));
+
     List<Point> chargerLocations = getChargerLocationsInPolygon(route, routeRequest, polygon);
     List<Point> clusteredChargers = clusteringStrategy.clusterChargers(chargerLocations, 4);
 
@@ -69,7 +74,7 @@ public class PoiService {
         getFoodEstablishmentsAroundClusters(routeRequest, clusteredChargers);
 
     List<FoodEstablishment> foodEstablishmentsInRange =
-        getFoodEstablishmentsInRangeofChargers(
+        getFoodEstablishmentsInRangeOfChargers(
             chargerLocations, foodEstablishmentsAroundClusters, routeRequest);
 
     FoodEstablishment optimalFoodEstablishment =
@@ -140,7 +145,7 @@ public class PoiService {
     return new String[] {y, x};
   }
 
-  private List<FoodEstablishment> getFoodEstablishmentsInRangeofChargers(
+  private List<FoodEstablishment> getFoodEstablishmentsInRangeOfChargers(
       List<Point> clusteredChargers,
       List<FoodEstablishment> foodEstablishmentsAroundClusters,
       RouteRequest routeRequest) {

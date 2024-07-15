@@ -1,6 +1,8 @@
 package com.icl.fmfmc_backend.Routing;
 
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
+import com.icl.fmfmc_backend.service.CoordinateFormatter;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
 
@@ -63,4 +65,37 @@ public class PolylineUtility {
     encoded.append(Character.toChars(value + 63));
     return encoded.toString();
   }
+
+  public static String polygonStringToFoursquareFormat(Polygon polygon) {
+
+    int step = 75;
+    Coordinate[] coordinates = polygon.getExteriorRing().getCoordinates();
+    StringBuilder formattedString = new StringBuilder();
+
+    // iterate over coordinates skipping {step} coordinates each time
+    for (int i = 0; i < coordinates.length; i += step) {
+      // use CoordinateFormatter to trim lat long to 3dp
+      formattedString
+              .append(CoordinateFormatter.formatCoordinate(coordinates[i].y))
+              .append(",")
+              .append(CoordinateFormatter.formatCoordinate(coordinates[i].x));
+
+      // append '~' separator except after last coordinate
+      if (i + step < coordinates.length) {
+        formattedString.append("~");
+      }
+    }
+
+    // ensure the polygon is closed (first and last coordinates should be the same)
+    if (!coordinates[0].equals2D(coordinates[coordinates.length - 1])) {
+      formattedString
+              .append("~")
+              .append(CoordinateFormatter.formatCoordinate(coordinates[0].y))
+              .append(",")
+              .append(CoordinateFormatter.formatCoordinate(coordinates[0].x));
+    }
+
+    return formattedString.toString();
+  }
+
 }

@@ -81,10 +81,10 @@ public class RoutingService {
 
     Tuple2<FoodEstablishment, Charger> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route, routeRequest);
 
-
+    route.setFoodEstablishments(List.of(poiServiceTestResults.getT1()));
     route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
     LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
-    route.setLineStringRoute(routeSnappedToFoodAdjacentCharger);
+//    route.setLineStringRoute(routeSnappedToFoodAdjacentCharger);
     bufferedLineString =
             GeometryService.bufferLineString(routeSnappedToFoodAdjacentCharger, 0.009); // 500m is 0.0045
     route.setBufferedLineString(bufferedLineString);
@@ -98,7 +98,7 @@ public class RoutingService {
 
     // convert polyline & polygon to Strings
     String polyline = getPolylineAsString(osrDirectionsServiceGeoJSONResponse);
-    lineString = geometryService.extractLineStringPortion(lineString, 0.25,0.75); // FOR TESTING
+    lineString = GeometryService.extractLineStringPortion(lineString, 0.25,0.75); // FOR TESTING
     polyline = PolylineUtility.encodeLineString(lineString); // FOR TESTING
     String tmpPolygon = PolylineUtility.encodePolygon(bufferedLineString);
 
@@ -110,7 +110,7 @@ public class RoutingService {
 
     ChargerQuery query =
         ChargerQuery.builder()
-            .polygon(bufferedLineString)
+            .polygon(route.getBufferedLineString())
             //            .point(new GeometryFactory().createPoint(new
             // Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())))
             //            .radius(2000.0)
@@ -133,6 +133,7 @@ public class RoutingService {
     // filter chargers to those reachable from the route based on battery level
     List<Charger> suitableChargers = findSuitableChargers(route, chargersWithinPolygon);
     logger.info("Suitable chargers: " + suitableChargers.size());
+    route.setChargersOnRoute(suitableChargers);
 
 
     // Snap route to Chargers and FoodEstablishments
@@ -145,7 +146,7 @@ public class RoutingService {
 
     Polygon foursquareBufferedLineString =
             GeometryService.bufferLineString(lineString, 0.018); // 500m is 0.0045
-    String tmpPolygonFoursquareFormat = polygonStringToFoursquareFormat(foursquareBufferedLineString);
+    String tmpPolygonFoursquareFormat = PolylineUtility.polygonStringToFoursquareFormat(foursquareBufferedLineString);
     logger.info("Fetching food establishments within polygon from Foursquare, Str Len: {}", tmpPolygonFoursquareFormat.length());
     if (tmpPolygonFoursquareFormat.length() > 100) {
       logger.info("tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat.substring(0, 100) + "...");
@@ -153,11 +154,11 @@ public class RoutingService {
       logger.info("tmpPolygonFoursquareFormat " + tmpPolygonFoursquareFormat);
     }
 
-    FoursquareRequest params =
-        new FoursquareRequestBuilder()
-            .setCategories(routeRequest.getEatingOptions())
-            .setPolygon(tmpPolygonFoursquareFormat)
-            .createFoursquareRequest();
+//    FoursquareRequest params =
+//        new FoursquareRequestBuilder()
+//            .setCategories(routeRequest.getEatingOptions())
+//            .setPolygon(tmpPolygonFoursquareFormat)
+//            .createFoursquareRequest();
 
 //        List<FoodEstablishment> foodEstablishmentsWithinPolygon =
 //            foodEstablishmentService.getFoodEstablishmentsByParam(params);
@@ -170,14 +171,16 @@ public class RoutingService {
                 polyline,
                 snappedPolyline,
                 tmpPolygon,
-                tmpPolygonFoursquareFormat,
+                route.getEatingOptionSearch(),
                 route.getRouteLength(),
                 route.getRouteDuration(),
                 route.getSegmentDetails(),
                 suitableChargers,
                 List.of(poiServiceTestResults.getT1()));
 
-    return dummyRouteResult;
+    RouteResult routeResult = new RouteResult(route, routeRequest);
+
+    return routeResult;
   }
 
   private LineString snapRouteToStops(Route route, List<Charger> suitableChargers) {
@@ -263,38 +266,6 @@ public class RoutingService {
     OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse =
         osrClient.getDirectionsGeoJSON(osrDirectionsServiceGeoJSONRequest);
     return osrDirectionsServiceGeoJSONResponse;
-  }
-
-  public static String polygonStringToFoursquareFormat(Polygon polygon) {
-
-    int step = 75;
-    Coordinate[] coordinates = polygon.getExteriorRing().getCoordinates();
-    StringBuilder formattedString = new StringBuilder();
-
-    // iterate over coordinates skipping {step} coordinates each time
-    for (int i = 0; i < coordinates.length; i += step) {
-      // use CoordinateFormatter to trim lat long to 3dp
-      formattedString
-          .append(CoordinateFormatter.formatCoordinate(coordinates[i].y))
-          .append(",")
-          .append(CoordinateFormatter.formatCoordinate(coordinates[i].x));
-
-      // append '~' separator except after last coordinate
-      if (i + step < coordinates.length) {
-        formattedString.append("~");
-      }
-    }
-
-    // ensure the polygon is closed (first and last coordinates should be the same)
-    if (!coordinates[0].equals2D(coordinates[coordinates.length - 1])) {
-      formattedString
-          .append("~")
-          .append(CoordinateFormatter.formatCoordinate(coordinates[0].y))
-          .append(",")
-          .append(CoordinateFormatter.formatCoordinate(coordinates[0].x));
-    }
-
-    return formattedString.toString();
   }
 
   // ROUTING RELATED FUNCTIONS

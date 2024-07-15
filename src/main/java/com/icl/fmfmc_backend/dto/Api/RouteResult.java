@@ -1,5 +1,6 @@
 package com.icl.fmfmc_backend.dto.Api;
 
+import com.icl.fmfmc_backend.Routing.PolylineUtility;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.Routing.Route;
@@ -27,5 +28,19 @@ public class RouteResult {
   private List<Charger> chargers;
   private List<FoodEstablishment> foodEstablishments;
   private RouteRequest context; // original request
+
+
+  public RouteResult(Route route, RouteRequest context) {
+    this.originalRoutePolyline = PolylineUtility.encodeLineString(route.getLineStringRoute());
+    this.routePolyline = PolylineUtility.encodeLineString(route.getRouteSnappedToStops());
+    this.chargerPolygon = PolylineUtility.encodePolygon(route.getBufferedLineString());
+    this.eatingOptionPolygon = route.getEatingOptionSearch();
+    this.distance = route.getRouteLength();
+    this.time = route.getRouteDuration();
+    this.segmentDetails = route.getSegmentDetails();
+    this.chargers = route.getChargersOnRoute();
+    this.foodEstablishments = route.getFoodEstablishments();
+    this.context = context;
+  }
 
 }

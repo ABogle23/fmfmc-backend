@@ -29,6 +29,7 @@ public class Route {
   private LineString lineStringRoute;
   private LineString routeSnappedToStops;
   private Polygon bufferedLineString;
+  private String eatingOptionSearch;
 
   private Double routeLength;
   private Double routeDuration;
