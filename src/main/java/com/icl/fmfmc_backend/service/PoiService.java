@@ -102,6 +102,7 @@ public class PoiService {
     Charger adjacentCharger =
         getNearestCharger(routeRequest, optimalFoodEstablishment.getLocation());
 
+    // if includeAlternativeEatingOptions is true, return the top 5 food establishments around the adjacent charger
     if (routeRequest.getIncludeAlternativeEatingOptions() && adjacentCharger != null) {
       List<FoodEstablishment> subOptimalFoodEstablishments = getFoodEstablishmentsAroundAdjacentCharger(foodEstablishmentsInRange, adjacentCharger, routeRequest);
       return Tuples.of(subOptimalFoodEstablishments, adjacentCharger);
