@@ -52,7 +52,7 @@ public class RouteRequest {
   private Double batteryCapacity;
 
   // charging preferences
-  // TODO: add connectortype, speed, network operator, minNoChargePoints
+  // TODO: network operator
 
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Minimum charge level must be non-negative")
