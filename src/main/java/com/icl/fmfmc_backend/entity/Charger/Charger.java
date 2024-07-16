@@ -25,17 +25,9 @@ public class Charger {
 
   @JsonProperty("isRecentlyVerified")
   private boolean isRecentlyVerified;
-
-  //  @JsonProperty("date_last_verified")
   private LocalDateTime dateLastVerified;
-
-  //  @JsonProperty("date_last_status_update")
   private LocalDateTime dateLastStatusUpdate;
-
-  //  @JsonProperty("date_created")
   private LocalDateTime dateCreated;
-
-  //  @JsonProperty("usage_cost")
   private String usageCost;
 
   @OneToOne(cascade = CascadeType.ALL)
@@ -47,32 +39,14 @@ public class Charger {
 
   @Embedded
   private GeoCoordinates geocodes;
-
-  //  @JsonProperty("data_provider_id")
   private Long dataProviderID;
-
-  //  @JsonProperty("number_of_points")
   private Long numberOfPoints;
-
-  //  @JsonProperty("usage_type_id")
   private Long usageTypeID;
-
-  //  @JsonProperty("submission_status_type_id")
   private Long submissionStatusTypeID;
-
-  //  @JsonProperty("status_type_id")
   private Long statusTypeID;
-
-  //  @JsonProperty("operator_id")
   private Long operatorID;
-
-  //  @JsonProperty("operators_reference")
   private String operatorsReference;
-
-  //  @JsonProperty("created_at")
   private LocalDateTime createdAt;
-
-  //  @JsonProperty("updated_at")
   private LocalDateTime updatedAt;
 
   @JsonIgnore
