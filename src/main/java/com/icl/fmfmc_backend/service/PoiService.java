@@ -36,6 +36,9 @@ import java.util.*;
 6 return an adjacent preselected charger
 
 TODO: incorp chargeSpeed into restaurant scoring
+TODO: add more scoring criteria
+TODO: introduced expanding search or rela
+
 
 */
 
@@ -60,7 +63,12 @@ public class PoiService {
     this.setClusteringStrategy(new OutlierAdjustedKMeansClusteringService());
 
     LineString lineString = route.getWorkingLineStringRoute();
-    lineString = GeometryService.extractLineStringPortion(lineString, 0.25, 0.75);
+
+    // restrict search to part of route as per stoppingRange param
+    Double searchStart = routeRequest.getStoppingRangeAsFraction()[0];
+    Double searchEnd = routeRequest.getStoppingRangeAsFraction()[1];
+    lineString = GeometryService.extractLineStringPortion(lineString, searchStart, searchEnd);
+
     Polygon polygon = GeometryService.bufferLineString(lineString, 0.009*6.5); // 6.5km
 
     // For testing
@@ -192,7 +200,6 @@ public class PoiService {
         (establishment.getPrice() != null && establishment.getPrice() != 4)
             ? (double) (4 - establishment.getPrice()) / 8
             : 0;
-    // TODO: add additional scoring criteria
 
     System.out.println("Score: " + score + " for " + establishment.getName());
 

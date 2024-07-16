@@ -3,10 +3,7 @@ package com.icl.fmfmc_backend.dto.Api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.icl.fmfmc_backend.entity.enums.AccessType;
-import com.icl.fmfmc_backend.entity.enums.ConnectionType;
-import com.icl.fmfmc_backend.entity.enums.EnumUtils;
-import com.icl.fmfmc_backend.entity.enums.FoodCategory;
+import com.icl.fmfmc_backend.entity.enums.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import jakarta.validation.constraints.*;
@@ -155,7 +152,7 @@ public class RouteRequest {
 
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 200, message = "Max walking distance must be equal or greater than 200")
-  @Max(value = 500, message = "Max walking distance must be less than or equal to 500")
+  @Max(value = 5000, message = "Max walking distance must be less than or equal to 500")
   @JsonProperty("maxWalkingDistance")
   private Integer maxWalkingDistance = 500;
 
@@ -173,10 +170,23 @@ public class RouteRequest {
   @JsonProperty("breakDuration")
   private LocalTime breakDuration = LocalTime.of(1, 0);
 
-  // TODO: not yet implemented into Routing Service
   @JsonSetter(nulls = Nulls.SKIP)
-  @JsonProperty("idealStop")
-  private LocalTime idealStop;
+  @JsonProperty("stoppingRange")
+  private StoppingRange stoppingRange = StoppingRange.middle;
+
+  public Double[] getStoppingRangeAsFraction() {
+    if (this.stoppingRange == null) {
+      return new Double[]{0.33, 0.67}; // default to middle if null
+    }
+    return switch (this.stoppingRange) {
+          case earliest -> new Double[]{0.05, 0.33};
+          case early -> new Double[]{0.25, 0.5};
+          case middle -> new Double[]{0.33, 0.67};
+          case later -> new Double[]{0.5, 0.75};
+          case latest -> new Double[]{0.67, 0.95};
+          default -> new Double[]{0.33, 0.67}; // default to middle
+      };
+  }
 
   // Route preference
 

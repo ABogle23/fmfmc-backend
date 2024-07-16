@@ -55,7 +55,10 @@ public class GlobalExceptionHandler {
             return "eatingOptions";
         } else if (ex.getCause().getMessage().contains("connectorType")) {
             return "connectorType";
+        }  else if (ex.getCause().getMessage().contains("stoppingRange")) {
+            return "stoppingRange";
         }
+
         return "Unknown";
     }
 
