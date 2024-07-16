@@ -8,6 +8,8 @@ import com.icl.fmfmc_backend.entity.enums.AccessTypeToOcmMapper;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import com.icl.fmfmc_backend.entity.enums.ConnectionTypeToOcmMapper;
 import com.icl.fmfmc_backend.repository.ChargerRepo;
+import com.icl.fmfmc_backend.util.LogExecutionTime;
+import com.icl.fmfmc_backend.util.LogMessages;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
 import jakarta.persistence.EntityManager;
@@ -70,6 +72,7 @@ public class ChargerService {
     return chargerRepo.findChargersWithinRadius(minNoChargePoints, radius);
   }
 
+  @LogExecutionTime(message = LogMessages.SQL_QUERY)
   public List<Charger> getChargersByParams(ChargerQuery query) {
 
     String connectionTypeIds = getConnectionTypeIdsAsString(query);
@@ -107,6 +110,7 @@ public class ChargerService {
     return connectionTypeIds;
   }
 
+  @LogExecutionTime(message = LogMessages.SQL_QUERY)
   public List<Point> getChargerLocationsByParams(ChargerQuery query) {
 
     String connectionTypeIds = getConnectionTypeIdsAsString(query);
@@ -130,9 +134,10 @@ public class ChargerService {
   }
 
 
+  @LogExecutionTime(message = LogMessages.SQL_QUERY)
   public Charger getNearestChargerByParams(ChargerQuery query) {
 
-    String connectionTypeIds = getConnectionTypeIds(query);
+    String connectionTypeIds = getConnectionTypeIdsAsString(query);
 
     String accessTypeIds = getAccessTypeIdsAsString(query);
 
@@ -148,10 +153,10 @@ public class ChargerService {
     return nearestCharger;
   }
 
-  private String getConnectionTypeIds(ChargerQuery query) {
-    String connectionTypeIds = getConnectionTypeIdsAsString(query);
-    return connectionTypeIds;
-  }
+//  private String getConnectionTypeIds(ChargerQuery query) {
+//    String connectionTypeIds = getConnectionTypeIdsAsString(query);
+//    return connectionTypeIds;
+//  }
 
   public Double getHighestPowerConnectionByTypeInCharger(Charger charger, Route route) {
 

@@ -4,6 +4,7 @@ import com.icl.fmfmc_backend.service.RoutingService;
 
 import com.icl.fmfmc_backend.dto.Api.RouteRequest;
 import com.icl.fmfmc_backend.dto.Api.RouteResult;
+import com.icl.fmfmc_backend.util.LogExecutionTime;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ public class RouteController {
 
   private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
 
+  @LogExecutionTime(message = "Response time for /find-route endpoint ")
   @PostMapping("/find-route")
   public ResponseEntity<?> findRoute(@Valid @RequestBody RouteRequest routeRequest) {
     long startTime = System.currentTimeMillis();

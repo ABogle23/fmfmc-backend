@@ -14,6 +14,7 @@ import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 
 import com.icl.fmfmc_backend.Integration.OSRClient;
+import com.icl.fmfmc_backend.util.LogExecutionTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
@@ -28,6 +29,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 //TODO: Incorporate double safety check for final destination charge level
+//TODO: Handle situations whereby meeting the finalDestinationChargeLevel requires a stop very soon after eating.
+//TODO: Significant issues with chargers opposite side of road being selected
 
 @RequiredArgsConstructor
 @Slf4j
@@ -70,8 +73,6 @@ public class RoutingService {
 
     /* -----Find all chargers in BufferedLineString----- */
 
-    long startTime = System.currentTimeMillis();
-
     ChargerQuery query =
         ChargerQuery.builder()
             .polygon(route.getBufferedLineString())
@@ -86,11 +87,6 @@ public class RoutingService {
             .build();
 
     List<Charger> chargersWithinPolygon = chargerService.getChargersByParams(query);
-
-    long endTime = System.currentTimeMillis();
-    Double duration = (endTime - startTime) / 1000.0;
-    logger.info(String.format("Processing chargers SQL query, Processing time: %.2f s", duration));
-
 
     logger.info("Chargers within query: " + chargersWithinPolygon.size());
 

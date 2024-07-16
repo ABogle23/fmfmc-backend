@@ -10,6 +10,8 @@ import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequestBuilder;
 import com.icl.fmfmc_backend.entity.Routing.Route;
+import com.icl.fmfmc_backend.util.LogExecutionTime;
+import com.icl.fmfmc_backend.util.LogMessages;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,7 @@ public class PoiService {
   @Setter
   private ClusteringStrategy clusteringStrategy;
 
+  @LogExecutionTime(message = LogMessages.RETRIEVING_FOOD_ESTABLISHMENTS)
   public Tuple2<FoodEstablishment, Charger> getFoodEstablishmentOnRoute(
       Route route, RouteRequest routeRequest) {
     logger.info("Getting food establishment");
