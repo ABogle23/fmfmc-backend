@@ -72,20 +72,9 @@ public class ChargerService {
 
   public List<Charger> getChargersByParams(ChargerQuery query) {
 
-    List<Integer> mappedConnectionTypeIds =
-        connectionTypeToOcmMapper.mapConnectionTypeToDbIds(query.getConnectionTypeIds());
-    String connectionTypeIds =
-        String.join(
-            ",",
-            mappedConnectionTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
-    System.out.println(connectionTypeIds);
+    String connectionTypeIds = getConnectionTypeIdsAsString(query);
 
-    List<Integer> mappedAccessTypeIds =
-        accessTypeToOcmMapper.mapAccessTypeToDbIds(query.getAccessTypeIds());
-    String accessTypeIds =
-        String.join(
-            ",", mappedAccessTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
-    System.out.println(connectionTypeIds);
+    String accessTypeIds = getAccessTypeIdsAsString(query);
 
     return chargerRepo.findChargersByParams(
         query.getPolygon(),
@@ -98,22 +87,31 @@ public class ChargerService {
         query.getMinNoChargePoints());
   }
 
+  private String getAccessTypeIdsAsString(ChargerQuery query) {
+    List<Integer> mappedAccessTypeIds =
+        accessTypeToOcmMapper.mapAccessTypeToDbIds(query.getAccessTypeIds());
+    String accessTypeIds =
+        String.join(
+            ",", mappedAccessTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
+    return accessTypeIds;
+  }
+
+  private String getConnectionTypeIdsAsString(ChargerQuery query) {
+    List<Integer> mappedConnectionTypeIds =
+        connectionTypeToOcmMapper.mapConnectionTypeToDbIds(query.getConnectionTypeIds());
+    String connectionTypeIds =
+        String.join(
+            ",",
+            mappedConnectionTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
+    System.out.println(connectionTypeIds);
+    return connectionTypeIds;
+  }
+
   public List<Point> getChargerLocationsByParams(ChargerQuery query) {
 
-    List<Integer> mappedConnectionTypeIds =
-            connectionTypeToOcmMapper.mapConnectionTypeToDbIds(query.getConnectionTypeIds());
-    String connectionTypeIds =
-            String.join(
-                    ",",
-                    mappedConnectionTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
-    System.out.println(connectionTypeIds);
+    String connectionTypeIds = getConnectionTypeIdsAsString(query);
 
-    List<Integer> mappedAccessTypeIds =
-            accessTypeToOcmMapper.mapAccessTypeToDbIds(query.getAccessTypeIds());
-    String accessTypeIds =
-            String.join(
-                    ",", mappedAccessTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
-    System.out.println(connectionTypeIds);
+    String accessTypeIds = getAccessTypeIdsAsString(query);
 
     List<Object> projections =  chargerRepo.findChargerLocationsByParams(
             query.getPolygon(),
@@ -134,20 +132,9 @@ public class ChargerService {
 
   public Charger getNearestChargerByParams(ChargerQuery query) {
 
-    List<Integer> mappedConnectionTypeIds =
-            connectionTypeToOcmMapper.mapConnectionTypeToDbIds(query.getConnectionTypeIds());
-    String connectionTypeIds =
-            String.join(
-                    ",",
-                    mappedConnectionTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
-    System.out.println(connectionTypeIds);
+    String connectionTypeIds = getConnectionTypeIds(query);
 
-    List<Integer> mappedAccessTypeIds =
-            accessTypeToOcmMapper.mapAccessTypeToDbIds(query.getAccessTypeIds());
-    String accessTypeIds =
-            String.join(
-                    ",", mappedAccessTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
-    System.out.println(connectionTypeIds);
+    String accessTypeIds = getAccessTypeIdsAsString(query);
 
     Charger nearestCharger =  chargerRepo.findNearestChargerByParam(
             query.getPoint(),
@@ -159,6 +146,11 @@ public class ChargerService {
             query.getMinNoChargePoints());
 
     return nearestCharger;
+  }
+
+  private String getConnectionTypeIds(ChargerQuery query) {
+    String connectionTypeIds = getConnectionTypeIdsAsString(query);
+    return connectionTypeIds;
   }
 
   public Double getHighestPowerConnectionByTypeInCharger(Charger charger, Route route) {
