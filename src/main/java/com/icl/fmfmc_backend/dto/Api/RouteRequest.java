@@ -67,12 +67,18 @@ public class RouteRequest {
   private Double chargeLevelAfterEachStop = 0.8;
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @DecimalMin(value = "0", message = "Final destination charge level after each stop must be non-negative")
-  @DecimalMax(value = "0.9", message = "Final destination charge level after each stop must be less or equal to 0.9")
+  @DecimalMin(
+      value = "0",
+      message = "Final destination charge level after each stop must be non-negative")
+  @DecimalMax(
+      value = "0.9",
+      message = "Final destination charge level after each stop must be less or equal to 0.9")
   @JsonProperty("finalDestinationChargeLevel")
   private Double finalDestinationChargeLevel = 0.8;
 
-  @AssertTrue(message = "Final destination charge level must not be higher than charge level after each stop")
+  @AssertTrue(
+      message =
+          "Final destination charge level must not be higher than charge level after each stop")
   public boolean isFinalDestinationChargeLevelValid() {
     return finalDestinationChargeLevel < chargeLevelAfterEachStop;
   }
@@ -158,7 +164,7 @@ public class RouteRequest {
 
   @JsonSetter(nulls = Nulls.SKIP)
   @JsonProperty("includeAlternativeEatingOptions")
-  private Boolean includeAlternativeEatingOptions = true;
+  private Boolean includeAlternativeEatingOptions = false;
 
   // time constraints
 
@@ -180,34 +186,52 @@ public class RouteRequest {
 
   public Double[] getStoppingRangeAsFraction() {
     if (this.stoppingRange == null) {
-      return new Double[]{0.33, 0.67}; // default to middle if null
+      return new Double[] {0.33, 0.67}; // default to middle if null
     }
     return switch (this.stoppingRange) {
-          case earliest -> new Double[]{0.05, 0.33};
-          case early -> new Double[]{0.25, 0.5};
-          case middle -> new Double[]{0.33, 0.67};
-          case later -> new Double[]{0.5, 0.75};
-          case latest -> new Double[]{0.67, 0.95};
-          default -> new Double[]{0.33, 0.67}; // default to middle
-      };
+      case earliest -> new Double[] {0.05, 0.33};
+      case early -> new Double[] {0.25, 0.5};
+      case middle -> new Double[] {0.33, 0.67};
+      case later -> new Double[] {0.5, 0.75};
+      case latest -> new Double[] {0.67, 0.95};
+      default -> new Double[] {0.33, 0.67}; // default to middle
+    };
   }
 
-  // Route preference
-
-  // TODO: not yet implemented into Routing Service
+  // Route search preference
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @Min(value = 0, message = "Charger search distance from route must be non-negative")
-  @Max(value = 1000, message = "Charger search distance from route must be less than or equal to 1000")
-  @JsonProperty("chargerSearchDistanceFromRoute")
-  private Double chargerSearchDistanceFromRoute = 1000.0;
-
-  // TODO: not yet implemented into Routing Service
+  @JsonProperty("chargerSearchDeviation")
+  private DeviationScope chargerSearchDeviation = DeviationScope.moderate;
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @Min(value = 0, message = "Charger search distance from route must be non-negative")
-  @Max(value = 2000, message = "Charger search distance from route must be less than or equal to 1000")
-  @JsonProperty("eatingOptionSearchDistanceFromRoute")
-  private Double eatingOptionSearchDistanceFromRoute = 2000.0;
+  @JsonProperty("eatingOptionSearchDeviation")
+  private DeviationScope eatingOptionSearchDeviation = DeviationScope.moderate;
 
+  // mot implemented due to potential routing service algo issues
+  public Double getChargerSearchDeviationAsFraction() {
+    if (this.chargerSearchDeviation == null) {
+      return 6.5; // 6.5km
+    }
+    return switch (this.chargerSearchDeviation) {
+      case minimal -> 3.5;
+      case moderate -> 6.5;
+      case significant -> 10.5;
+      case extreme -> 20.5;
+      default -> 6.5; // default to moderate
+    };
+  }
+
+  public Double getEatingOptionSearchDeviationAsFraction() {
+    if (this.eatingOptionSearchDeviation == null) {
+      return 6.5; // 1.5km
+    }
+    return switch (this.eatingOptionSearchDeviation) {
+      case minimal -> 3.5;
+      case moderate -> 6.5;
+      case significant -> 10.5;
+      case extreme -> 20.5;
+      default -> 6.5; // default to moderate
+    };
+  }
 }

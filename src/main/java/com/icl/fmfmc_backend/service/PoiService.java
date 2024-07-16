@@ -10,6 +10,7 @@ import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequestBuilder;
 import com.icl.fmfmc_backend.entity.Routing.Route;
+import com.icl.fmfmc_backend.entity.enums.DeviationScope;
 import com.icl.fmfmc_backend.util.LogExecutionTime;
 import com.icl.fmfmc_backend.util.LogMessages;
 import lombok.RequiredArgsConstructor;
@@ -71,7 +72,12 @@ public class PoiService {
     Double searchEnd = routeRequest.getStoppingRangeAsFraction()[1];
     lineString = GeometryService.extractLineStringPortion(lineString, searchStart, searchEnd);
 
-    Polygon polygon = GeometryService.bufferLineString(lineString, 0.009*6.5); // 6.5km
+
+    Double foodEstablishmentDeviationScope =
+            routeRequest.getEatingOptionSearchDeviationAsFraction(); // km
+
+    Polygon polygon = GeometryService.bufferLineString(
+            lineString, 0.009 * foodEstablishmentDeviationScope);
 
     // For testing
     route.setEatingOptionSearch(PolylineUtility.polygonStringToFoursquareFormat(polygon));
