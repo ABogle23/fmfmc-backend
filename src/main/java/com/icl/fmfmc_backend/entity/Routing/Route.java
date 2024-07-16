@@ -6,15 +6,11 @@ import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
-import com.icl.fmfmc_backend.service.ChargerService;
 import lombok.Data;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -26,8 +22,9 @@ public class Route {
   private static final double CHARGE_OVERHEAD = 300; // time (s) to park, find & connect to charger etc
 
 
-  private LineString lineStringRoute;
-  private LineString routeSnappedToStops;
+  private LineString originalLineStringRoute;
+  private LineString workingLineStringRoute;
+  private LineString finalSnappedToStopsRoute;
   private Polygon bufferedLineString;
   private String eatingOptionSearch;
 
@@ -48,6 +45,11 @@ public class Route {
     public void addSegment(Double duration, Double distance) {
       segmentDurations.add(duration);
       segmentDistances.add(distance);
+    }
+
+    private void clearSegmentDurationAndDistance() {
+      segmentDurations.clear();
+      segmentDistances.clear();
     }
 
     public void addStop(Double duration) {
@@ -75,7 +77,6 @@ public class Route {
   // TODO: consider weather conditions in range calculation
 
   // Standard Constructor
-
   private Route(RouteRequest routeRequest) {
     this.connectionTypes = routeRequest.getConnectionTypes();
     this.currentBattery = routeRequest.getStartingBattery() * routeRequest.getEvRange();
@@ -131,11 +132,12 @@ public class Route {
 
   public Route(OSRDirectionsServiceGeoJSONResponse routeResponse, RouteRequest routeRequest) {
     this(routeRequest);
-    this.lineStringRoute =
+    this.originalLineStringRoute =
         geometryService.createLineString(
             routeResponse.getFeatures().get(0).getGeometry().getCoordinates());
-    this.bufferedLineString = GeometryService.bufferLineString(lineStringRoute, 0.009);
-    this.routeLength = GeometryService.calculateLineStringLength(lineStringRoute);
+    this.workingLineStringRoute = originalLineStringRoute;
+    this.bufferedLineString = GeometryService.bufferLineString(workingLineStringRoute, 0.009); // 1km
+    this.routeLength = GeometryService.calculateLineStringLength(workingLineStringRoute);
 //    this.routeLength =
 //        routeResponse.getFeatures().get(0).getProperties().getSummary().getDistance();
     this.routeDuration =
@@ -157,11 +159,15 @@ public class Route {
     chargeTime = chargeTime * 3600.0; // convert to seconds
     chargeTime += CHARGE_OVERHEAD; // add charge overhead
     chargeTime = Math.round(chargeTime * 10) / 10.0; // round to 1dp
-    segmentDetails.addStop(chargeTime);
+
+    segmentDetails.addStop(chargeTime); // add charge time to segment details
   }
 
   public void setDurationsAndDistances(OSRDirectionsServiceGeoJSONResponse response) {
-    // Assuming geometryService and other members are initialized elsewhere
+
+    // reset segments (except stops) resulting from previous function calls.
+    segmentDetails.clearSegmentDurationAndDistance();
+    // set individual distances and durations per leg.
     for (OSRDirectionsServiceGeoJSONResponse.FeatureDTO feature : response.getFeatures()) {
       for (OSRDirectionsServiceGeoJSONResponse.FeatureDTO.PropertiesDTO.SegmentDTO segment :
           feature.getProperties().getSegments()) {
@@ -171,7 +177,7 @@ public class Route {
   }
 
   public void setTotalDurationAndDistance(OSRDirectionsServiceGeoJSONResponse response) {
-    // Assuming geometryService and other members are initialized elsewhere
+    // updates route object routeLength and routeDuration to include detours to chargers and charge time
     Double totalDuration = 0.0;
     Double totalDistance = 0.0;
 

@@ -56,7 +56,7 @@ public class PoiService {
 
     this.setClusteringStrategy(new OutlierAdjustedKMeansClusteringService());
 
-    LineString lineString = route.getLineStringRoute();
+    LineString lineString = route.getWorkingLineStringRoute();
     lineString = GeometryService.extractLineStringPortion(lineString, 0.25, 0.75);
     Polygon polygon = GeometryService.bufferLineString(lineString, 0.009*6.5); // 6.5km
 

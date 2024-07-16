@@ -19,7 +19,7 @@ public class RouteResult {
   // TODO: including battery levels before and after stops and end
 
   private String originalRoutePolyline;
-  private String routePolyline;
+  private String finalRoutePolyline;
   private String chargerPolygon;
   private String eatingOptionPolygon;
   private Double distance;
@@ -31,8 +31,8 @@ public class RouteResult {
 
 
   public RouteResult(Route route, RouteRequest context) {
-    this.originalRoutePolyline = PolylineUtility.encodeLineString(route.getLineStringRoute());
-    this.routePolyline = PolylineUtility.encodeLineString(route.getRouteSnappedToStops());
+    this.originalRoutePolyline = PolylineUtility.encodeLineString(route.getOriginalLineStringRoute());
+    this.finalRoutePolyline = PolylineUtility.encodeLineString(route.getFinalSnappedToStopsRoute());
     this.chargerPolygon = PolylineUtility.encodePolygon(route.getBufferedLineString());
     this.eatingOptionPolygon = route.getEatingOptionSearch();
     this.distance = route.getRouteLength();
