@@ -60,9 +60,9 @@ public class RoutingService {
 
     /* -----Find ideal FoodEstablishment via PoiService----- */
 
-    Tuple2<FoodEstablishment, Charger> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route, routeRequest);
+    Tuple2<List<FoodEstablishment>, Charger> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route, routeRequest);
 
-    route.setFoodEstablishments(List.of(poiServiceTestResults.getT1()));
+    route.setFoodEstablishments(poiServiceTestResults.getT1());
     route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
     LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
     route.setWorkingLineStringRoute(routeSnappedToFoodAdjacentCharger);

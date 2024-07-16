@@ -24,7 +24,9 @@ import org.springframework.stereotype.Service;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
+import java.lang.annotation.Retention;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /* TODO:
 
@@ -56,7 +58,7 @@ public class PoiService {
   private ClusteringStrategy clusteringStrategy;
 
   @LogExecutionTime(message = LogMessages.RETRIEVING_FOOD_ESTABLISHMENTS)
-  public Tuple2<FoodEstablishment, Charger> getFoodEstablishmentOnRoute(
+  public Tuple2<List<FoodEstablishment>, Charger> getFoodEstablishmentOnRoute(
       Route route, RouteRequest routeRequest) {
     logger.info("Getting food establishment");
 
@@ -94,11 +96,18 @@ public class PoiService {
     Charger adjacentCharger =
         getNearestCharger(routeRequest, optimalFoodEstablishment.getLocation());
 
+    if (routeRequest.getIncludeAlternativeEatingOptions() && adjacentCharger != null) {
+      List<FoodEstablishment> subOptimalFoodEstablishments = getFoodEstablishmentsAroundAdjacentCharger(foodEstablishmentsInRange, adjacentCharger, routeRequest);
+      return Tuples.of(subOptimalFoodEstablishments, adjacentCharger);
+    }
+
     System.out.println("Optimal Food Establishment: " + optimalFoodEstablishment);
     System.out.println("Adjacent Charger: " + adjacentCharger);
 
-    return Tuples.of(optimalFoodEstablishment, adjacentCharger);
+    return Tuples.of(List.of(optimalFoodEstablishment), adjacentCharger);
   }
+
+
 
   public List<Point> getChargerLocationsInPolygon(
       Route route, RouteRequest routeRequest, Polygon polygon) {
@@ -223,4 +232,27 @@ public class PoiService {
 
     return adjacentCharger;
   }
+
+  private List<FoodEstablishment> getFoodEstablishmentsAroundAdjacentCharger(List<FoodEstablishment> foodEstablishmentsInRange, Charger adjacentCharger, RouteRequest routeRequest) {
+    List<FoodEstablishment> subOptimalFoodEstablishments = new ArrayList<>();
+
+    for (FoodEstablishment foodEstablishment : foodEstablishmentsInRange) {
+      Double distance =
+          GeometryService.calculateDistanceBetweenPoints(
+              adjacentCharger.getLocation(), foodEstablishment.getLocation());
+      if (distance <= routeRequest.getMaxWalkingDistance()) {
+        subOptimalFoodEstablishments.add(foodEstablishment);
+      }
+    }
+
+    subOptimalFoodEstablishments.sort((e1, e2) -> Double.compare(
+            calculateScore(e2, routeRequest), calculateScore(e1, routeRequest)));
+
+    subOptimalFoodEstablishments =  subOptimalFoodEstablishments.stream().limit(5).collect(Collectors.toList());
+
+    System.out.println("Suboptimal Food Establishments: " + subOptimalFoodEstablishments.size());
+
+    return subOptimalFoodEstablishments;
+  }
+
 }

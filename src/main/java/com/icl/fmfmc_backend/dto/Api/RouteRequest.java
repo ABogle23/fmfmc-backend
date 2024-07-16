@@ -156,6 +156,10 @@ public class RouteRequest {
   @JsonProperty("maxWalkingDistance")
   private Integer maxWalkingDistance = 500;
 
+  @JsonSetter(nulls = Nulls.SKIP)
+  @JsonProperty("includeAlternativeEatingOptions")
+  private Boolean includeAlternativeEatingOptions = true;
+
   // time constraints
 
   @JsonSetter(nulls = Nulls.SKIP)
