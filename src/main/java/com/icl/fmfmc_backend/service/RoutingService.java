@@ -506,7 +506,6 @@ public class RoutingService {
                   <= route.getChargeLevelAfterEachStop() - route.getFinalDestinationChargeLevel()) { // less than
 
             addChargerAndUpdateBattery(chargersAtIntervals, candidateCharger, route, distanceToCandidateCharger);
-
             logger.info("Added additional charger to ensure final charge level: Charger ID " + candidateCharger.getId());
             route.setCurrentBattery(route.getCurrentBattery() - (route.getRouteLength() - chargerDistance));
             return true;
@@ -516,7 +515,11 @@ public class RoutingService {
         }
       }
     }
-    // Fallback
+    // fallback if final charge level is not met
+    return ensureFinalChargeLevelFallback(chargersAtIntervals, route, sortedChargers, lastChargerDistance);
+  }
+
+  private Boolean ensureFinalChargeLevelFallback(List<Charger> chargersAtIntervals, Route route, LinkedHashMap<Charger, Double> sortedChargers, Double lastChargerDistance) {
     Charger lastSortedCharger = new ArrayList<>(sortedChargers.keySet()).get(sortedChargers.size() - 1);
     Double lastSortedDistance = sortedChargers.get(lastSortedCharger);
 
@@ -527,13 +530,10 @@ public class RoutingService {
       addChargerAndUpdateBattery(chargersAtIntervals, lastSortedCharger, route, distanceToLastSortedCharger);
       logger.info("Added additional charger to partially meet final charge level: Charger ID " + lastSortedCharger.getId());
       route.setCurrentBattery(route.getCurrentBattery() - (route.getRouteLength() - lastSortedDistance));
+      return true;
     }
-
     return false;
   }
-
-
-
 
 
   public void printChargerDistanceMap(LinkedHashMap<Charger, Double> map) {
