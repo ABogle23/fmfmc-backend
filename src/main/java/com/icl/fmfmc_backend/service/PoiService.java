@@ -21,6 +21,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.stereotype.Service;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
@@ -96,6 +97,7 @@ public class PoiService {
         getFoodEstablishmentsInRangeOfChargers(
             chargerLocations, foodEstablishmentsAroundClusters, routeRequest);
 
+    // needs fallback strategy
     FoodEstablishment optimalFoodEstablishment =
         getOptimalFoodEstablishment(foodEstablishmentsInRange, routeRequest);
 
@@ -141,7 +143,15 @@ public class PoiService {
   public List<FoodEstablishment> getFoodEstablishmentsAroundClusters(
       RouteRequest routeRequest, List<Point> clusteredChargers) {
 
-    Set<FoodEstablishment> foodEstablishments = new HashSet<>();
+    Integer searchRadius = switch (routeRequest.getEatingOptionSearchDeviation()) {
+        case minimal -> 4500;
+        case moderate -> 5000;
+        case significant -> 10000;
+        case extreme -> 15000;
+        default -> 5000;
+    };
+
+      Set<FoodEstablishment> foodEstablishments = new HashSet<>();
 
     for (Point cluster : clusteredChargers) {
       String[] coordinates = getLatLongAsString(cluster);
@@ -151,7 +161,7 @@ public class PoiService {
           new FoursquareRequestBuilder()
               .setCategories(routeRequest.getEatingOptions())
               .setLl(latLong)
-              .setRadius(5000)
+              .setRadius(searchRadius)
               .createFoursquareRequest();
 
       List<FoodEstablishment> clusterFoodEstablishment =
