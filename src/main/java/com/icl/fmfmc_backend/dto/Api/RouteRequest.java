@@ -3,10 +3,14 @@ package com.icl.fmfmc_backend.dto.Api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.icl.fmfmc_backend.dto.ElectricVehicle;
 import com.icl.fmfmc_backend.entity.enums.*;
+import com.icl.fmfmc_backend.service.ElectricVehicleService;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import jakarta.validation.constraints.*;
+import lombok.RequiredArgsConstructor;
+
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +40,10 @@ public class RouteRequest {
   // vehicle info
 
   @JsonSetter(nulls = Nulls.SKIP)
+  @JsonProperty("electricVehicleId")
+  private Long electricVehicleId = null;
+
+  @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Starting battery must be greater than 0")
   @Max(value = 1, message = "Starting battery must be less than or equal to 1")
   @JsonProperty("startingBattery")
@@ -48,7 +56,7 @@ public class RouteRequest {
   private Double evRange = 300000.0;
 
   @Min(value = 1, message = "Battery capacity must be greater than 0")
-  @JsonProperty("batterySize") // kWh
+  @JsonProperty("batteryCapacity") // kWh
   private Double batteryCapacity;
 
   // charging preferences
@@ -74,13 +82,13 @@ public class RouteRequest {
       value = "0.9",
       message = "Final destination charge level after each stop must be less or equal to 0.9")
   @JsonProperty("finalDestinationChargeLevel")
-  private Double finalDestinationChargeLevel = 0.8;
+  private Double finalDestinationChargeLevel = 0.2;
 
   @AssertTrue(
       message =
           "Final destination charge level must not be higher than charge level after each stop")
   public boolean isFinalDestinationChargeLevelValid() {
-    return finalDestinationChargeLevel < chargeLevelAfterEachStop;
+    return finalDestinationChargeLevel <= chargeLevelAfterEachStop;
   }
 
   @JsonProperty("connectionTypes")

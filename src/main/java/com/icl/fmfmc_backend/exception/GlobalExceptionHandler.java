@@ -61,6 +61,8 @@ public class GlobalExceptionHandler {
             return "chargerSearchDeviation";
         } else if (ex.getCause().getMessage().contains("eatingOptionSearchDeviation")) {
             return "eatingOptionSearchDeviation";
+        } else if (ex.getCause().getMessage().contains("electricVehicleId")) {
+            return "electricVehicleId";
         }
 
         return "Unknown";
