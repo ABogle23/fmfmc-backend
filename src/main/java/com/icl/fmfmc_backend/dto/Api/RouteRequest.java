@@ -134,7 +134,10 @@ public class RouteRequest {
   // Operator/Network
 
   // dining preferences
-  // TODO: add cuisine type, price range, etc.
+
+  @JsonSetter(nulls = Nulls.SKIP)
+  @JsonProperty("stopForEating")
+  private Boolean stopForEating = true;
 
   @JsonProperty("eatingOptions")
   private List<FoodCategory> eatingOptions = getDefaultEatingOptions();

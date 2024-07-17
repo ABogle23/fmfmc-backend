@@ -60,15 +60,20 @@ public class RoutingService {
 
     /* -----Find ideal FoodEstablishment via PoiService----- */
 
-//    Tuple2<List<FoodEstablishment>, Charger> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route, routeRequest);
-//
-//    route.setFoodEstablishments(poiServiceTestResults.getT1());
-//    route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
-//    LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
-//    route.setWorkingLineStringRoute(routeSnappedToFoodAdjacentCharger);
-//    Polygon bufferedLineString =
-//            GeometryService.bufferLineString(routeSnappedToFoodAdjacentCharger, 0.009); // 500m is 0.0045
-//    route.setBufferedLineString(bufferedLineString);
+
+    if (routeRequest.getStopForEating()) {
+      Tuple2<List<FoodEstablishment>, Charger> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route, routeRequest);
+
+      route.setFoodEstablishments(poiServiceTestResults.getT1());
+      route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
+      LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
+      route.setWorkingLineStringRoute(routeSnappedToFoodAdjacentCharger);
+      Polygon bufferedLineString =
+              GeometryService.bufferLineString(routeSnappedToFoodAdjacentCharger, 0.009); // 500m is 0.0045
+      route.setBufferedLineString(bufferedLineString);
+    } else {
+      logger.info("No eating stop requested, skipping food establishment search");
+    }
 
 
     /* -----Find all chargers in BufferedLineString----- */
