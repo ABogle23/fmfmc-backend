@@ -321,8 +321,7 @@ public class RoutingService {
 
     logger.info("Total route length: " + route.getRouteLength());
 
-    if (route.getRouteLength() <= route.getCurrentBattery() - route.getFinalDestinationChargeLevel()) {
-        logger.info("Battery level is sufficient to complete the route without charging");
+    if (isRouteCompleteWithoutCharging(route)) {
         return Collections.emptyList();
     }
 
@@ -453,6 +452,15 @@ public class RoutingService {
 
     return chargersAtIntervals;
   }
+
+  private boolean isRouteCompleteWithoutCharging(Route route) {
+    if (route.getRouteLength() <= route.getCurrentBattery() - route.getFinalDestinationChargeLevel()) {
+      logger.info("Battery level is sufficient to complete the route without charging");
+      return true;
+    }
+    return false;
+  }
+
 
 
   private boolean canEnsureFinalChargeLevel(List<Charger> chargersAtIntervals, Route route, LinkedHashMap<Charger, Double> sortedChargers) {
