@@ -331,19 +331,19 @@ public class RoutingService {
 
       if (route.getFoodAdjacentCharger() != null && entry.getKey().equals(route.getFoodAdjacentCharger())) {
 
+        route.setFoodAdjacentChargerUsed(true);
+
         closestCharger = entry.getKey();
         closestDistance = chargerDistance;
 
-        route.setFoodAdjacentChargerUsed(true);
 
         // calc range used up to this charger and update
         Double distanceTraveled = closestDistance - lastChargerDistance;
         lastChargerDistance = closestDistance;  // update the last charger's distance
-
         addChargerAndUpdateBattery(chargersAtIntervals, route.getFoodAdjacentCharger(), route, distanceTraveled);
-
         nextTargetDistance = closestDistance + calculateMaxTravelDistance(route);  // calc next interval distance
         logger.info("Next target distance: " + nextTargetDistance + " m");
+
         // stop if the next interval is beyond the route end
         if (nextTargetDistance > route.getRouteLength()) {
           System.out.println("BREAKING: Adding food adjacent charger");
@@ -380,11 +380,6 @@ public class RoutingService {
           logger.info("Next target distance: " + nextTargetDistance + " m");
           // stop if the next interval is beyond the route end
           if (nextTargetDistance > route.getRouteLength()) {
-
-            if (!route.getFoodAdjacentChargerUsed() && route.getFoodAdjacentCharger() != null) {
-              // TODO: Implement edge case
-            }
-
             break;
           }
           closestCharger = null; // reset for  next interval
@@ -395,10 +390,9 @@ public class RoutingService {
 
     // Add foodAdjacentCharger if not already added
     if (!route.getFoodAdjacentChargerUsed() && route.getFoodAdjacentCharger() != null) {
+      route.setFoodAdjacentChargerUsed(true);
       closestCharger = route.getFoodAdjacentCharger();
       closestDistance = sortedChargers.get(route.getFoodAdjacentCharger());
-      System.out.println(sortedChargers.get(route.getFoodAdjacentCharger()));
-      route.setFoodAdjacentChargerUsed(true);
       Double distanceTraveled = closestDistance - lastChargerDistance;
       lastChargerDistance = closestDistance;  // update the last charger's distance
 
@@ -414,7 +408,6 @@ public class RoutingService {
       Double finalSegmentDistance = closestDistance - lastChargerDistance;
 
       addChargerAndUpdateBattery(chargersAtIntervals, closestCharger, route, finalSegmentDistance);
-
 
     }
 
@@ -458,10 +451,10 @@ public class RoutingService {
                                           Double reducedBatteryBy) {
     chargersAtInterval.add(selectedCharger);
     route.setCurrentBattery(route.getCurrentBattery() - reducedBatteryBy);
-    logger.info("Battery at: " + route.getCurrentBattery() + "m");
+    logger.info("Battery at: " + route.getCurrentBattery() + "m > " + route.getMinChargeLevel() + "m");
     route.rechargeBattery(chargerService.getHighestPowerConnectionByTypeInCharger(selectedCharger, route));
     // recharge to getChargeLevelAfterEachStopPct (defaults to 90%)
-    logger.info("Recharging battery to: " + route.getCurrentBattery() + "m > " + route.getMinChargeLevel() + "m");
+    logger.info("Recharging battery to: " + route.getCurrentBattery() + "m");
 
   }
 
@@ -482,7 +475,7 @@ public class RoutingService {
     Double remainingDistance = route.getRouteLength() - lastChargerDistance;
     logger.info("Remaining distance: " + remainingDistance + " m");
 
-    // Calculate the remaining battery after last charge and the rest of the route
+    // calc the remaining battery after last charge and the rest of the route
     Double finalBatteryLevel = route.getChargeLevelAfterEachStop() - remainingDistance;
     logger.info("Final battery level: " + finalBatteryLevel + " m");
     logger.info("Final destination charge level: " + route.getFinalDestinationChargeLevel() + " m");
@@ -493,17 +486,17 @@ public class RoutingService {
       // need to add another charger to ensure final charge level
       for (Map.Entry<Charger, Double> entry : sortedChargers.entrySet()) {
         Double chargerDistance = entry.getValue();
-        logger.info("Checking charger distance: " + chargerDistance + " m");
+//        logger.info("Checking charger distance: " + chargerDistance + " m");
         // check if charger is within the remaining distance i.e. between last charger and final dest.
         if (chargerDistance > lastChargerDistance && chargerDistance <= route.getRouteLength()) {
           Charger candidateCharger = entry.getKey();
           Double distanceToCandidateCharger = chargerDistance - lastChargerDistance;
           Double batteryAfterReachingCandidate = route.getChargeLevelAfterEachStop() - distanceToCandidateCharger;
 
-          logger.info("Distance to candidate charger: " + distanceToCandidateCharger + " m");
-          logger.info("Battery after reaching candidate charger: " + batteryAfterReachingCandidate + " m");
+//          logger.info("Distance to candidate charger: " + distanceToCandidateCharger + " m");
+//          logger.info("Battery after reaching candidate charger: " + batteryAfterReachingCandidate + " m");
 
-          logger.info("2nd comp: " + (route.getRouteLength() - chargerDistance) + " <= " + (route.getChargeLevelAfterEachStop() - route.getFinalDestinationChargeLevel()) + " ?");
+//          logger.info("2nd comp: " + (route.getRouteLength() - chargerDistance) + " <= " + (route.getChargeLevelAfterEachStop() - route.getFinalDestinationChargeLevel()) + " ?");
 
           // CAN get to candidate charger with enough battery
           // AND remaining distance after candidate charger is LESS THAN the difference
@@ -523,6 +516,19 @@ public class RoutingService {
         }
       }
     }
+    // Fallback
+    Charger lastSortedCharger = new ArrayList<>(sortedChargers.keySet()).get(sortedChargers.size() - 1);
+    Double lastSortedDistance = sortedChargers.get(lastSortedCharger);
+
+    if (!chargersAtIntervals.contains(lastSortedCharger)
+            && lastSortedDistance > lastChargerDistance
+            && lastSortedDistance <= route.getRouteLength()) {
+      Double distanceToLastSortedCharger = lastSortedDistance - lastChargerDistance;
+      addChargerAndUpdateBattery(chargersAtIntervals, lastSortedCharger, route, distanceToLastSortedCharger);
+      logger.info("Added additional charger to partially meet final charge level: Charger ID " + lastSortedCharger.getId());
+      route.setCurrentBattery(route.getCurrentBattery() - (route.getRouteLength() - lastSortedDistance));
+    }
+
     return false;
   }
 
