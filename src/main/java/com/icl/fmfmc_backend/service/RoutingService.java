@@ -123,15 +123,15 @@ public class RoutingService {
 
     List<Double[]> routeCoordinates = new ArrayList<>();
 
-    Double[] startCoordinates = getPointAsDouble(route.getWorkingLineStringRoute().getStartPoint());
+    Double[] startCoordinates = GeometryService.getPointAsDouble(route.getWorkingLineStringRoute().getStartPoint());
     routeCoordinates.add(startCoordinates);
 
     for (Charger charger : suitableChargers) {
-      Double[] chargerCoordinates = getPointAsDouble(charger.getLocation());
+      Double[] chargerCoordinates = GeometryService.getPointAsDouble(charger.getLocation());
       routeCoordinates.add(chargerCoordinates);
     }
 
-    Double[] endCoordinates = getPointAsDouble(route.getWorkingLineStringRoute().getEndPoint());
+    Double[] endCoordinates = GeometryService.getPointAsDouble(route.getWorkingLineStringRoute().getEndPoint());
     routeCoordinates.add(endCoordinates);
 
     // get OSR response
@@ -152,10 +152,6 @@ public class RoutingService {
     route.setTotalDurationAndDistance(osrDirectionsServiceGeoJSONResponse);
 
     return lineString;
-  }
-
-  private Double[] getPointAsDouble(Point point) {
-    return new Double[]{point.getX(), point.getY()};
   }
 
 

@@ -115,4 +115,8 @@ public class GeometryService {
         return geodesicData.s12;  // dist in meters
     }
 
+    public static Double[] getPointAsDouble(Point point) {
+        return new Double[]{point.getX(), point.getY()};
+    }
+
 }
