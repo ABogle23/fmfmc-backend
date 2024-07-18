@@ -25,17 +25,9 @@ public class GeometryService {
         return (Polygon) lineString.buffer(distance);
     }
 
-
-
-
-
-
-
-
-
     // buffer a polyline represented as a string
     public Polygon bufferPolyline(String polyline, double width) {
-        // Convert the string to coordinates and then to a LineString
+        // convert the string to coordinates and then to a LineString
         LineString lineString = createLineStringFromText(polyline);
         System.out.println("Buffering polyline: " + lineString.toString());
         return (Polygon) lineString.buffer(width);
