@@ -14,7 +14,6 @@ import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 
 import com.icl.fmfmc_backend.Integration.OSRClient;
-import com.icl.fmfmc_backend.util.LogExecutionTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
@@ -248,7 +247,7 @@ public class RoutingService {
     Coordinate[] nearestCoordinatesOnRoute = DistanceOp.nearestPoints(route, chargerLocation);
     Point nearestPointOnRoute = new GeometryFactory().createPoint(nearestCoordinatesOnRoute[0]);
     nearestPointOnRoute =
-        new GeometryFactory().createPoint(findClosestCoordinateOnLine(route, chargerLocation));
+        new GeometryFactory().createPoint(GeometryService.findClosestCoordinateOnLine(route, chargerLocation));
 //    logger.info("==========Next Charger==========");
 //    logger.info(
 //        "Nearest point on route: " + nearestPointOnRoute + " to charger: " + chargerLocation);
@@ -279,30 +278,6 @@ public class RoutingService {
     return cumulativeDistance;
   }
 
-  public Coordinate findClosestCoordinateOnLine(LineString lineString, Point chargerLocation) {
-
-    Double minDistance = Double.MAX_VALUE;
-    Coordinate closestCoordinate = null;
-
-    for (Coordinate coordinate : lineString.getCoordinates()) {
-
-      Double distance = GeometryService.calculateDistanceBetweenPoints(
-              chargerLocation.getY(), chargerLocation.getX(), coordinate.y, coordinate.x); // dist in meters
-
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestCoordinate = coordinate;
-      }
-    }
-//    logger.info("Closest coordinate found: " + closestCoordinate + " with distance: " + minDistance);
-
-    return closestCoordinate;
-  }
-
-
-
-
-
   private List<Charger> findChargersAtIntervals(LinkedHashMap<Charger, Double> sortedChargers, Route route) {
 
     // TODO: optimise this to pick fastest chargers if reasonably close to interval, potentially make this a param.
@@ -317,7 +292,7 @@ public class RoutingService {
 
     logger.info("Total route length: " + route.getRouteLength());
 
-    if (isRouteCompleteWithoutCharging(route)) {
+    if (canCompleteRouteWithoutCharging(route)) {
         return Collections.emptyList();
     }
 
@@ -433,7 +408,7 @@ public class RoutingService {
     return chargersAtIntervals;
   }
 
-  private boolean isRouteCompleteWithoutCharging(Route route) {
+  private boolean canCompleteRouteWithoutCharging(Route route) {
     if (route.getRouteLength() <= route.getCurrentBattery() - route.getFinalDestinationChargeLevel()) {
       logger.info("Battery level is sufficient to complete the route without charging");
       return true;

@@ -115,6 +115,28 @@ public class GeometryService {
         return geodesicData.s12;  // dist in meters
     }
 
+
+    public static Coordinate findClosestCoordinateOnLine(LineString lineString, Point chargerLocation) {
+
+        Double minDistance = Double.MAX_VALUE;
+        Coordinate closestCoordinate = null;
+
+        for (Coordinate coordinate : lineString.getCoordinates()) {
+
+            Double distance = GeometryService.calculateDistanceBetweenPoints(
+                    chargerLocation.getY(), chargerLocation.getX(), coordinate.y, coordinate.x); // dist in meters
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestCoordinate = coordinate;
+            }
+        }
+//    logger.info("Closest coordinate found: " + closestCoordinate + " with distance: " + minDistance);
+
+        return closestCoordinate;
+    }
+
+
     public static Double[] getPointAsDouble(Point point) {
         return new Double[]{point.getX(), point.getY()};
     }
