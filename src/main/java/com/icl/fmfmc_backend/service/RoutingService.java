@@ -156,6 +156,7 @@ public class RoutingService {
 
   /* Assisting Functions */
 
+  @Deprecated
   private static String getPolylineAsString(
       OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse) {
     List<GeoCoordinates> routeCoordinates =
@@ -227,6 +228,7 @@ public class RoutingService {
     }
   }
 
+  @Deprecated
   private boolean isChargerWithinTravelDistance(
       LineString route, Point chargerLocation, Double maxDistance) {
     Double distanceToCharger = GeometryService.calculateDistanceAlongRouteLineStringToNearestPoint(route, chargerLocation);
@@ -234,6 +236,7 @@ public class RoutingService {
     return distanceToCharger <= maxDistance;
   }
 
+  @Deprecated
   private Double getDistanceToChargerOnRoute(
       LineString route, Point chargerLocation, Double maxDistance) {
     Double distanceToCharger = GeometryService.calculateDistanceAlongRouteLineStringToNearestPoint(route, chargerLocation);
@@ -445,7 +448,6 @@ public class RoutingService {
             route.setCurrentBattery(route.getCurrentBattery() - (route.getRouteLength() - chargerDistance));
             return true;
 //            break;
-            // TODO: Add best attempt at finding a charger
           }
         }
       }
