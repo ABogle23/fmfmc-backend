@@ -6,6 +6,7 @@ import net.sf.geographiclib.GeodesicData;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.operation.buffer.BufferOp;
 import org.locationtech.jts.operation.buffer.BufferParameters;
+import org.locationtech.jts.operation.distance.DistanceOp;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Arrays;
@@ -134,6 +135,42 @@ public class GeometryService {
 //    logger.info("Closest coordinate found: " + closestCoordinate + " with distance: " + minDistance);
 
         return closestCoordinate;
+    }
+
+    public static Double calculateDistanceAlongRouteLineStringToNearestPoint(
+            LineString route, Point chargerLocation) {
+        Coordinate[] nearestCoordinatesOnRoute = DistanceOp.nearestPoints(route, chargerLocation);
+        Point nearestPointOnRoute = new GeometryFactory().createPoint(nearestCoordinatesOnRoute[0]);
+        nearestPointOnRoute =
+                new GeometryFactory().createPoint(GeometryService.findClosestCoordinateOnLine(route, chargerLocation));
+//    logger.info("==========Next Charger==========");
+//    logger.info(
+//        "Nearest point on route: " + nearestPointOnRoute + " to charger: " + chargerLocation);
+
+        Double cumulativeDistance = 0.0;
+        Point lastPoint = (Point) route.getStartPoint();
+
+        for (int i = 0; i < route.getNumPoints(); i++) {
+            Point currentPoint = route.getPointN(i);
+
+            Double segmentDistance = GeometryService.calculateDistanceBetweenPoints(
+                    lastPoint.getY(), lastPoint.getX(), currentPoint.getY(), currentPoint.getX()); // dist in meters
+            //      if (i % 100 == 0) {
+            //        logger.info("Cumulative distance - pt " + i + " : " + cumulativeDistance);
+            //      }
+            if (currentPoint.equalsExact(nearestPointOnRoute, 0.00001)
+                    || i == route.getNumPoints() - 1) {
+                cumulativeDistance += segmentDistance;
+                break;
+            }
+
+            cumulativeDistance += segmentDistance;
+            lastPoint = currentPoint;
+        }
+
+//    logger.info("Cumulative distance: " + cumulativeDistance);
+//    logger.info("lastPoint: " + lastPoint);
+        return cumulativeDistance;
     }
 
 

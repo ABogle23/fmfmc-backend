@@ -167,7 +167,6 @@ public class RoutingService {
 
   private OSRDirectionsServiceGeoJSONResponse getOsrDirectionsServiceGeoJSONResponse(
       List<Double[]> coordinates) {
-//    logger.info("Fetching initial route");
 
     OSRDirectionsServiceGeoJSONRequest osrDirectionsServiceGeoJSONRequest =
         new OSRDirectionsServiceGeoJSONRequest(coordinates);
@@ -192,7 +191,7 @@ public class RoutingService {
     // map chargers to travel distance along route
     for (Charger charger : potentialChargers) {
       Double distanceToCharger =
-          calculateDistanceAlongRouteToNearestPoint(
+              GeometryService.calculateDistanceAlongRouteLineStringToNearestPoint(
               route.getWorkingLineStringRoute(), charger.getLocation());
       chargerDistanceMap.put(charger, distanceToCharger);
     }
@@ -230,53 +229,18 @@ public class RoutingService {
 
   private boolean isChargerWithinTravelDistance(
       LineString route, Point chargerLocation, Double maxDistance) {
-    Double distanceToCharger = calculateDistanceAlongRouteToNearestPoint(route, chargerLocation);
+    Double distanceToCharger = GeometryService.calculateDistanceAlongRouteLineStringToNearestPoint(route, chargerLocation);
     logger.info("Distance to charger: " + distanceToCharger);
     return distanceToCharger <= maxDistance;
   }
 
   private Double getDistanceToChargerOnRoute(
       LineString route, Point chargerLocation, Double maxDistance) {
-    Double distanceToCharger = calculateDistanceAlongRouteToNearestPoint(route, chargerLocation);
+    Double distanceToCharger = GeometryService.calculateDistanceAlongRouteLineStringToNearestPoint(route, chargerLocation);
     logger.info("Distance to charger: " + distanceToCharger);
     return distanceToCharger;
   }
 
-  private Double calculateDistanceAlongRouteToNearestPoint(
-      LineString route, Point chargerLocation) {
-    Coordinate[] nearestCoordinatesOnRoute = DistanceOp.nearestPoints(route, chargerLocation);
-    Point nearestPointOnRoute = new GeometryFactory().createPoint(nearestCoordinatesOnRoute[0]);
-    nearestPointOnRoute =
-        new GeometryFactory().createPoint(GeometryService.findClosestCoordinateOnLine(route, chargerLocation));
-//    logger.info("==========Next Charger==========");
-//    logger.info(
-//        "Nearest point on route: " + nearestPointOnRoute + " to charger: " + chargerLocation);
-
-    Double cumulativeDistance = 0.0;
-    Point lastPoint = (Point) route.getStartPoint();
-
-    for (int i = 0; i < route.getNumPoints(); i++) {
-      Point currentPoint = route.getPointN(i);
-
-      Double segmentDistance = GeometryService.calculateDistanceBetweenPoints(
-              lastPoint.getY(), lastPoint.getX(), currentPoint.getY(), currentPoint.getX()); // dist in meters
-      //      if (i % 100 == 0) {
-      //        logger.info("Cumulative distance - pt " + i + " : " + cumulativeDistance);
-      //      }
-      if (currentPoint.equalsExact(nearestPointOnRoute, 0.00001)
-          || i == route.getNumPoints() - 1) {
-        cumulativeDistance += segmentDistance;
-        break;
-      }
-
-      cumulativeDistance += segmentDistance;
-      lastPoint = currentPoint;
-    }
-
-//    logger.info("Cumulative distance: " + cumulativeDistance);
-//    logger.info("lastPoint: " + lastPoint);
-    return cumulativeDistance;
-  }
 
   private List<Charger> findChargersAtIntervals(LinkedHashMap<Charger, Double> sortedChargers, Route route) {
 
