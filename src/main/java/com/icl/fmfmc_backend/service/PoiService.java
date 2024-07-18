@@ -3,7 +3,6 @@ package com.icl.fmfmc_backend.service;
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.Routing.PolylineUtility;
 import com.icl.fmfmc_backend.controller.RouteController;
-import com.icl.fmfmc_backend.dto.Api.RouteRequest;
 import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
@@ -61,7 +60,7 @@ public class PoiService {
 
   @LogExecutionTime(message = LogMessages.RETRIEVING_FOOD_ESTABLISHMENTS)
   public Tuple2<List<FoodEstablishment>, Charger> getFoodEstablishmentOnRoute(
-      Route route, RouteRequest routeRequest) {
+      Route route) {
     logger.info("Getting food establishment");
 
     this.setClusteringStrategy(new OutlierAdjustedKMeansClusteringService());
@@ -69,13 +68,13 @@ public class PoiService {
     LineString lineString = route.getWorkingLineStringRoute();
 
     // restrict search to part of route as per stoppingRange param
-    Double searchStart = routeRequest.getStoppingRangeAsFraction()[0];
-    Double searchEnd = routeRequest.getStoppingRangeAsFraction()[1];
+    Double searchStart = route.getStoppingRangeAsFraction()[0];
+    Double searchEnd = route.getStoppingRangeAsFraction()[1];
     lineString = GeometryService.extractLineStringPortion(lineString, searchStart, searchEnd);
 
 
     Double foodEstablishmentDeviationScope =
-            routeRequest.getEatingOptionSearchDeviationAsFraction(); // km
+            route.getEatingOptionSearchDeviationAsFraction(); // km
 
     Polygon polygon = GeometryService.bufferLineString(
             lineString, 0.009 * foodEstablishmentDeviationScope);
@@ -83,7 +82,7 @@ public class PoiService {
     // For testing
     route.setEatingOptionSearch(PolylineUtility.polygonStringToFoursquareFormat(polygon));
 
-    List<Point> chargerLocations = getChargerLocationsInPolygon(route, routeRequest, polygon);
+    List<Point> chargerLocations = getChargerLocationsInPolygon(route, polygon);
     List<Point> clusteredChargers = clusteringStrategy.clusterChargers(chargerLocations, 4);
 
     for (Point charger : clusteredChargers) {
@@ -91,22 +90,22 @@ public class PoiService {
     }
 
     List<FoodEstablishment> foodEstablishmentsAroundClusters =
-        getFoodEstablishmentsAroundClusters(routeRequest, clusteredChargers);
+        getFoodEstablishmentsAroundClusters(route, clusteredChargers);
 
     List<FoodEstablishment> foodEstablishmentsInRange =
         getFoodEstablishmentsInRangeOfChargers(
-            chargerLocations, foodEstablishmentsAroundClusters, routeRequest);
+            chargerLocations, foodEstablishmentsAroundClusters, route);
 
     // needs fallback strategy
     FoodEstablishment optimalFoodEstablishment =
-        getOptimalFoodEstablishment(foodEstablishmentsInRange, routeRequest);
+        getOptimalFoodEstablishment(foodEstablishmentsInRange);
 
     Charger adjacentCharger =
-        getNearestCharger(routeRequest, optimalFoodEstablishment.getLocation());
+        getNearestCharger(route, optimalFoodEstablishment.getLocation());
 
     // if includeAlternativeEatingOptions is true, return the top 5 food establishments around the adjacent charger
-    if (routeRequest.getIncludeAlternativeEatingOptions() && adjacentCharger != null) {
-      List<FoodEstablishment> subOptimalFoodEstablishments = getFoodEstablishmentsAroundAdjacentCharger(foodEstablishmentsInRange, adjacentCharger, routeRequest);
+    if (route.getIncludeAlternativeEatingOptions() && adjacentCharger != null) {
+      List<FoodEstablishment> subOptimalFoodEstablishments = getFoodEstablishmentsAroundAdjacentCharger(foodEstablishmentsInRange, adjacentCharger, route);
       return Tuples.of(subOptimalFoodEstablishments, adjacentCharger);
     }
 
@@ -119,16 +118,16 @@ public class PoiService {
 
 
   public List<Point> getChargerLocationsInPolygon(
-      Route route, RouteRequest routeRequest, Polygon polygon) {
+      Route route, Polygon polygon) {
     logger.info("Getting chargers in polygon");
     ChargerQuery query =
         ChargerQuery.builder()
             .polygon(polygon)
-            .connectionTypeIds(routeRequest.getConnectionTypes())
-            .minKwChargeSpeed(routeRequest.getMinKwChargeSpeed())
-            .maxKwChargeSpeed(routeRequest.getMaxKwChargeSpeed())
-            .minNoChargePoints(routeRequest.getMinNoChargePoints())
-            .accessTypeIds(routeRequest.getAccessTypes())
+            .connectionTypeIds(route.getConnectionTypes())
+            .minKwChargeSpeed(route.getMinKwChargeSpeed())
+            .maxKwChargeSpeed(route.getMaxKwChargeSpeed())
+            .minNoChargePoints(route.getMinNoChargePoints())
+            .accessTypeIds(route.getAccessTypes())
             .build();
 
     List<Point> chargersWithinPolygon = chargerService.getChargerLocationsByParams(query);
@@ -141,9 +140,9 @@ public class PoiService {
   }
 
   public List<FoodEstablishment> getFoodEstablishmentsAroundClusters(
-      RouteRequest routeRequest, List<Point> clusteredChargers) {
-
-    Integer searchRadius = switch (routeRequest.getEatingOptionSearchDeviation()) {
+      Route route, List<Point> clusteredChargers) {
+    // TODO: get rid of this and rename the func it calls
+    Integer searchRadius = switch (route.getEatingOptionSearchDeviation()) {
         case minimal -> 4500;
         case moderate -> 5000;
         case significant -> 10000;
@@ -159,7 +158,7 @@ public class PoiService {
 
       FoursquareRequest params =
           new FoursquareRequestBuilder()
-              .setCategories(routeRequest.getEatingOptions())
+              .setCategories(route.getEatingOptions())
               .setLl(latLong)
               .setRadius(searchRadius)
               .createFoursquareRequest();
@@ -185,9 +184,9 @@ public class PoiService {
   private List<FoodEstablishment> getFoodEstablishmentsInRangeOfChargers(
       List<Point> clusteredChargers,
       List<FoodEstablishment> foodEstablishmentsAroundClusters,
-      RouteRequest routeRequest) {
+      Route route) {
 
-    Double maxWalkingDistance = routeRequest.getMaxWalkingDistance().doubleValue();
+    Double maxWalkingDistance = route.getMaxWalkingDistance().doubleValue();
     System.out.println("Max walking distance: " + maxWalkingDistance);
     List<FoodEstablishment> foodEstablishmentsInRange = new ArrayList<>();
 
@@ -210,14 +209,14 @@ public class PoiService {
   }
 
   private FoodEstablishment getOptimalFoodEstablishment(
-      List<FoodEstablishment> foodEstablishmentsInRange, RouteRequest routeRequest) {
+      List<FoodEstablishment> foodEstablishmentsInRange) {
 
     return foodEstablishmentsInRange.stream()
-        .max(Comparator.comparingDouble(e -> calculateScore(e, routeRequest)))
+        .max(Comparator.comparingDouble(e -> calculateScore(e)))
         .orElse(null);
   }
 
-  public Double calculateScore(FoodEstablishment establishment, RouteRequest routeRequest) {
+  public Double calculateScore(FoodEstablishment establishment) {
     Double score = 0.0;
 
     score += establishment.getPopularity() != null ? establishment.getPopularity() : 0;
@@ -232,17 +231,17 @@ public class PoiService {
     return score;
   }
 
-  public Charger getNearestCharger(RouteRequest routeRequest, Point point) {
+  public Charger getNearestCharger(Route route, Point point) {
     logger.info("Getting adjacent Charger");
     ChargerQuery query =
         ChargerQuery.builder()
             .point(point)
-            .radius(Double.valueOf(routeRequest.getMaxWalkingDistance()))
-            .connectionTypeIds(routeRequest.getConnectionTypes())
-            .minKwChargeSpeed(routeRequest.getMinKwChargeSpeed())
-            .maxKwChargeSpeed(routeRequest.getMaxKwChargeSpeed())
-            .minNoChargePoints(routeRequest.getMinNoChargePoints())
-            .accessTypeIds(routeRequest.getAccessTypes())
+            .radius(Double.valueOf(route.getMaxWalkingDistance()))
+            .connectionTypeIds(route.getConnectionTypes())
+            .minKwChargeSpeed(route.getMinKwChargeSpeed())
+            .maxKwChargeSpeed(route.getMaxKwChargeSpeed())
+            .minNoChargePoints(route.getMinNoChargePoints())
+            .accessTypeIds(route.getAccessTypes())
             .build();
 
     Charger adjacentCharger = chargerService.getNearestChargerByParams(query);
@@ -250,20 +249,20 @@ public class PoiService {
     return adjacentCharger;
   }
 
-  private List<FoodEstablishment> getFoodEstablishmentsAroundAdjacentCharger(List<FoodEstablishment> foodEstablishmentsInRange, Charger adjacentCharger, RouteRequest routeRequest) {
+  private List<FoodEstablishment> getFoodEstablishmentsAroundAdjacentCharger(List<FoodEstablishment> foodEstablishmentsInRange, Charger adjacentCharger, Route route) {
     List<FoodEstablishment> subOptimalFoodEstablishments = new ArrayList<>();
 
     for (FoodEstablishment foodEstablishment : foodEstablishmentsInRange) {
       Double distance =
           GeometryService.calculateDistanceBetweenPoints(
               adjacentCharger.getLocation(), foodEstablishment.getLocation());
-      if (distance <= routeRequest.getMaxWalkingDistance()) {
+      if (distance <= route.getMaxWalkingDistance()) {
         subOptimalFoodEstablishments.add(foodEstablishment);
       }
     }
 
     subOptimalFoodEstablishments.sort((e1, e2) -> Double.compare(
-            calculateScore(e2, routeRequest), calculateScore(e1, routeRequest)));
+            calculateScore(e2), calculateScore(e1)));
 
     subOptimalFoodEstablishments =  subOptimalFoodEstablishments.stream().limit(5).collect(Collectors.toList());
 

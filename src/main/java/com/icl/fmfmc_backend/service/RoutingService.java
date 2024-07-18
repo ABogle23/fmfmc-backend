@@ -47,6 +47,7 @@ public class RoutingService {
     logger.info("Fetching initial route from routing service");
 
     // get initial route
+
     Double[] startCoordinates = {routeRequest.getStartLong(), routeRequest.getStartLat()};
     Double[] endCoordinates = {routeRequest.getEndLong(), routeRequest.getEndLat()};
     List<Double[]> startAndEndCoordinates = List.of(startCoordinates, endCoordinates);
@@ -60,8 +61,8 @@ public class RoutingService {
     /* -----Find ideal FoodEstablishment via PoiService----- */
 
 
-    if (routeRequest.getStopForEating()) {
-      Tuple2<List<FoodEstablishment>, Charger> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route, routeRequest);
+    if (route.getStopForEating()) {
+      Tuple2<List<FoodEstablishment>, Charger> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
 
       route.setFoodEstablishments(poiServiceTestResults.getT1());
       route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
@@ -83,11 +84,11 @@ public class RoutingService {
             //            .point(new GeometryFactory().createPoint(new
             // Coordinate(routeRequest.getStartLong(),routeRequest.getStartLat())))
             //            .radius(2000.0)
-            .connectionTypeIds(routeRequest.getConnectionTypes())
-            .minKwChargeSpeed(routeRequest.getMinKwChargeSpeed())
-            .maxKwChargeSpeed(routeRequest.getMaxKwChargeSpeed())
-            .minNoChargePoints(routeRequest.getMinNoChargePoints())
-            .accessTypeIds(routeRequest.getAccessTypes())
+            .connectionTypeIds(route.getConnectionTypes())
+            .minKwChargeSpeed(route.getMinKwChargeSpeed())
+            .maxKwChargeSpeed(route.getMaxKwChargeSpeed())
+            .minNoChargePoints(route.getMinNoChargePoints())
+            .accessTypeIds(route.getAccessTypes())
             .build();
 
     List<Charger> chargersWithinPolygon = chargerService.getChargersByParams(query);
