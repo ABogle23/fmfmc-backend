@@ -6,7 +6,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 @Getter
-public class FoursquareRequest {
+public class FoursquareRequest implements FoodEstablishmentRequest {
 
   private final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
 
@@ -62,6 +62,13 @@ public class FoursquareRequest {
     }
     if (sortBy != null) {
       this.queryParams.add("sort", sortBy);
+    }
+  }
+
+  @Override
+  public void setParameter(String key, String value) {
+    if (value != null) { // must only add non-nulls for FourSquare
+      queryParams.add(key, value);
     }
   }
 }

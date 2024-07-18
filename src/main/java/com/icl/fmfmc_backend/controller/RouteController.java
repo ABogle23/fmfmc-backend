@@ -28,8 +28,6 @@ public class RouteController {
    * @return Route
    */
 
-  private final RoutingService routingService;
-
   private final JourneyService journeyService;
 
   private static final Logger logger = LoggerFactory.getLogger(RouteController.class);

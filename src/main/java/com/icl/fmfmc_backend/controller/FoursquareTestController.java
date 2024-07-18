@@ -1,24 +1,27 @@
 package com.icl.fmfmc_backend.controller;
 
+import com.icl.fmfmc_backend.Integration.FoodEstablishmentClient;
 import com.icl.fmfmc_backend.Integration.FoursquareClient;
+import com.icl.fmfmc_backend.config.FoursquareProperties;
 import com.icl.fmfmc_backend.dto.FoodEstablishment.FoursquareResponseDTO;
-import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
-import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequestBuilder;
+import com.icl.fmfmc_backend.entity.FoodEstablishment.*;
 import com.icl.fmfmc_backend.entity.enums.FoodCategory;
+import com.icl.fmfmc_backend.service.FoodEstablishmentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/test")
 public class FoursquareTestController {
 
-  private final FoursquareClient foursquareClient;
+  private final FoodEstablishmentBuilder requestBuilder = new FoursquareRequestBuilder();
+  private final FoodEstablishmentService foodEstablishmentService;
 
-  public FoursquareTestController(FoursquareClient foursquareClient) {
-    this.foursquareClient = foursquareClient;
-  }
+
 
   @GetMapping("/fs-basic-test-api-call")
   public String basicAPICall() {
@@ -26,18 +29,42 @@ public class FoursquareTestController {
   }
 
   @GetMapping("/fs-test-api-call")
-  public FoursquareResponseDTO testApiCall() {
+  public List<FoodEstablishment> testApiCall() {
 
-    FoursquareRequest foursquareRequest =
-        new FoursquareRequestBuilder()
-            .setLl("51.472440,-0.042947")
-            .setRadius(10000)
-                .setCategories(List.of(FoodCategory.FOOD_RETAILER))
-                .setMinPrice(3)
-                .setMaxPrice(4)
-            .createFoursquareRequest();
-    FoursquareResponseDTO foursquareResponseDTO = foursquareClient.getFoodEstablishmentFromFoursquarePlacesApi(foursquareRequest);
+
+
+//    FoursquareRequest foursquareRequest =
+//        new FoursquareRequestBuilder()
+//            .setLl("51.472440,-0.042947")
+//            .setRadius(10000)
+//                .setCategories(List.of(FoodCategory.FOOD_RETAILER))
+//                .setMinPrice(3)
+//                .setMaxPrice(4)
+//            .createFoursquareRequest();
+//    FoursquareResponseDTO foursquareResponseDTO = foursquareClient.getFoodEstablishmentFromFoursquarePlacesApi(foursquareRequest);
+////    return "API call successful!";
+//    return foursquareResponseDTO;
+
+        FoodEstablishmentRequest foodEstablishmentRequest =
+                requestBuilder.setLatitude("51.472440")
+                        .setLongitude("-0.042947")
+//                        .setLongitude("-10.042947")
+                        .setRadius(10000)
+                        .setCategories(List.of(FoodCategory.FOOD_RETAILER))
+                        .setMinPrice(3)
+                        .setMaxPrice(4)
+                        .build();
+
+    List<FoodEstablishment> clusterFoodEstablishments =
+            foodEstablishmentService.getFoodEstablishmentsByParam(foodEstablishmentRequest);
+
+    if (clusterFoodEstablishments == null) {
+      System.out.println("clusterFoodEstablishments is null");
+    }
+
+//    FoursquareResponseDTO foursquareResponseDTO = foursquareClient.getFoodEstablishmentFromFoursquarePlacesApi(foursquareRequest);
 //    return "API call successful!";
-    return foursquareResponseDTO;
+    return clusterFoodEstablishments;
+
   }
 }
