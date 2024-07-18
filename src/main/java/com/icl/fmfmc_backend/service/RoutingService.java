@@ -39,7 +39,6 @@ public class RoutingService {
   private final OSRClient osrClient;
   private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
   private final ChargerService chargerService;
-  private final FoodEstablishmentService foodEstablishmentService;
   private final GeometryService geometryService;
   private final PoiService poiService;
 
@@ -239,7 +238,6 @@ public class RoutingService {
 
     // TODO: optimise this to pick fastest chargers if reasonably close to interval, potentially make this a param.
     // TODO: increase accuracy of distance to charger by adding detour dist from route to charger.
-    // TODO: clean up code asap, break up into functions.
 
     List<Charger> chargersAtIntervals = new ArrayList<>();
     Double nextTargetDistance = calculateMaxTravelDistance(route);
@@ -249,7 +247,9 @@ public class RoutingService {
 
     logger.info("Total route length: " + route.getRouteLength());
 
-    if (canCompleteRouteWithoutCharging(route)) {
+    if (canCompleteRouteWithoutCharging(route) && !route.getStopForEating()) {
+        route.setCurrentBattery(route.getCurrentBattery() - route.getRouteLength());
+        logger.info("Charge level at end of route: " + route.getCurrentBattery() + " m");
         return Collections.emptyList();
     }
 
@@ -269,6 +269,11 @@ public class RoutingService {
         Double distanceTraveled = closestDistance - lastChargerDistance;
         lastChargerDistance = closestDistance;  // update the last charger's distance
         addChargerAndUpdateBattery(chargersAtIntervals, route.getFoodAdjacentCharger(), route, distanceTraveled);
+        if (canCompleteRouteWithoutCharging(route)) {
+          route.setCurrentBattery(route.getCurrentBattery() - (route.getRouteLength() - closestDistance));
+          logger.info("Charge level at end of route: " + route.getCurrentBattery() + " m");
+          return chargersAtIntervals;
+        }
         nextTargetDistance = closestDistance + calculateMaxTravelDistance(route);  // calc next interval distance
         logger.info("Next target distance: " + nextTargetDistance + " m");
 
