@@ -1,5 +1,6 @@
 package com.icl.fmfmc_backend.controller;
 
+import com.icl.fmfmc_backend.service.JourneyService;
 import com.icl.fmfmc_backend.service.RoutingService;
 
 import com.icl.fmfmc_backend.dto.Api.RouteRequest;
@@ -29,11 +30,13 @@ public class RouteController {
 
   private final RoutingService routingService;
 
+  private final JourneyService journeyService;
+
   private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
 
   @LogExecutionTime(message = "Response time for /find-route endpoint ")
   @PostMapping("/find-route")
-  public ResponseEntity<?> findRoute(@Valid @RequestBody RouteRequest routeRequest) {
+  public ResponseEntity<?> getJourney(@Valid @RequestBody RouteRequest routeRequest) {
     logger.info("Received route request: {}", routeRequest);
 
 //    if (bindingResult.hasErrors()) {
@@ -48,8 +51,8 @@ public class RouteController {
 //      return ResponseEntity.badRequest().body(errors);
 //    }
 
-    logger.info("Route is valid");
-    RouteResult routeResult = routingService.getRoute(routeRequest);
+    logger.info("Journey is valid");
+    RouteResult routeResult = journeyService.getJourney(routeRequest);
 
     /* TODO: handle situation where no route can be found given the constraints
              perhaps return a "404 with a message saying no route can be found"

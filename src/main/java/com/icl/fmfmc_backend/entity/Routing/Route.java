@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 public class Route {
 
-  private GeometryService geometryService = new GeometryService();
+  private static final GeometryService geometryService = new GeometryService();
 
   private static final double CHARGE_EFFICIENCY = 0.9; // used to calc charging time
   private static final double CHARGE_OVERHEAD =
@@ -133,35 +133,7 @@ public class Route {
     this.eatingOptionSearchDeviation = routeRequest.getEatingOptionSearchDeviation();
   }
 
-  // Standard Constructor
-  public Route(
-      LineString route,
-      Polygon bufferedLineString,
-      Double routeLength,
-      Double routeDuration,
-      RouteRequest routeRequest) {
-    this(routeRequest);
-    this.bufferedLineString = bufferedLineString;
-    this.routeLength = routeLength;
-    this.routeDuration = routeDuration;
-    this.currentBattery = routeRequest.getStartingBattery() * routeRequest.getEvRange();
-    this.evRange = routeRequest.getEvRange();
-    this.minChargeLevelPct = routeRequest.getMinChargeLevel();
-    this.minChargeLevel = routeRequest.getMinChargeLevel() * routeRequest.getEvRange();
-    this.chargeLevelAfterEachStopPct = routeRequest.getChargeLevelAfterEachStop();
-    this.chargeLevelAfterEachStop =
-        routeRequest.getChargeLevelAfterEachStop() * routeRequest.getEvRange();
-    this.finalDestinationChargeLevelPct = routeRequest.getFinalDestinationChargeLevel();
-    this.finalDestinationChargeLevel =
-        routeRequest.getFinalDestinationChargeLevel() * routeRequest.getEvRange();
 
-    if (routeRequest.getBatteryCapacity() != null) {
-      this.batteryCapacity = routeRequest.getBatteryCapacity();
-    } else {
-      this.batteryCapacity = (routeRequest.getEvRange() * 200) / 1000000; // guesstimate
-    }
-    System.out.println("Battery capacity: " + this.batteryCapacity);
-  }
 
   // Secondary Constructor coupled to OSRDirectionsServiceGeoJSONResponse
 
@@ -188,6 +160,10 @@ public class Route {
   public void rechargeBattery(Double chargeSpeed) {
     addBatteryChargeTime(chargeSpeed);
     currentBattery = evRange * chargeLevelAfterEachStopPct;
+  }
+
+  public void reduceBattery(Double distance) {
+    currentBattery -= distance;
   }
 
   public void addBatteryChargeTime(Double chargeSpeedkw) {

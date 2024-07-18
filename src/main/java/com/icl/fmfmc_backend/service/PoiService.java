@@ -29,7 +29,7 @@ import java.lang.annotation.Retention;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/* TODO:
+/*
 
 1 get an initial route
 2 build requirements for POI in object
@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 TODO: incorp chargeSpeed into restaurant scoring
 TODO: add more scoring criteria
 TODO: introduced expanding search or rela
-
 
 */
 

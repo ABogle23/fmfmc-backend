@@ -42,6 +42,8 @@ public class FoursquareResponseDTO {
     @JsonProperty("rating")
     private Double rating;
 
+    private StatsDTO stats;
+
     @Data
     public static class CategoryDTO {
 
@@ -88,6 +90,18 @@ public class FoursquareResponseDTO {
 
       @JsonProperty("region")
       public String region;
+    }
+
+    @Data
+    public static class StatsDTO {
+      @JsonProperty("checkinsCount")
+      private Integer checkinsCount;
+
+      @JsonProperty("total_ratings")
+      private Integer totalRatings;
+
+      @JsonProperty("total_tips")
+      private Integer totalTips;
     }
   }
 }

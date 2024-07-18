@@ -42,40 +42,10 @@ public class RoutingService {
   private final GeometryService geometryService;
   private final PoiService poiService;
 
-  public RouteResult getRoute(RouteRequest routeRequest) {
-    logger.info("Fetching initial route from routing service");
+  public List<Charger> getChargersOnRoute(Route route) {
+    logger.info("Fetching route from routing service");
 
-    // get initial route
-
-    Double[] startCoordinates = {routeRequest.getStartLong(), routeRequest.getStartLat()};
-    Double[] endCoordinates = {routeRequest.getEndLong(), routeRequest.getEndLat()};
-    List<Double[]> startAndEndCoordinates = List.of(startCoordinates, endCoordinates);
-    OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse =
-        getOsrDirectionsServiceGeoJSONResponse(startAndEndCoordinates);
-
-    // Build Route Object
-    Route route = new Route(osrDirectionsServiceGeoJSONResponse, routeRequest);
-
-
-    /* -----Find ideal FoodEstablishment via PoiService----- */
-
-
-    if (route.getStopForEating()) {
-      Tuple2<List<FoodEstablishment>, Charger> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
-
-      route.setFoodEstablishments(poiServiceTestResults.getT1());
-      route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
-      LineString routeSnappedToFoodAdjacentCharger = snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
-      route.setWorkingLineStringRoute(routeSnappedToFoodAdjacentCharger);
-      Polygon bufferedLineString =
-              GeometryService.bufferLineString(routeSnappedToFoodAdjacentCharger, 0.009); // 500m is 0.0045
-      route.setBufferedLineString(bufferedLineString);
-    } else {
-      logger.info("No eating stop requested, skipping food establishment search");
-    }
-
-
-    /* -----Find all chargers in BufferedLineString----- */
+    // Find all chargers in BufferedLineString
 
     ChargerQuery query =
         ChargerQuery.builder()
@@ -94,29 +64,11 @@ public class RoutingService {
 
     logger.info("Chargers within query: " + chargersWithinPolygon.size());
 
+    return chargersWithinPolygon;
 
-    /* -----Filter chargers to those reachable on route based on battery level----- */
-
-    List<Charger> suitableChargers = findSuitableChargers(route, chargersWithinPolygon);
-    logger.info("Suitable chargers: " + suitableChargers.size());
-    route.setChargersOnRoute(suitableChargers);
-
-
-    /* -----Snap route to optimal Chargers and FoodEstablishments----- */
-
-    LineString routeSnappedToStops = snapRouteToStops(route, suitableChargers);
-    route.setFinalSnappedToStopsRoute(routeSnappedToStops);
-
-
-    /* -----Build Result----- */
-
-    List<FoodEstablishment> foodEstablishmentsWithinPolygon = Collections.emptyList();
-    RouteResult routeResult = new RouteResult(route, routeRequest);
-
-    return routeResult;
   }
 
-  private LineString snapRouteToStops(Route route, List<Charger> suitableChargers) {
+  public LineString snapRouteToStops(Route route, List<Charger> suitableChargers) {
 
     logger.info("Snapping route to stops");
 
@@ -156,7 +108,7 @@ public class RoutingService {
 
   /* Assisting Functions */
 
-  private OSRDirectionsServiceGeoJSONResponse getOsrDirectionsServiceGeoJSONResponse(
+  public OSRDirectionsServiceGeoJSONResponse getOsrDirectionsServiceGeoJSONResponse(
       List<Double[]> coordinates) {
 
     OSRDirectionsServiceGeoJSONRequest osrDirectionsServiceGeoJSONRequest =
@@ -171,7 +123,7 @@ public class RoutingService {
 
   // ROUTING RELATED FUNCTIONS
 
-  private List<Charger> findSuitableChargers(Route route, List<Charger> potentialChargers) {
+  public List<Charger> findSuitableChargers(Route route, List<Charger> potentialChargers) {
     Double maxTravelDistance =
         calculateMaxTravelDistance(
             route);
@@ -204,8 +156,9 @@ public class RoutingService {
 //                    route.getLineStringRoute(), charger.getLocation(), maxTravelDistance))
 //        .collect(Collectors.toList());
 
-    return findChargersAtIntervals(chargerDistanceMap, route);
-
+    List<Charger> suitableChargers = findChargersAtIntervals(chargerDistanceMap, route);
+    logger.info("Suitable chargers: " + suitableChargers.size());
+    return suitableChargers;
 
   }
 
@@ -248,7 +201,7 @@ public class RoutingService {
     logger.info("Total route length: " + route.getRouteLength());
 
     if (canCompleteRouteWithoutCharging(route) && !route.getStopForEating()) {
-        route.setCurrentBattery(route.getCurrentBattery() - route.getRouteLength());
+        route.reduceBattery(route.getRouteLength());
         logger.info("Charge level at end of route: " + route.getCurrentBattery() + " m");
         return Collections.emptyList();
     }
@@ -270,7 +223,7 @@ public class RoutingService {
         lastChargerDistance = closestDistance;  // update the last charger's distance
         addChargerAndUpdateBattery(chargersAtIntervals, route.getFoodAdjacentCharger(), route, distanceTraveled);
         if (canCompleteRouteWithoutCharging(route)) {
-          route.setCurrentBattery(route.getCurrentBattery() - (route.getRouteLength() - closestDistance));
+          route.reduceBattery(route.getRouteLength() - closestDistance);
           logger.info("Charge level at end of route: " + route.getCurrentBattery() + " m");
           return chargersAtIntervals;
         }
@@ -350,11 +303,11 @@ public class RoutingService {
     if (currentBatteryAtFinalDestination < route.getFinalDestinationChargeLevel()) {
       if (!canEnsureFinalChargeLevel(chargersAtIntervals, route, sortedChargers)) {
           logger.info("Could not ensure final charge level ({})", route.getFinalDestinationChargeLevel());
-          route.setCurrentBattery(route.getCurrentBattery() - (route.getRouteLength() - closestDistance));
+          route.reduceBattery(route.getRouteLength() - closestDistance);
       }
     }
     else {
-      route.setCurrentBattery(route.getCurrentBattery() - (route.getRouteLength() - closestDistance));
+      route.reduceBattery(route.getRouteLength() - closestDistance);
     }
 
     logger.info("Distances for chargers added to chargersAtIntervals:");
@@ -383,7 +336,7 @@ public class RoutingService {
                                           Route route,
                                           Double reducedBatteryBy) {
     chargersAtInterval.add(selectedCharger);
-    route.setCurrentBattery(route.getCurrentBattery() - reducedBatteryBy);
+    route.reduceBattery(reducedBatteryBy);
     logger.info("Battery at: " + route.getCurrentBattery() + "m > " + route.getMinChargeLevel() + "m");
     route.rechargeBattery(chargerService.getHighestPowerConnectionByTypeInCharger(selectedCharger, route));
     // recharge to getChargeLevelAfterEachStopPct (defaults to 90%)
@@ -440,7 +393,7 @@ public class RoutingService {
 
             addChargerAndUpdateBattery(chargersAtIntervals, candidateCharger, route, distanceToCandidateCharger);
             logger.info("Added additional charger to ensure final charge level: Charger ID " + candidateCharger.getId());
-            route.setCurrentBattery(route.getCurrentBattery() - (route.getRouteLength() - chargerDistance));
+            route.reduceBattery(route.getRouteLength() - chargerDistance);
             return true;
 //            break;
           }
@@ -461,7 +414,7 @@ public class RoutingService {
       Double distanceToLastSortedCharger = lastSortedDistance - lastChargerDistance;
       addChargerAndUpdateBattery(chargersAtIntervals, lastSortedCharger, route, distanceToLastSortedCharger);
       logger.info("Added additional charger to partially meet final charge level: Charger ID " + lastSortedCharger.getId());
-      route.setCurrentBattery(route.getCurrentBattery() - (route.getRouteLength() - lastSortedDistance));
+      route.reduceBattery(route.getRouteLength() - lastSortedDistance);
       return true;
     }
     return false;
