@@ -149,7 +149,7 @@ public class PoiService {
         default -> 5000;
     };
 
-      Set<FoodEstablishment> foodEstablishments = new HashSet<>();
+    Map<String, FoodEstablishment> foodEstablishments = new HashMap<>();
 
     for (Point cluster : clusteredChargers) {
       String[] coordinates = getLatLongAsString(cluster);
@@ -162,16 +162,23 @@ public class PoiService {
               .setRadius(searchRadius)
               .createFoursquareRequest();
 
-      List<FoodEstablishment> clusterFoodEstablishment =
+      List<FoodEstablishment> clusterFoodEstablishments =
           foodEstablishmentService.getFoodEstablishmentsByParam(params);
 
-      if (clusterFoodEstablishment != null) {
-        foodEstablishments.addAll(clusterFoodEstablishment);
+      if (clusterFoodEstablishments != null) {
+        for (FoodEstablishment fe : clusterFoodEstablishments) {
+          String id = fe.getId();
+          if (!foodEstablishments.containsKey(id)) {
+            foodEstablishments.put(id, fe);
+          }
+        }
       }
+
+
     }
 
     System.out.println("Total Food Establishments: " + foodEstablishments.size());
-    return new ArrayList<>(foodEstablishments);
+    return new ArrayList<>(foodEstablishments.values());
   }
 
   public static String[] getLatLongAsString(Point point) {
