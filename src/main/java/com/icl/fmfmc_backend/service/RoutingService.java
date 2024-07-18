@@ -156,16 +156,6 @@ public class RoutingService {
 
   /* Assisting Functions */
 
-  @Deprecated
-  private static String getPolylineAsString(
-      OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse) {
-    List<GeoCoordinates> routeCoordinates =
-        osrDirectionsServiceGeoJSONResponse.getFeatures().get(0).getGeometry().getCoordinates();
-    String polyline = PolylineUtility.encodeGeoCoordinatesToPolyline(routeCoordinates);
-    System.out.println("Encoded Polyline: " + polyline.substring(0, 100) + "...");
-    return polyline;
-  }
-
   private OSRDirectionsServiceGeoJSONResponse getOsrDirectionsServiceGeoJSONResponse(
       List<Double[]> coordinates) {
 
@@ -243,7 +233,6 @@ public class RoutingService {
     logger.info("Distance to charger: " + distanceToCharger);
     return distanceToCharger;
   }
-
 
   private List<Charger> findChargersAtIntervals(LinkedHashMap<Charger, Double> sortedChargers, Route route) {
 
@@ -479,6 +468,16 @@ public class RoutingService {
       Double distance = entry.getValue();
       System.out.println("Charger ID: " + charger.getId() + ", Distance: " + distance + " m");
     }
+  }
+
+  @Deprecated
+  private static String getPolylineAsString(
+          OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse) {
+    List<GeoCoordinates> routeCoordinates =
+            osrDirectionsServiceGeoJSONResponse.getFeatures().get(0).getGeometry().getCoordinates();
+    String polyline = PolylineUtility.encodeGeoCoordinatesToPolyline(routeCoordinates);
+    System.out.println("Encoded Polyline: " + polyline.substring(0, 100) + "...");
+    return polyline;
   }
 
 }
