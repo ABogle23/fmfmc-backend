@@ -11,6 +11,7 @@ import com.icl.fmfmc_backend.entity.*;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 
+import com.icl.fmfmc_backend.exception.NoChargerWithinRangeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
@@ -165,8 +166,13 @@ public class RoutingService {
 //                    route.getLineStringRoute(), charger.getLocation(), maxTravelDistance))
 //        .collect(Collectors.toList());
 
-    List<Charger> suitableChargers = findChargersAtIntervals(chargerDistanceMap, route);
-    logger.info("Suitable chargers: " + suitableChargers.size());
+      List<Charger> suitableChargers = null;
+      try {
+          suitableChargers = findChargersAtIntervals(chargerDistanceMap, route);
+      } catch (NoChargerWithinRangeException e) {
+          throw new RuntimeException(e);
+      }
+      logger.info("Suitable chargers: " + suitableChargers.size());
     return suitableChargers;
 
   }
@@ -196,7 +202,7 @@ public class RoutingService {
     return distanceToCharger;
   }
 
-  private List<Charger> findChargersAtIntervals(LinkedHashMap<Charger, Double> sortedChargers, Route route) {
+  private List<Charger> findChargersAtIntervals(LinkedHashMap<Charger, Double> sortedChargers, Route route) throws NoChargerWithinRangeException {
 
     // TODO: optimise this to pick fastest chargers if reasonably close to interval, potentially make this a param.
     // TODO: increase accuracy of distance to charger by adding detour dist from route to charger.
@@ -281,7 +287,10 @@ public class RoutingService {
           closestCharger = null; // reset for  next interval
           closestDistance = Double.MAX_VALUE;
         }
-        else { logger.warn("Failed to find charger");}
+        else {
+          logger.error("Failed to find charger");
+          throw new NoChargerWithinRangeException("Unable to find any chargers within range based on current battery level and route.");
+        }
       }
       logger.info("2 Checking charger distance: " + chargerDistance + " m, Closest Charger: " + closestCharger); // REMOVE
 

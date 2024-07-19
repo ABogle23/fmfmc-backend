@@ -32,6 +32,7 @@ public class JourneyController {
   private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
 
   @LogExecutionTime(message = "Response time for /find-route endpoint ")
+
   @PostMapping("/find-route")
   public ResponseEntity<?> getJourney(@Valid @RequestBody RouteRequest routeRequest) {
     logger.info("Received route request: {}", routeRequest);

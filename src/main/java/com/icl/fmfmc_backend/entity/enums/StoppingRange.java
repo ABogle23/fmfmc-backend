@@ -5,5 +5,11 @@ public enum StoppingRange {
   early,
   middle,
   later,
-  latest
+  latest,
+
+  // hidden from the client
+  extendedEarly,
+  extendedMiddle,
+  extendedLater,
+
 }

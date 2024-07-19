@@ -261,8 +261,26 @@ public class Route {
       case middle -> new Double[] {0.33, 0.67};
       case later -> new Double[] {0.5, 0.75};
       case latest -> new Double[] {0.67, 0.95};
+      case extendedEarly -> new Double[] {0.05, 0.6};
+      case extendedMiddle -> new Double[] {0.2, 0.8};
+      case extendedLater -> new Double[] {0.4, 0.95};
       default -> new Double[] {0.33, 0.67}; // default to middle
     };
+  }
+
+  public void expandStoppingRange() {
+      switch (this.stoppingRange) {
+          case earliest -> this.stoppingRange = StoppingRange.early;
+          case early -> this.stoppingRange = StoppingRange.middle;
+          case middle -> this.stoppingRange = StoppingRange.later;
+          case later -> this.stoppingRange = StoppingRange.latest;
+          case latest -> this.stoppingRange = StoppingRange.extendedEarly;
+          case extendedEarly -> this.stoppingRange = StoppingRange.extendedMiddle;
+          case extendedMiddle -> this.stoppingRange = StoppingRange.extendedLater;
+          case extendedLater -> {
+              return;
+          }
+      }
   }
 
   public Double getChargerSearchDeviationAsFraction() {
@@ -290,4 +308,54 @@ public class Route {
       default -> 6.5; // default to moderate
     };
   }
+
+  public Boolean expandEatingOptionSearchDeviation() {
+    // TODO: consider limiting expansion based on route length
+      switch (this.eatingOptionSearchDeviation) {
+          case minimal:
+              this.eatingOptionSearchDeviation = DeviationScope.moderate;
+              break;
+          case moderate:
+              this.eatingOptionSearchDeviation = DeviationScope.significant;
+              break;
+          case significant:
+              this.eatingOptionSearchDeviation = DeviationScope.extreme;
+              break;
+          case extreme:
+              return false;
+      }
+    return true;
+  }
+
+  public void maximiseEatingOptionSearchDeviation() {
+    this.eatingOptionSearchDeviation = DeviationScope.extreme;
+  }
+
+  public void expandFoodCategorySearch() {
+    List<FoodCategory> expandedEatingOptions = new ArrayList<>();
+
+    for (FoodCategory childCategory : this.eatingOptions) {
+      if (childCategory.getParent() != null) {
+        expandedEatingOptions.add(childCategory.getParent());
+      }
+      else {
+        expandedEatingOptions.add(childCategory);
+      }
+    }
+    this.eatingOptions = expandedEatingOptions;
+
+  }
+
+  public void expandPriceRange() {
+    if (minPrice != null && minPrice > 1) {
+      minPrice -= 1;
+    }
+    if (maxPrice != null && maxPrice < 4) {
+      maxPrice += 1;
+    }
+
+  }
+
+
+
 }

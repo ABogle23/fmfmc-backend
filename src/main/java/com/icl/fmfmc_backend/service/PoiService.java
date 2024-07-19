@@ -7,6 +7,8 @@ import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.*;
 import com.icl.fmfmc_backend.entity.Routing.Route;
+import com.icl.fmfmc_backend.exception.NoFoodEstablishmentsFoundException;
+import com.icl.fmfmc_backend.exception.NoFoodEstablishmentsInRangeofChargerException;
 import com.icl.fmfmc_backend.util.LogExecutionTime;
 import com.icl.fmfmc_backend.util.LogMessages;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +55,8 @@ public class PoiService {
   @Setter private ClusteringStrategy clusteringStrategy;
 
   @LogExecutionTime(message = LogMessages.RETRIEVING_FOOD_ESTABLISHMENTS)
-  public Tuple2<List<FoodEstablishment>, Charger> getFoodEstablishmentOnRoute(Route route) {
+  public Tuple2<List<FoodEstablishment>, Charger> getFoodEstablishmentOnRoute(Route route)
+      throws NoFoodEstablishmentsFoundException, NoFoodEstablishmentsInRangeofChargerException {
     logger.info("Getting food establishment");
 
     this.setClusteringStrategy(new OutlierAdjustedKMeansClusteringService());
@@ -134,7 +137,7 @@ public class PoiService {
   }
 
   public List<FoodEstablishment> getFoodEstablishmentsAroundClusters(
-      Route route, List<Point> clusteredChargers) {
+      Route route, List<Point> clusteredChargers) throws NoFoodEstablishmentsFoundException {
     // TODO: get rid of this and rename the func it calls
     Integer searchRadius =
         switch (route.getEatingOptionSearchDeviation()) {
@@ -174,6 +177,10 @@ public class PoiService {
       }
     }
 
+    if (foodEstablishments.isEmpty()) {
+      throw new NoFoodEstablishmentsFoundException();
+    }
+
     System.out.println("Total Food Establishments: " + foodEstablishments.size());
     return new ArrayList<>(foodEstablishments.values());
   }
@@ -187,7 +194,7 @@ public class PoiService {
   private List<FoodEstablishment> getFoodEstablishmentsInRangeOfChargers(
       List<Point> clusteredChargers,
       List<FoodEstablishment> foodEstablishmentsAroundClusters,
-      Route route) {
+      Route route) throws NoFoodEstablishmentsInRangeofChargerException {
 
     Double maxWalkingDistance = route.getMaxWalkingDistance().doubleValue();
     System.out.println("Max walking distance: " + maxWalkingDistance);
@@ -207,6 +214,10 @@ public class PoiService {
     }
 
     System.out.println("Food Establishments in range: " + foodEstablishmentsInRange.size());
+
+    if (foodEstablishmentsInRange.isEmpty()) {
+      throw new NoFoodEstablishmentsInRangeofChargerException();
+    }
 
     return foodEstablishmentsInRange;
   }

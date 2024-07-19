@@ -19,7 +19,7 @@ public class FoodCategoryToFoursquareCategoryIDMapper {
     categoryToFoursquareIdMap.put(FoodCategory.FOOD_RETAILER, "17069,17099,17142");
     categoryToFoursquareIdMap.put(FoodCategory.SERVICE_STATION, "19007");
     categoryToFoursquareIdMap.put(FoodCategory.NEWSAGENT, "17099");
-    categoryToFoursquareIdMap.put(FoodCategory.SUPERMARKET, "17142");
+    categoryToFoursquareIdMap.put(FoodCategory.SUPERMARKET, "17142,17069");
     categoryToFoursquareIdMap.put(FoodCategory.PIZZA_RESTAURANT, "13064");
     categoryToFoursquareIdMap.put(FoodCategory.FAST_FOOD, "13145");
     categoryToFoursquareIdMap.put(FoodCategory.ASIAN_RESTAURANT, "13072");

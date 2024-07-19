@@ -9,6 +9,8 @@ import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.Routing.Route;
+import com.icl.fmfmc_backend.exception.NoFoodEstablishmentsFoundException;
+import com.icl.fmfmc_backend.exception.NoFoodEstablishmentsInRangeofChargerException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.LineString;
@@ -49,15 +51,29 @@ public class JourneyService {
         /* -----Find ideal FoodEstablishment via PoiService----- */
 
         if (route.getStopForEating()) {
-            Tuple2<List<FoodEstablishment>, Charger> poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
+            Tuple2<List<FoodEstablishment>, Charger> poiServiceTestResults = null;
+            try {
+                poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
+            } catch (NoFoodEstablishmentsFoundException | NoFoodEstablishmentsInRangeofChargerException e1) {
+                expandFoodEstablishmentSearch(route);
+                logger.warn("{}, increasing search range to {}km, retrying...",e1.getMessage(),route.getEatingOptionSearchDeviationAsFraction());
+                try {
+                    poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
+                } catch (NoFoodEstablishmentsFoundException | NoFoodEstablishmentsInRangeofChargerException e2) {
+                    route.setStopForEating(false);
+                    logger.error("No food establishments found within range of charger, route will be returned without eating stop");
+                }
+            }
 
-            route.setFoodEstablishments(poiServiceTestResults.getT1());
-            route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
-            LineString routeSnappedToFoodAdjacentCharger = routingService.snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
-            route.setWorkingLineStringRoute(routeSnappedToFoodAdjacentCharger);
-            Polygon bufferedLineString =
-                    GeometryService.bufferLineString(routeSnappedToFoodAdjacentCharger, 0.009); // 500m is 0.0045
-            route.setBufferedLineString(bufferedLineString);
+            if (poiServiceTestResults != null) {
+                route.setFoodEstablishments(poiServiceTestResults.getT1());
+                route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
+                LineString routeSnappedToFoodAdjacentCharger = routingService.snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
+                route.setWorkingLineStringRoute(routeSnappedToFoodAdjacentCharger);
+                Polygon bufferedLineString =
+                        GeometryService.bufferLineString(routeSnappedToFoodAdjacentCharger, 0.009); // 500m is 0.0045
+                route.setBufferedLineString(bufferedLineString);
+            }
         } else {
             logger.info("No eating stop requested, skipping food establishment search");
         }
@@ -85,8 +101,12 @@ public class JourneyService {
     }
 
     /* Assisting Functions */
-
-
-
+    private void expandFoodEstablishmentSearch(Route route) {
+        // TODO: make context specific
+        route.expandEatingOptionSearchDeviation();
+        route.expandStoppingRange();
+        route.expandFoodCategorySearch();
+        route.expandPriceRange();
+    }
 
 }
