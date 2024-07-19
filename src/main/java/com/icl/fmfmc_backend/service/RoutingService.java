@@ -220,6 +220,7 @@ public class RoutingService {
     // stop if charger is beyond the total route length
     for (Map.Entry<Charger, Double> entry : sortedChargers.entrySet()) {
       Double chargerDistance = entry.getValue();
+      logger.info("1 Checking charger distance: " + chargerDistance + " m, Closest Charger: " + closestCharger); // REMOVE
 
       if (route.getFoodAdjacentCharger() != null && entry.getKey().equals(route.getFoodAdjacentCharger())) {
 
@@ -282,7 +283,10 @@ public class RoutingService {
           closestCharger = null; // reset for  next interval
           closestDistance = Double.MAX_VALUE;
         }
+        else { logger.warn("Failed to find charger");}
       }
+      logger.info("2 Checking charger distance: " + chargerDistance + " m, Closest Charger: " + closestCharger); // REMOVE
+
     }
 
     // Add foodAdjacentCharger if not already added
