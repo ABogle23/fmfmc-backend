@@ -1,28 +1,25 @@
 package com.icl.fmfmc_backend.service;
 
+import com.icl.fmfmc_backend.Integration.DirectionsClient;
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.Routing.PolylineUtility;
 import com.icl.fmfmc_backend.controller.RouteController;
-import com.icl.fmfmc_backend.dto.Api.RouteRequest;
-import com.icl.fmfmc_backend.dto.Api.RouteResult;
 import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
-import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONRequest;
+import com.icl.fmfmc_backend.dto.Routing.DirectionsRequest;
+import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
 import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.entity.*;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
-import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 
-import com.icl.fmfmc_backend.Integration.OSRClient;
+import com.icl.fmfmc_backend.Integration.OsrDirectionsClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
 
-import org.locationtech.jts.operation.distance.DistanceOp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import reactor.util.function.Tuple2;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,7 +33,7 @@ import java.util.stream.Collectors;
 @Service
 public class RoutingService {
 
-  private final OSRClient osrClient;
+  private final DirectionsClientManager directionsClient;
   private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
   private final ChargerService chargerService;
   private final GeometryService geometryService;
@@ -86,39 +83,53 @@ public class RoutingService {
     routeCoordinates.add(endCoordinates);
 
     // get OSR response
-    OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse =
-            getOsrDirectionsServiceGeoJSONResponse(routeCoordinates);
+    DirectionsResponse directionsResponse =
+            getDirections(routeCoordinates);
 
-    // get LineString from OSR response
-    LineString lineString =
-            geometryService.createLineString(
-                    osrDirectionsServiceGeoJSONResponse
-                            .getFeatures()
-                            .get(0)
-                            .getGeometry()
-                            .getCoordinates());
+//    // get LineString from OSR response
+//    LineString lineString =
+//            geometryService.createLineString(
+//                    osrDirectionsServiceGeoJSONResponse
+//                            .getFeatures()
+//                            .get(0)
+//                            .getGeometry()
+//                            .getCoordinates());
 
     // set segmentDetails
-    route.setDurationsAndDistances(osrDirectionsServiceGeoJSONResponse);
-    route.setTotalDurationAndDistance(osrDirectionsServiceGeoJSONResponse);
+    route.setDurationsAndDistances(directionsResponse);
+    route.setTotalDurationAndDistance(directionsResponse);
 
-    return lineString;
+    return directionsResponse.getLineString();
   }
 
 
   /* Assisting Functions */
 
-  public OSRDirectionsServiceGeoJSONResponse getOsrDirectionsServiceGeoJSONResponse(
-      List<Double[]> coordinates) {
+//  @Deprecated
+//  public OSRDirectionsServiceGeoJSONResponse getOsrDirectionsServiceGeoJSONResponse(
+//      List<Double[]> coordinates) {
+//
+//    OSRDirectionsServiceGeoJSONRequest osrDirectionsServiceGeoJSONRequest =
+//        new OSRDirectionsServiceGeoJSONRequest(coordinates);
+//
+//    System.out.println(osrDirectionsServiceGeoJSONRequest);
+//
+//    OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse =
+//        osrClient.getDirectionsGeoJSON(osrDirectionsServiceGeoJSONRequest);
+//    return osrDirectionsServiceGeoJSONResponse;
+//  }
 
-    OSRDirectionsServiceGeoJSONRequest osrDirectionsServiceGeoJSONRequest =
-        new OSRDirectionsServiceGeoJSONRequest(coordinates);
+  public DirectionsResponse getDirections(
+          List<Double[]> coordinates) {
 
-    System.out.println(osrDirectionsServiceGeoJSONRequest);
+    DirectionsRequest directionsRequest = new DirectionsRequest(coordinates);
 
-    OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse =
-        osrClient.getDirectionsGeoJSON(osrDirectionsServiceGeoJSONRequest);
-    return osrDirectionsServiceGeoJSONResponse;
+    System.out.println(directionsRequest);
+
+    DirectionsResponse directionsResponse =
+            directionsClient.getDirections(directionsRequest);
+
+    return directionsResponse;
   }
 
   // ROUTING RELATED FUNCTIONS

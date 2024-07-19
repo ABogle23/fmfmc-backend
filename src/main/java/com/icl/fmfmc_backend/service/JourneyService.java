@@ -1,13 +1,11 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.Integration.OSRClient;
+import com.icl.fmfmc_backend.Integration.OsrDirectionsClient;
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.controller.RouteController;
 import com.icl.fmfmc_backend.dto.Api.RouteRequest;
 import com.icl.fmfmc_backend.dto.Api.RouteResult;
-import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
-import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONRequest;
-import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONResponse;
+import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.Routing.Route;
@@ -20,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.util.function.Tuple2;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +26,7 @@ import java.util.List;
 @Service
 public class JourneyService {
 
-    private final OSRClient osrClient;
+    private final OsrDirectionsClient osrDirectionsClient;
     private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
     private final PoiService poiService;
     private final RoutingService routingService;
@@ -42,11 +39,11 @@ public class JourneyService {
         Double[] startCoordinates = {routeRequest.getStartLong(), routeRequest.getStartLat()};
         Double[] endCoordinates = {routeRequest.getEndLong(), routeRequest.getEndLat()};
         List<Double[]> startAndEndCoordinates = List.of(startCoordinates, endCoordinates);
-        OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse =
-                routingService.getOsrDirectionsServiceGeoJSONResponse(startAndEndCoordinates);
+        DirectionsResponse directionsResponse =
+                routingService.getDirections(startAndEndCoordinates);
 
         // Build Route Object
-        Route route = new Route(osrDirectionsServiceGeoJSONResponse, routeRequest);
+        Route route = new Route(directionsResponse, routeRequest);
 
 
         /* -----Find ideal FoodEstablishment via PoiService----- */

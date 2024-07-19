@@ -2,6 +2,7 @@ package com.icl.fmfmc_backend.entity.Routing;
 
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.dto.Api.RouteRequest;
+import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
 import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
@@ -133,10 +134,23 @@ public class Route {
     this.eatingOptionSearchDeviation = routeRequest.getEatingOptionSearchDeviation();
   }
 
+  // Secondary Constructor using DirectionsResponse and RouteRequest
+
+  public Route(DirectionsResponse directionsResponse, RouteRequest routeRequest) {
+    this(routeRequest);
+    this.originalLineStringRoute = directionsResponse.getLineString();
+    this.workingLineStringRoute = originalLineStringRoute;
+    this.bufferedLineString =
+            GeometryService.bufferLineString(workingLineStringRoute, 0.009); // 1km
+    this.routeLength = GeometryService.calculateLineStringLength(workingLineStringRoute);
+    this.routeDuration =
+            directionsResponse.getTotalDuration();
+  }
 
 
   // Secondary Constructor coupled to OSRDirectionsServiceGeoJSONResponse
 
+  @Deprecated
   public Route(OSRDirectionsServiceGeoJSONResponse routeResponse, RouteRequest routeRequest) {
     this(routeRequest);
     this.originalLineStringRoute =
@@ -176,6 +190,36 @@ public class Route {
     segmentDetails.addStop(chargeTime); // add charge time to segment details
   }
 
+  public void setDurationsAndDistances(DirectionsResponse response) {
+
+    // reset segments (except stops) resulting from previous function calls.
+    segmentDetails.clearSegmentDurationAndDistance();
+    // set individual distances and durations per leg.
+    segmentDetails.segmentDurations = response.getLegDurations();
+    segmentDetails.segmentDistances = response.getLegDistances();
+
+  }
+
+  public void setTotalDurationAndDistance(DirectionsResponse response) {
+    // updates route object routeLength and routeDuration to include detours to chargers and charge
+    // time
+    Double totalDuration = 0.0;
+    Double totalDistance = 0.0;
+
+    totalDistance += response.getTotalDistance();
+    totalDuration += response.getTotalDuration();
+
+    for (Double duration : segmentDetails.getStopDurations()) {
+      totalDuration += duration;
+    }
+
+    setRouteLength(totalDistance);
+    setRouteDuration(totalDuration);
+  }
+
+
+
+  @Deprecated // don't use, coupled to OSRDirectionsServiceGeoJSONResponse
   public void setDurationsAndDistances(OSRDirectionsServiceGeoJSONResponse response) {
 
     // reset segments (except stops) resulting from previous function calls.
@@ -189,6 +233,7 @@ public class Route {
     }
   }
 
+  @Deprecated  // don't use, coupled to OSRDirectionsServiceGeoJSONResponse
   public void setTotalDurationAndDistance(OSRDirectionsServiceGeoJSONResponse response) {
     // updates route object routeLength and routeDuration to include detours to chargers and charge
     // time
