@@ -2,12 +2,11 @@ package com.icl.fmfmc_backend.service;
 
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.Routing.PolylineUtility;
-import com.icl.fmfmc_backend.controller.RouteController;
+import com.icl.fmfmc_backend.controller.JourneyController;
 import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.*;
 import com.icl.fmfmc_backend.entity.Routing.Route;
-import com.icl.fmfmc_backend.entity.enums.DeviationScope;
 import com.icl.fmfmc_backend.util.LogExecutionTime;
 import com.icl.fmfmc_backend.util.LogMessages;
 import lombok.RequiredArgsConstructor;
@@ -18,12 +17,10 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.stereotype.Service;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
-import java.lang.annotation.Retention;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,7 +44,7 @@ TODO: introduced expanding search or rela
 @Slf4j
 public class PoiService {
 
-  private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
+  private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
   private final ChargerService chargerService;
   private final FoodEstablishmentService foodEstablishmentService;
   private final GeometryService geometryService;

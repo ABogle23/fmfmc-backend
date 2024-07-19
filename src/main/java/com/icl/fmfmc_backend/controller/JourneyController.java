@@ -1,7 +1,6 @@
 package com.icl.fmfmc_backend.controller;
 
 import com.icl.fmfmc_backend.service.JourneyService;
-import com.icl.fmfmc_backend.service.RoutingService;
 
 import com.icl.fmfmc_backend.dto.Api.RouteRequest;
 import com.icl.fmfmc_backend.dto.Api.RouteResult;
@@ -19,7 +18,7 @@ import javax.validation.Valid;
 @RequestMapping("/route")
 @RequiredArgsConstructor
 //@Validated
-public class RouteController {
+public class JourneyController {
 
   /**
    * This method is called when a GET request is made URL: localhost:8080/route/find-route Purpose:
@@ -30,7 +29,7 @@ public class RouteController {
 
   private final JourneyService journeyService;
 
-  private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
+  private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
 
   @LogExecutionTime(message = "Response time for /find-route endpoint ")
   @PostMapping("/find-route")

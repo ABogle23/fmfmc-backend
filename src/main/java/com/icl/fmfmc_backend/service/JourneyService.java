@@ -2,7 +2,7 @@ package com.icl.fmfmc_backend.service;
 
 import com.icl.fmfmc_backend.Integration.OsrDirectionsClient;
 import com.icl.fmfmc_backend.Routing.GeometryService;
-import com.icl.fmfmc_backend.controller.RouteController;
+import com.icl.fmfmc_backend.controller.JourneyController;
 import com.icl.fmfmc_backend.dto.Api.RouteRequest;
 import com.icl.fmfmc_backend.dto.Api.RouteResult;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
@@ -27,7 +27,7 @@ import java.util.List;
 public class JourneyService {
 
     private final OsrDirectionsClient osrDirectionsClient;
-    private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
+    private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
     private final PoiService poiService;
     private final RoutingService routingService;
 

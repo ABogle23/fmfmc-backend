@@ -1,9 +1,8 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.Integration.DirectionsClient;
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.Routing.PolylineUtility;
-import com.icl.fmfmc_backend.controller.RouteController;
+import com.icl.fmfmc_backend.controller.JourneyController;
 import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsRequest;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
@@ -12,7 +11,6 @@ import com.icl.fmfmc_backend.entity.*;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 
-import com.icl.fmfmc_backend.Integration.OsrDirectionsClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
@@ -34,7 +32,7 @@ import java.util.stream.Collectors;
 public class RoutingService {
 
   private final DirectionsClientManager directionsClient;
-  private static final Logger logger = LoggerFactory.getLogger(RouteController.class);
+  private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
   private final ChargerService chargerService;
   private final GeometryService geometryService;
   private final PoiService poiService;
