@@ -3,10 +3,12 @@ package com.icl.fmfmc_backend.Routing;
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import net.sf.geographiclib.Geodesic;
 import net.sf.geographiclib.GeodesicData;
+import org.locationtech.jts.algorithm.MinimumBoundingCircle;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.operation.buffer.BufferOp;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.locationtech.jts.operation.distance.DistanceOp;
+import org.locationtech.jts.util.GeometricShapeFactory;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Arrays;
@@ -14,7 +16,7 @@ import org.locationtech.jts.linearref.LengthIndexedLine;
 
 @Service
 public class GeometryService {
-    private final GeometryFactory geometryFactory = new GeometryFactory();
+    private static final GeometryFactory geometryFactory = new GeometryFactory();
 
     public static Polygon bufferLineStringSquare(LineString lineString, double distance) {
         BufferParameters bufferParameters = new BufferParameters();
@@ -168,6 +170,34 @@ public class GeometryService {
 
     public static Double[] getPointAsDouble(Point point) {
         return new Double[]{point.getX(), point.getY()};
+    }
+
+
+    public static MinimumBoundingCircle createMinimumBoundingCircle(List<Point> points) {
+        if (points == null || points.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        Coordinate[] coordinates = points.stream()
+                .map(Point::getCoordinate)
+                .toArray(Coordinate[]::new);
+
+        MinimumBoundingCircle minimumBoundingCircle = new MinimumBoundingCircle(geometryFactory.createMultiPointFromCoords(coordinates));
+        return minimumBoundingCircle;
+    }
+
+    private static Polygon getMinimumBoundingCircleAsPolygon(MinimumBoundingCircle mbc) {
+        return (Polygon) mbc.getCircle();
+    }
+
+    public static Polygon getMinimumBoundingCircleAsPolygon(MinimumBoundingCircle mbc, Double bufferDistance) {
+        Geometry circle = mbc.getCircle();
+        return (Polygon) circle.buffer(bufferDistance);
+    }
+
+    public static Polygon getBufferedMinimumBoundingCircleAsPolygon(List<Point> points, Double bufferDistance) {
+        MinimumBoundingCircle mbc = createMinimumBoundingCircle(points);
+        return getMinimumBoundingCircleAsPolygon(mbc, bufferDistance);
     }
 
 }
