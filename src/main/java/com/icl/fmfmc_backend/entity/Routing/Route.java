@@ -12,7 +12,9 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class Route {
@@ -332,7 +334,7 @@ public class Route {
   }
 
   public void expandFoodCategorySearch() {
-    List<FoodCategory> expandedEatingOptions = new ArrayList<>();
+    Set<FoodCategory> expandedEatingOptions = new HashSet<>();
 
     for (FoodCategory childCategory : this.eatingOptions) {
       if (childCategory.getParent() != null) {
@@ -342,7 +344,7 @@ public class Route {
         expandedEatingOptions.add(childCategory);
       }
     }
-    this.eatingOptions = expandedEatingOptions;
+    this.eatingOptions = new ArrayList<>(expandedEatingOptions);
 
   }
 
