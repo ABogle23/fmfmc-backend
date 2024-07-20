@@ -77,6 +77,11 @@ public class PoiService {
     route.setEatingOptionSearch(PolylineUtility.polygonStringToFoursquareFormat(polygon));
 
     List<Point> chargerLocations = getChargerLocationsInPolygon(route, polygon);
+
+    if (chargerLocations.isEmpty()) {
+      return Tuples.of(Collections.emptyList(), null);
+    }
+
     List<Point> clusteredChargers = clusteringStrategy.clusterChargers(chargerLocations, 4);
 
     for (Point charger : clusteredChargers) {

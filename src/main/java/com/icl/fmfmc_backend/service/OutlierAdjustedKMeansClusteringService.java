@@ -16,16 +16,19 @@ public class OutlierAdjustedKMeansClusteringService implements ClusteringStrateg
     @Override
     public List<Point> clusterChargers(List<Point> chargers, int k) {
 
+        // prevents clustering if there are fewer chargers than clusters
         if (k >= chargers.size()) {
             return chargers;
         }
+
+        Integer MAX_ITERATIONS = 200;
 
         // outlier filtering before clustering
         chargers = filterOutliersByZScore(chargers);
         List<Point> centroids = initializeCentroidsPlusPlus(chargers, k);
         List<Point> oldCentroids = null;
 
-        while (!centroids.equals(oldCentroids)) {
+        while (!centroids.equals(oldCentroids) && MAX_ITERATIONS-- > 0) {
             oldCentroids = new ArrayList<>(centroids);
 
             List<List<Point>> clusters = assignToClusters(chargers, centroids);
