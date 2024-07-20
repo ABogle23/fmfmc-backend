@@ -86,11 +86,19 @@ public class PoiService {
     List<FoodEstablishment> foodEstablishmentsAroundClusters =
         getFoodEstablishmentsAroundClusters(route, clusteredChargers);
 
-    List<FoodEstablishment> foodEstablishmentsInRange =
-        getFoodEstablishmentsInRangeOfChargers(
-            chargerLocations, foodEstablishmentsAroundClusters, route);
+    // if no FoodEstablishments found are in the range of a charger expand the search of the
+    // chargers prior to retrying the food establishment search which involves another costly
+    // api client call
 
-    // needs fallback strategy
+    List<FoodEstablishment> foodEstablishmentsInRange = null;
+    try {
+      foodEstablishmentsInRange = getFoodEstablishmentsInRangeOfChargers(
+          chargerLocations, foodEstablishmentsAroundClusters, route);
+    } catch (NoFoodEstablishmentsInRangeofChargerException e) {
+      logger.info("Expanding charger search range prior to retrying food establishment search");
+      foodEstablishmentsInRange = getFoodEstablishmentsInRangeOfChargersFallback(route, foodEstablishmentsAroundClusters);
+    }
+
     FoodEstablishment optimalFoodEstablishment =
         getOptimalFoodEstablishment(foodEstablishmentsInRange);
 
@@ -100,8 +108,8 @@ public class PoiService {
 
     Charger adjacentCharger = getNearestCharger(route, optimalFoodEstablishment.getLocation());
 
-    // if includeAlternativeEatingOptions is true, return the top 5 food establishments around the
-    // adjacent charger
+    // if includeAlternativeEatingOptions is true, return the top 5 food
+    // establishments around the adjacent charger
     if (route.getIncludeAlternativeEatingOptions() && adjacentCharger != null) {
       List<FoodEstablishment> subOptimalFoodEstablishments =
           getFoodEstablishmentsAroundAdjacentCharger(
@@ -113,6 +121,21 @@ public class PoiService {
     System.out.println("Adjacent Charger: " + adjacentCharger);
 
     return Tuples.of(List.of(optimalFoodEstablishment), adjacentCharger);
+  }
+
+  private List<FoodEstablishment> getFoodEstablishmentsInRangeOfChargersFallback(Route route, List<FoodEstablishment> foodEstablishmentsAroundClusters) throws NoFoodEstablishmentsInRangeofChargerException {
+    List<FoodEstablishment> foodEstablishmentsInRange = new ArrayList<>();
+    List<Point> chargerLocations = new ArrayList<>();
+    List<Point> foodEstablishmentLocations = new ArrayList<>();
+    for (FoodEstablishment foodEstablishment : foodEstablishmentsAroundClusters) {
+        foodEstablishmentLocations.add(foodEstablishment.getLocation());
+    }
+    Polygon expandedPolygon =
+              GeometryService.getBufferedMinimumBoundingCircleAsPolygon(foodEstablishmentLocations,0.0045); // 500m is 0.0045
+    chargerLocations = getChargerLocationsInPolygon(route, expandedPolygon);
+    foodEstablishmentsInRange = getFoodEstablishmentsInRangeOfChargers(
+            chargerLocations, foodEstablishmentsAroundClusters, route);
+    return foodEstablishmentsInRange;
   }
 
   public List<Point> getChargerLocationsInPolygon(Route route, Polygon polygon) {
@@ -178,6 +201,7 @@ public class PoiService {
     }
 
     if (foodEstablishments.isEmpty()) {
+      logger.error("No food establishments returned from API call");
       throw new NoFoodEstablishmentsFoundException();
     }
 
@@ -216,6 +240,7 @@ public class PoiService {
     System.out.println("Food Establishments in range: " + foodEstablishmentsInRange.size());
 
     if (foodEstablishmentsInRange.isEmpty()) {
+      logger.error("No food establishments found within range of charger");
       throw new NoFoodEstablishmentsInRangeofChargerException();
     }
 

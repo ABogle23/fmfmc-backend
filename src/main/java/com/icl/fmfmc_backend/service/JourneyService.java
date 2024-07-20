@@ -57,12 +57,12 @@ public class JourneyService {
             } catch (NoFoodEstablishmentsFoundException | NoFoodEstablishmentsInRangeofChargerException e1) {
                 expandFoodEstablishmentSearch(route);
                 logger.warn("{}, increasing search range to {}km, retrying...",e1.getMessage(),route.getEatingOptionSearchDeviationAsFraction());
-                try {
-                    poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
-                } catch (NoFoodEstablishmentsFoundException | NoFoodEstablishmentsInRangeofChargerException e2) {
-                    route.setStopForEating(false);
-                    logger.error("No food establishments found within range of charger, route will be returned without eating stop");
-                }
+//                try {
+//                    poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
+//                } catch (NoFoodEstablishmentsFoundException | NoFoodEstablishmentsInRangeofChargerException e2) {
+//                    route.setStopForEating(false);
+//                    logger.error("No food establishments found within range of charger, route will be returned without eating stop");
+//                }
             }
 
             if (poiServiceTestResults != null) {
