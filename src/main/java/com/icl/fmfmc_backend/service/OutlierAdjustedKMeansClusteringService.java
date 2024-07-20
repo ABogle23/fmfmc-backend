@@ -15,6 +15,11 @@ public class OutlierAdjustedKMeansClusteringService implements ClusteringStrateg
 
     @Override
     public List<Point> clusterChargers(List<Point> chargers, int k) {
+
+        if (k >= chargers.size()) {
+            return chargers;
+        }
+
         // outlier filtering before clustering
         chargers = filterOutliersByZScore(chargers);
         List<Point> centroids = initializeCentroidsPlusPlus(chargers, k);
@@ -34,6 +39,7 @@ public class OutlierAdjustedKMeansClusteringService implements ClusteringStrateg
     }
 
     private static List<Point> initializeCentroidsPlusPlus(List<Point> points, int k) {
+
         List<Point> centroids = new ArrayList<>();
         Random random = new Random();
         // pick first centroid at random
