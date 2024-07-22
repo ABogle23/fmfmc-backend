@@ -4,6 +4,8 @@ import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,4 +83,27 @@ public class TestHelperFunctions {
       route.setFinalDestinationChargeLevel(
           route.getEvRange() * route.getFinalDestinationChargeLevelPct());
     }
+
+    public static void setFoodAdjacentCharger(List<Charger> chargers, Route route, Long chargerId) {
+
+        route.setStopForEating(true);
+
+        Optional<Charger> foodAdjacentCharger = chargers.stream()
+                .filter(charger -> Objects.equals(charger.getId(), chargerId))
+                .findFirst();
+
+        foodAdjacentCharger.ifPresent(charger -> route.setFoodAdjacentCharger(charger));
+    }
+
+    public static Charger findChargerById(List<Charger> chargers, Long chargerId) {
+        Charger foundCharger = null;
+        for (Charger charger : chargers) {
+            if (Objects.equals(charger.getId(), chargerId)) {
+                foundCharger = charger;
+                break;
+            }
+        }
+        return foundCharger;
+    }
+
 }

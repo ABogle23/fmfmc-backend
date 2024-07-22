@@ -185,6 +185,7 @@ public class RoutingService {
 
   private Double calculateMaxTravelDistance(Route route) {
     Double useableBattery = route.getCurrentBattery() - route.getMinChargeLevel();
+    // to be deleted
 //    if (useableBattery < route.getMinChargeLevel()) {
 //      return 0.0; // if battery is below minChargeLevel return current battery
 //    } else {
@@ -235,6 +236,11 @@ public class RoutingService {
       logger.info("1 Checking charger distance: " + chargerDistance + " m, Closest Charger: " + closestCharger); // REMOVE
 
       if (route.getFoodAdjacentCharger() != null && entry.getKey().equals(route.getFoodAdjacentCharger())) {
+
+        // TODO: ADD Range Check
+        if ((chargerDistance - lastChargerDistance) > calculateMaxTravelDistance(route)) {
+          throw new NoChargerWithinRangeException("Unable to find any chargers within range based on current battery level and route.");
+        }
 
         route.setFoodAdjacentChargerUsed(true);
 
