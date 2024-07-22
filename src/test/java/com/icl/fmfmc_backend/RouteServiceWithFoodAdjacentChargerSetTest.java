@@ -90,8 +90,8 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
   }
 
   @Test
-  @DisplayName("Food adjacent charger is out of range")
-  public void foodAdjacentChargerIsOutOfRange() {
+  @DisplayName("Food adjacent charger is first in the list is out of range")
+  public void foodAdjacentChargerIsFirstInListAndOutOfRange() {
 
     List<Charger> insufficientChargers = new ArrayList<>();
     insufficientChargers.add(TestHelperFunctions.findChargerById(chargers, 117934L));
@@ -99,6 +99,27 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
 
     TestHelperFunctions.setBatteryAndCharging(route, 0.9, 60000.0, 0.2, 0.9, 0.2);
     TestHelperFunctions.setFoodAdjacentCharger(chargers, route, 117934L);
+    // 168555L
+    List<Charger> suitableChargers = null;
+
+    NoChargerWithinRangeException thrown =
+            assertThrows(
+                    NoChargerWithinRangeException.class,
+                    () -> routingService.findSuitableChargers(route, insufficientChargers),
+                    "Expected findSuitableChargers to throw, it didn't");
+
+  }
+
+  @Test
+  @DisplayName("Food adjacent charger is second in the list is out of range")
+  public void foodAdjacentChargerIsSecondInListAndOutOfRange() {
+
+    List<Charger> insufficientChargers = new ArrayList<>();
+    insufficientChargers.add(TestHelperFunctions.findChargerById(chargers, 109188L));
+    insufficientChargers.add(TestHelperFunctions.findChargerById(chargers, 90470L));
+
+    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 60000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setFoodAdjacentCharger(chargers, route, 90470L);
     // 168555L
     List<Charger> suitableChargers = null;
 
