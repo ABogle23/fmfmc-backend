@@ -9,6 +9,7 @@ import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.DirectionsClientManager;
 import com.icl.fmfmc_backend.service.RoutingService;
 import com.icl.fmfmc_backend.util.TestDataFactory;
+import com.icl.fmfmc_backend.util.TestHelperFunctions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,14 +46,14 @@ public class RouteServiceTest {
   @DisplayName("Current battery should be set correctly for the route")
   public void currentBatteryShouldBeSetCorrectly() {
 
-    List<Charger> inadequateChargers = TestDataFactory.createChargersForBatteryExceptionTest();
+    List<Charger> inadequateChargers = TestDataFactory.createChargersForCurrentBatterySetTest();
 
     setBatteryAndCharging(0.9, 100000.0, 0.3, 0.9, 0.5);
     List<Charger> suitableChargers = null;
 
     try {
       suitableChargers = routingService.findSuitableChargers(route, inadequateChargers);
-      printSuitableChargers(suitableChargers);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
@@ -60,7 +61,7 @@ public class RouteServiceTest {
     assertSuitableChargers(suitableChargers, 2, 168555L, 258995L);
     assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
-    assertEqualsWithTolerance(75572, route.getCurrentBattery(), 100);
+    TestHelperFunctions.assertEqualsWithTolerance(75572, route.getCurrentBattery(), 100);
   }
 
   @Test
@@ -73,7 +74,7 @@ public class RouteServiceTest {
 
     try {
       suitableChargers = routingService.findSuitableChargers(route, chargers);
-      printSuitableChargers(suitableChargers);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       throw new RuntimeException(e);
     }
@@ -81,7 +82,7 @@ public class RouteServiceTest {
     assertSuitableChargers(suitableChargers, 0);
     assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
-    assertEqualsWithTolerance(
+    TestHelperFunctions.assertEqualsWithTolerance(
         0.9 * 200000.0 - route.getRouteLength(), route.getCurrentBattery(), 100);
   }
 
@@ -93,7 +94,7 @@ public class RouteServiceTest {
 
     try {
       suitableChargers = routingService.findSuitableChargers(route, chargers);
-      printSuitableChargers(suitableChargers);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
@@ -102,7 +103,7 @@ public class RouteServiceTest {
     assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
     Double expectedFinalBattery = 90000.0 - (route.getRouteLength() - 55586.0);
-    assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
+    TestHelperFunctions.assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
   }
 
   @Test
@@ -114,7 +115,7 @@ public class RouteServiceTest {
 
     try {
       suitableChargers = routingService.findSuitableChargers(route, chargers);
-      printSuitableChargers(suitableChargers);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
@@ -124,7 +125,7 @@ public class RouteServiceTest {
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
     Double expectedFinalBattery =
         (route.getChargeLevelAfterEachStop()) - (route.getRouteLength() - 78644.0);
-    assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
+    TestHelperFunctions.assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
   }
 
   @Test
@@ -137,7 +138,7 @@ public class RouteServiceTest {
 
     try {
       suitableChargers = routingService.findSuitableChargers(route, chargers);
-      printSuitableChargers(suitableChargers);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
@@ -147,7 +148,7 @@ public class RouteServiceTest {
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
     Double expectedFinalBattery =
         (route.getChargeLevelAfterEachStop()) - (route.getRouteLength() - 73646);
-    assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
+    TestHelperFunctions.assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
   }
 
   @Test
@@ -161,7 +162,7 @@ public class RouteServiceTest {
 
     try {
       suitableChargers = routingService.findSuitableChargers(route, chargers);
-      printSuitableChargers(suitableChargers);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
@@ -174,7 +175,7 @@ public class RouteServiceTest {
             > route.getFinalDestinationChargeLevel());
     Double expectedFinalBattery =
         (route.getChargeLevelAfterEachStop()) - (route.getRouteLength() - 84383);
-    assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
+    TestHelperFunctions.assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
   }
 
   @Test
@@ -187,7 +188,7 @@ public class RouteServiceTest {
 
     try {
       suitableChargers = routingService.findSuitableChargers(route, chargers);
-      printSuitableChargers(suitableChargers);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
@@ -197,7 +198,7 @@ public class RouteServiceTest {
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
     Double expectedFinalBattery =
         (route.getChargeLevelAfterEachStop()) - (route.getRouteLength() - 84383);
-    assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
+    TestHelperFunctions.assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
   }
 
   @Test
@@ -211,7 +212,7 @@ public class RouteServiceTest {
 
     try {
       suitableChargers = routingService.findSuitableChargers(route, chargers);
-      printSuitableChargers(suitableChargers);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
@@ -224,7 +225,7 @@ public class RouteServiceTest {
             > route.getFinalDestinationChargeLevel());
     Double expectedFinalBattery =
         (route.getChargeLevelAfterEachStop()) - (route.getRouteLength() - 84383);
-    assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
+    TestHelperFunctions.assertEqualsWithTolerance(expectedFinalBattery, route.getCurrentBattery(), 100);
   }
 
   @Test
@@ -261,30 +262,6 @@ public class RouteServiceTest {
           expectedChargerIds[i],
           suitableChargers.get(i).getId(),
           "Charger ID not found at index " + i);
-    }
-  }
-
-  public static void assertEqualsWithTolerance(
-      double expected, double actual, double tolerance, String message) {
-    assertTrue(Math.abs(expected - actual) <= tolerance, message);
-  }
-
-  public static void assertEqualsWithTolerance(double expected, double actual, double tolerance) {
-    assertEqualsWithTolerance(
-        expected,
-        actual,
-        tolerance,
-        "Actual value "
-            + actual
-            + " is not within the expected tolerance of "
-            + tolerance
-            + " from the expected value "
-            + expected);
-  }
-
-  private static void printSuitableChargers(List<Charger> suitableChargers) {
-    for (Charger charger : suitableChargers) {
-      System.out.println(charger.getId());
     }
   }
 

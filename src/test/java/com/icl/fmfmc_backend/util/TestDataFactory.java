@@ -4,6 +4,7 @@ import com.icl.fmfmc_backend.dto.Api.RouteRequest;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.Charger.Connection;
+import com.icl.fmfmc_backend.entity.Routing.Route;
 import com.icl.fmfmc_backend.entity.enums.DeviationScope;
 import com.icl.fmfmc_backend.entity.enums.StoppingRange;
 import org.locationtech.jts.geom.Coordinate;
@@ -66,12 +67,11 @@ public class TestDataFactory {
     return directionsResponse;
   }
 
-  //    public static RouteRequest createDefaultRoute() {
-  //        Route route = new Route();
-  //
-  //        // add more properties as needed
-  //        return route;
-  //    }
+  public static Route createDefaultRoute() {
+    Route route = new Route(createDefaultDirectionsResponse(), createDefaultRouteRequest());
+
+    return route;
+  }
 
   public static List<Charger> createChargers() {
 
@@ -255,7 +255,7 @@ public class TestDataFactory {
     return chargers;
   }
 
-  public static List<Charger> createChargersForBatteryExceptionTest() {
+  public static List<Charger> createChargersForCurrentBatterySetTest() {
 
     Charger charger12 = new Charger();
     charger12.setId(168555L);
