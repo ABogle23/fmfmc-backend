@@ -65,6 +65,7 @@ public class Route {
   private Double[] startCoordinates;
   private Double[] endCoordinates;
 
+  private Double StartBattery;
   private Double currentBattery;
   private Double evRange;
   private Double batteryCapacity; // kWh
@@ -100,6 +101,7 @@ public class Route {
     this.startCoordinates = new Double[] {routeRequest.getStartLong(), routeRequest.getStartLat()};
     this.endCoordinates = new Double[] {routeRequest.getEndLong(), routeRequest.getEndLat()};
 
+    this.StartBattery = routeRequest.getStartingBattery();
     this.currentBattery = routeRequest.getStartingBattery() * routeRequest.getEvRange();
     this.evRange = routeRequest.getEvRange();
     this.minChargeLevelPct = routeRequest.getMinChargeLevel();
@@ -143,12 +145,10 @@ public class Route {
     this.originalLineStringRoute = directionsResponse.getLineString();
     this.workingLineStringRoute = originalLineStringRoute;
     this.bufferedLineString =
-            GeometryService.bufferLineString(workingLineStringRoute, 0.009); // 1km
+        GeometryService.bufferLineString(workingLineStringRoute, 0.009); // 1km
     this.routeLength = GeometryService.calculateLineStringLength(workingLineStringRoute);
-    this.routeDuration =
-            directionsResponse.getTotalDuration();
+    this.routeDuration = directionsResponse.getTotalDuration();
   }
-
 
   // Secondary Constructor coupled to OSRDirectionsServiceGeoJSONResponse
 
@@ -199,7 +199,6 @@ public class Route {
     // set individual distances and durations per leg.
     segmentDetails.segmentDurations = response.getLegDurations();
     segmentDetails.segmentDistances = response.getLegDistances();
-
   }
 
   public void setTotalDurationAndDistance(DirectionsResponse response) {
@@ -219,8 +218,6 @@ public class Route {
     setRouteDuration(totalDuration);
   }
 
-
-
   @Deprecated // don't use, coupled to OSRDirectionsServiceGeoJSONResponse
   public void setDurationsAndDistances(OSRDirectionsServiceGeoJSONResponse response) {
 
@@ -235,7 +232,7 @@ public class Route {
     }
   }
 
-  @Deprecated  // don't use, coupled to OSRDirectionsServiceGeoJSONResponse
+  @Deprecated // don't use, coupled to OSRDirectionsServiceGeoJSONResponse
   public void setTotalDurationAndDistance(OSRDirectionsServiceGeoJSONResponse response) {
     // updates route object routeLength and routeDuration to include detours to chargers and charge
     // time
@@ -271,18 +268,18 @@ public class Route {
   }
 
   public void expandStoppingRange() {
-      switch (this.stoppingRange) {
-          case earliest -> this.stoppingRange = StoppingRange.early;
-          case early -> this.stoppingRange = StoppingRange.middle;
-          case middle -> this.stoppingRange = StoppingRange.later;
-          case later -> this.stoppingRange = StoppingRange.latest;
-          case latest -> this.stoppingRange = StoppingRange.extendedEarly;
-          case extendedEarly -> this.stoppingRange = StoppingRange.extendedMiddle;
-          case extendedMiddle -> this.stoppingRange = StoppingRange.extendedLater;
-          case extendedLater -> {
-              return;
-          }
+    switch (this.stoppingRange) {
+      case earliest -> this.stoppingRange = StoppingRange.early;
+      case early -> this.stoppingRange = StoppingRange.middle;
+      case middle -> this.stoppingRange = StoppingRange.later;
+      case later -> this.stoppingRange = StoppingRange.latest;
+      case latest -> this.stoppingRange = StoppingRange.extendedEarly;
+      case extendedEarly -> this.stoppingRange = StoppingRange.extendedMiddle;
+      case extendedMiddle -> this.stoppingRange = StoppingRange.extendedLater;
+      case extendedLater -> {
+        return;
       }
+    }
   }
 
   public Double getChargerSearchDeviationAsFraction() {
@@ -313,20 +310,31 @@ public class Route {
 
   public Boolean expandEatingOptionSearchDeviation() {
     // TODO: consider limiting expansion based on route length
-      switch (this.eatingOptionSearchDeviation) {
-          case minimal:
-              this.eatingOptionSearchDeviation = DeviationScope.moderate;
-              break;
-          case moderate:
-              this.eatingOptionSearchDeviation = DeviationScope.significant;
-              break;
-          case significant:
-              this.eatingOptionSearchDeviation = DeviationScope.extreme;
-              break;
-          case extreme:
-              return false;
-      }
+    switch (this.eatingOptionSearchDeviation) {
+      case minimal:
+        this.eatingOptionSearchDeviation = DeviationScope.moderate;
+        break;
+      case moderate:
+        this.eatingOptionSearchDeviation = DeviationScope.significant;
+        break;
+      case significant:
+        this.eatingOptionSearchDeviation = DeviationScope.extreme;
+        break;
+      case extreme:
+        return false;
+    }
     return true;
+  }
+
+  public void expandChargerSearchDeviation() {
+    switch (this.chargerSearchDeviation) {
+      case minimal -> this.chargerSearchDeviation = DeviationScope.moderate;
+      case moderate -> this.chargerSearchDeviation = DeviationScope.significant;
+      case significant -> this.chargerSearchDeviation = DeviationScope.extreme;
+      case extreme -> {
+        return;
+      }
+    }
   }
 
   public void maximiseEatingOptionSearchDeviation() {
@@ -339,13 +347,11 @@ public class Route {
     for (FoodCategory childCategory : this.eatingOptions) {
       if (childCategory.getParent() != null) {
         expandedEatingOptions.add(childCategory.getParent());
-      }
-      else {
+      } else {
         expandedEatingOptions.add(childCategory);
       }
     }
     this.eatingOptions = new ArrayList<>(expandedEatingOptions);
-
   }
 
   public void expandPriceRange() {
@@ -355,9 +361,34 @@ public class Route {
     if (maxPrice != null && maxPrice < 4) {
       maxPrice += 1;
     }
-
   }
 
+  public void expandChargeSpeedRange() {
+    if (minKwChargeSpeed != null && minKwChargeSpeed > 7) {
+      minKwChargeSpeed = 7;
+    }
+    if (maxKwChargeSpeed != null && maxKwChargeSpeed < 350) {
+      maxKwChargeSpeed = 350;
+    }
+  }
 
+  public void relaxChargingRange() {
+    if (minChargeLevelPct != null && minChargeLevelPct > 0.1) {
+      minChargeLevelPct = 0.1;
+      minChargeLevel = 0.1 * evRange;
+    }
+    if (chargeLevelAfterEachStopPct != null && chargeLevelAfterEachStopPct < 0.9) {
+      chargeLevelAfterEachStopPct = 1.0;
+      chargeLevelAfterEachStop = evRange;
+    }
+  }
+
+  public void clearChargersOnRoute() {
+    chargersOnRoute.clear();
+  }
+
+  public void resetBatteryLevel() {
+    currentBattery = StartBattery * evRange;
+  }
 
 }
