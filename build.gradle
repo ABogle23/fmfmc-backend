@@ -40,6 +40,9 @@ dependencies {
 
 	implementation 'org.locationtech.jts:jts-core:1.18.0'
 
+	testImplementation 'org.mockito:mockito-core:3.+'
+	testImplementation 'org.mockito:mockito-junit-jupiter:3.+'
+
 	implementation 'org.hibernate:hibernate-core:6.4.2.Final'
 	implementation 'org.hibernate:hibernate-spatial:6.4.2.Final'
 	implementation 'net.sf.geographiclib:GeographicLib-Java:2.0'
