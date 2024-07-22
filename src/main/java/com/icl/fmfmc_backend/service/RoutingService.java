@@ -12,6 +12,7 @@ import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 
 import com.icl.fmfmc_backend.exception.NoChargerWithinRangeException;
+import com.icl.fmfmc_backend.exception.NoChargersOnRouteFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
@@ -22,6 +23,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.max;
 
 //TODO: Incorporate double safety check for final destination charge level
 //TODO: Handle situations whereby meeting the finalDestinationChargeLevel requires a stop very soon after eating.
@@ -35,10 +38,8 @@ public class RoutingService {
   private final DirectionsClientManager directionsClient;
   private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
   private final ChargerService chargerService;
-  private final GeometryService geometryService;
-  private final PoiService poiService;
 
-  public List<Charger> getChargersOnRoute(Route route) {
+  public List<Charger> getChargersOnRoute(Route route) throws NoChargersOnRouteFoundException {
     logger.info("Fetching route from routing service");
 
     // Find all chargers in BufferedLineString
@@ -59,6 +60,15 @@ public class RoutingService {
     List<Charger> chargersWithinPolygon = chargerService.getChargersByParams(query);
 
     logger.info("Chargers within query: " + chargersWithinPolygon.size());
+
+    for (Charger charger : chargersWithinPolygon) {
+      System.out.println("Charger ID: " + charger.getId() + ", Charger Location: " + charger.getLocation());
+    }
+
+    if (chargersWithinPolygon.isEmpty()) {
+      logger.error("No chargers found within the buffered route");
+      throw new NoChargersOnRouteFoundException("No chargers found within the buffered route");
+    }
 
     return chargersWithinPolygon;
 
@@ -133,7 +143,7 @@ public class RoutingService {
 
   // ROUTING RELATED FUNCTIONS
 
-  public List<Charger> findSuitableChargers(Route route, List<Charger> potentialChargers) {
+  public List<Charger> findSuitableChargers(Route route, List<Charger> potentialChargers) throws NoChargerWithinRangeException {
     Double maxTravelDistance =
         calculateMaxTravelDistance(
             route);
@@ -166,12 +176,8 @@ public class RoutingService {
 //                    route.getLineStringRoute(), charger.getLocation(), maxTravelDistance))
 //        .collect(Collectors.toList());
 
-      List<Charger> suitableChargers = null;
-      try {
-          suitableChargers = findChargersAtIntervals(chargerDistanceMap, route);
-      } catch (NoChargerWithinRangeException e) {
-          throw new RuntimeException(e);
-      }
+      List<Charger> suitableChargers = findChargersAtIntervals(chargerDistanceMap, route);
+
       logger.info("Suitable chargers: " + suitableChargers.size());
     return suitableChargers;
 
@@ -179,11 +185,12 @@ public class RoutingService {
 
   private Double calculateMaxTravelDistance(Route route) {
     Double useableBattery = route.getCurrentBattery() - route.getMinChargeLevel();
-    if (useableBattery < route.getMinChargeLevel()) {
-      return route.getCurrentBattery(); // if battery is below minChargeLevel return current battery
-    } else {
-      return useableBattery;
-    }
+//    if (useableBattery < route.getMinChargeLevel()) {
+//      return 0.0; // if battery is below minChargeLevel return current battery
+//    } else {
+//      return useableBattery;
+//    }
+    return Math.max(useableBattery,0.0);
   }
 
   @Deprecated
@@ -288,7 +295,7 @@ public class RoutingService {
           closestDistance = Double.MAX_VALUE;
         }
         else {
-          logger.error("Failed to find charger");
+          logger.error("Could not find any chargers within range based on current battery level and route.");
           throw new NoChargerWithinRangeException("Unable to find any chargers within range based on current battery level and route.");
         }
       }
@@ -320,12 +327,18 @@ public class RoutingService {
     }
 
     // final update to battery level at route end
-    Double currentBatteryAtFinalDestination = route.getCurrentBattery() - (route.getRouteLength() - closestDistance);
+//    Double currentBatteryAtFinalDestination = route.getCurrentBattery() - (route.getRouteLength() - closestDistance);
+    Double currentBatteryAtFinalDestination = route.getCurrentBattery() - (route.getRouteLength() - lastChargerDistance);
+    logger.info("Current battery before update: " + route.getCurrentBattery() + " m"); // DELETE
+    logger.info("Closest distance: " + closestDistance + " m"); // DELETE
+    logger.info("Current battery estimate at final destination: " + currentBatteryAtFinalDestination + " m"); // DELETE
 
     if (currentBatteryAtFinalDestination < route.getFinalDestinationChargeLevel()) {
       if (!canEnsureFinalChargeLevel(chargersAtIntervals, route, sortedChargers)) {
           logger.info("Could not ensure final charge level ({})", route.getFinalDestinationChargeLevel());
           route.reduceBattery(route.getRouteLength() - closestDistance);
+          logger.error("Could not find any chargers within range based on current battery level and route.");
+          throw new NoChargerWithinRangeException("Unable to find any chargers within range based on current battery level and route.");
       }
     }
     else {
@@ -340,7 +353,7 @@ public class RoutingService {
 
     logger.info("Charge level at end of route: " + route.getCurrentBattery() + " m");
 
-//    printChargerDistanceMap(sortedChargers);
+    printChargerDistanceMap(sortedChargers);
 
     return chargersAtIntervals;
   }

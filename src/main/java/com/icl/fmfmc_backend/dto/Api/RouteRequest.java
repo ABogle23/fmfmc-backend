@@ -9,6 +9,7 @@ import com.icl.fmfmc_backend.service.ElectricVehicleService;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import jakarta.validation.constraints.*;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalTime;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 // @Validated
+
+//@NoArgsConstructor
 @Data
 public class RouteRequest {
 
@@ -122,7 +125,7 @@ public class RouteRequest {
   @JsonProperty("minKwChargeSpeed")
   private Integer minKwChargeSpeed;
 
-  @Min(value = 0, message = "Maximum charge speed must be greater than 0")
+  @Min(value = 1, message = "Maximum charge speed must be greater than 0")
   @Max(value = 350, message = "Maximum charge speed must be less than or equal to 350")
   @JsonProperty("maxKwChargeSpeed")
   private Integer maxKwChargeSpeed;
