@@ -79,10 +79,10 @@ public class PoiService {
     List<Point> chargerLocations = getChargerLocationsInPolygon(route, polygon);
 
 
-    // TODO: INVESTIGATE WHY THIS IS HAPPENING
-    if (chargerLocations.isEmpty()) {
-      return Tuples.of(Collections.emptyList(), new Charger());
-    }
+//    // TODO: INVESTIGATE WHY THIS IS HAPPENING
+//    if (chargerLocations.isEmpty()) {
+//      return Tuples.of(Collections.emptyList(), new Charger());
+//    }
 
     List<Point> clusteredChargers = clusteringStrategy.clusterChargers(chargerLocations, 4);
 
@@ -108,10 +108,6 @@ public class PoiService {
 
     FoodEstablishment optimalFoodEstablishment =
         getOptimalFoodEstablishment(foodEstablishmentsInRange);
-
-    if (optimalFoodEstablishment == null) {
-      return Tuples.of(Collections.emptyList(), null);
-    }
 
     Charger adjacentCharger = getNearestCharger(route, optimalFoodEstablishment.getLocation());
 

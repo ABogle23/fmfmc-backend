@@ -36,7 +36,8 @@ public class JourneyService {
   private final PoiService poiService;
   private final RoutingService routingService;
 
-  public RouteResult getJourney(RouteRequest routeRequest, JourneyContext context) {
+  public RouteResult getJourney(RouteRequest routeRequest, JourneyContext context)
+      throws JourneyNotFoundException {
     logger.info("Getting journey");
     fileLogger.info("RouteRequest object: {}", routeRequest.toString());
 
@@ -106,7 +107,8 @@ public class JourneyService {
       try {
         chargersOnRoute = routingService.getChargersOnRoute(route);
       } catch (NoChargersOnRouteFoundException ex) {
-        throw new RuntimeException(ex);
+        logger.error("No valid journey could be found.");
+        throw new JourneyNotFoundException("No valid journey could be found.");
       }
     }
 
@@ -129,12 +131,14 @@ public class JourneyService {
           try {
             suitableChargers = routingService.findSuitableChargers(route, chargersOnRoute);
           } catch (NoChargerWithinRangeException exc) {
-            throw new RuntimeException(exc);
+            logger.error("No valid journey could be found despite relaxing request constraints.");
+            throw new JourneyNotFoundException(
+                "No valid journey could be found despite relaxing request constraints.");
           }
         } else {
-          //                    throw new NoRouteFoundException("No route found despite relaxing
-          // request constraints.");
-          throw new RuntimeException(ex);
+          logger.error("No valid journey could be found. despite relaxing request constraints.");
+          throw new JourneyNotFoundException(
+              "No valid journey could be found despite relaxing request constraints.");
         }
       }
     }
