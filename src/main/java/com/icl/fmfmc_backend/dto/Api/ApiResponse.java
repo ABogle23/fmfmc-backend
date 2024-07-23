@@ -18,21 +18,21 @@ public class ApiResponse<T> {
   private LocalDateTime timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  private boolean fallbackUsed;
+  private Boolean fallbackUsed;
 
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private String fallbackDetails;
 
-  public ApiResponse(T data, boolean success, String message) {
+  public ApiResponse(T data, Boolean success, String message) {
     this.data = data;
     this.success = success;
     this.message = message;
-    this.fallbackUsed = false;
+    this.fallbackUsed = null;
     this.fallbackDetails = null;
   }
 
   public ApiResponse(
-      T data, boolean success, String message, boolean fallbackUsed, String fallbackDetails) {
+      T data, Boolean success, String message, Boolean fallbackUsed, String fallbackDetails) {
     this.data = data;
     this.success = success;
     this.message = message;

@@ -49,9 +49,9 @@ public class JourneyController {
     ApiResponse<RouteResult> response =
         new ApiResponse<>(
             routeResult,
-            true,
+            false,
             "Route successfully calculated.",
-            context.getFallbackUsed(),
+            context.getFallbackUsed() ? true : null,
             context.getFallbackUsed()
                 ? "Fallback strategies applied: " + context.getFallbackMessageAsString()
                 : null);
