@@ -65,8 +65,9 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
   }
 
   @Test
-  @DisplayName("Only food adjacent charger is added to suitable chargers list")
-  public void onlyFoodAdjacentChargerIsAdded() {
+  @DisplayName(
+      "Only food adjacent charger from multiple charger list is added to suitable chargers list")
+  public void onlyFoodAdjacentChargerIsAddedFromMultipleChargers() {
 
     //        List<Charger> inadequateChargers =
     // TestDataFactory.createChargersForCurrentBatterySetTest();
@@ -78,6 +79,32 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
 
     try {
       suitableChargers = routingService.findSuitableChargers(route, chargers);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
+    } catch (NoChargerWithinRangeException e) {
+      fail("NoChargerWithinRangeException should not have been thrown");
+    }
+
+    TestHelperFunctions.assertSuitableChargers(suitableChargers, 1, 117934L);
+    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
+    assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
+    TestHelperFunctions.assertEqualsWithTolerance(43094, route.getCurrentBattery(), 100);
+  }
+
+  @Test
+  @DisplayName(
+      "Only food adjacent charger from single charger list is added to suitable chargers list")
+  public void onlyFoodAdjacentChargerIsAddedAndIsOnlyChargerInList() {
+
+    List<Charger> inadequateChargers = new ArrayList<>();
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 117934L));
+
+    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setFoodAdjacentCharger(chargers, route, 117934L);
+    // 168555L
+    List<Charger> suitableChargers = null;
+
+    try {
+      suitableChargers = routingService.findSuitableChargers(route, inadequateChargers);
       TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
@@ -172,14 +199,14 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
 
-    TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 41030L,75045L);
+    TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 41030L, 75045L);
     assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
     TestHelperFunctions.assertEqualsWithTolerance(83396, route.getCurrentBattery(), 100);
   }
 
   @Test
-  @DisplayName("Food adjacent charger is added after charger map loop")
+  @DisplayName("Food adjacent charger is 2nd in charger list and is added 2nd")
   public void foodAdjacentChargerIsSecondInChargerListAndIsAddedSecond() {
 
     List<Charger> insufficientChargers = new ArrayList<>();
@@ -199,15 +226,15 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
 
-    TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 41030L,258995L);
+    TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 41030L, 258995L);
     assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
     TestHelperFunctions.assertEqualsWithTolerance(75573, route.getCurrentBattery(), 100);
   }
 
-
   @Test
-  @DisplayName("Food adjacent charger is added after charger map loop")
+  @DisplayName(
+      "Food adjacent charger is 2nd in charger list and is added second and meets final destination charge level")
   public void foodAdjacentChargerIsSecondInChargerListAndIsAddedSecondAndMeetsFinalDestChrgLvl() {
 
     List<Charger> insufficientChargers = new ArrayList<>();
@@ -228,15 +255,17 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
 
-    TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 41030L,258995L);
+    TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 41030L, 258995L);
     assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
     TestHelperFunctions.assertEqualsWithTolerance(75573, route.getCurrentBattery(), 100);
   }
 
   @Test
-  @DisplayName("Food adjacent charger is added after charger map loop")
-  public void foodAdjacentChargerIsSecondAndLastInChargerListAndIsAddedSecondAndMeetsFinalDestChrgLvl() {
+  @DisplayName(
+      "Food adjacent charger is 2nd and last in charger list and is added second and meets final destination charge level")
+  public void
+      foodAdjacentChargerIsSecondAndLastInChargerListAndIsAddedSecondAndMeetsFinalDestChrgLvl() {
 
     List<Charger> insufficientChargers = new ArrayList<>();
     insufficientChargers.add(TestHelperFunctions.findChargerById(chargers, 41030L));
@@ -254,15 +283,17 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
 
-    TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 41030L,258995L);
+    TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 41030L, 258995L);
     assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
     TestHelperFunctions.assertEqualsWithTolerance(75573, route.getCurrentBattery(), 100);
   }
 
   @Test
-  @DisplayName("Food adjacent charger is added after charger map loop")
-  public void foodAdjacentChargerIsSecondInChargerListAndIsAddedSecondAndFinalDestChrgLvlIsMetWithOtherCharger() {
+  @DisplayName(
+      "Food adjacent charger is 2nd in charger list and is added 2nd and meets final destination charge level with an additional charger")
+  public void
+      foodAdjacentChargerIsSecondInChargerListAndIsAddedSecondAndFinalDestChrgLvlIsMetWithOtherCharger() {
 
     List<Charger> insufficientChargers = new ArrayList<>();
     insufficientChargers.add(TestHelperFunctions.findChargerById(chargers, 41030L));
@@ -282,11 +313,9 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
 
-    TestHelperFunctions.assertSuitableChargers(suitableChargers, 3, 41030L,258995L,75045L);
+    TestHelperFunctions.assertSuitableChargers(suitableChargers, 3, 41030L, 258995L, 75045L);
     assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
     TestHelperFunctions.assertEqualsWithTolerance(83396, route.getCurrentBattery(), 100);
   }
-
-
 }
