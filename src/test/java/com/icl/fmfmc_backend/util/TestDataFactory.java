@@ -290,3 +290,27 @@ public class TestDataFactory {
     return chargers;
   }
 }
+
+
+//Charger ID: 109188, Distance: 16974.848589028865 m
+//Charger ID: 174174, Distance: 25412.367862517887 m
+//Charger ID: 272492, Distance: 25412.367862517887 m
+//Charger ID: 149301, Distance: 26474.045876270982 m
+//Charger ID: 212484, Distance: 26797.137389093336 m
+//Charger ID: 188519, Distance: 26876.037800249553 m
+//Charger ID: 128366, Distance: 27012.34666117306 m
+//Charger ID: 156485, Distance: 27012.34666117306 m
+//Charger ID: 168555, Distance: 27012.34666117306 m
+//Charger ID: 188518, Distance: 27012.34666117306 m
+//Charger ID: 279154, Distance: 33545.94457566622 m
+//Charger ID: 72601, Distance: 38028.64500170254 m
+//Charger ID: 112482, Distance: 44081.69993378169 m
+//Charger ID: 117934, Distance: 44081.69993378169 m
+//Charger ID: 41030, Distance: 55586.058695772845 m
+//Charger ID: 90205, Distance: 73645.62987574692 m
+//Charger ID: 90470, Distance: 73645.62987574692 m
+//Charger ID: 258995, Distance: 76559.66523581218 m
+//Charger ID: 285685, Distance: 78643.63330601106 m
+//Charger ID: 75045, Distance: 84383.18199108054 m
+
+//90986.9922907895

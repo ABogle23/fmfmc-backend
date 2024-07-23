@@ -238,8 +238,16 @@ public class RoutingService {
       if (route.getFoodAdjacentCharger() != null && entry.getKey().equals(route.getFoodAdjacentCharger())) {
 
         // TODO: ADD Range Check
-        if ((chargerDistance - lastChargerDistance) > calculateMaxTravelDistance(route)) {
-          throw new NoChargerWithinRangeException("Unable to find any chargers within range based on current battery level and route.");
+        System.out.println("Charger distance: " + chargerDistance + "m" + " Last charger distance: " + lastChargerDistance + "m " + " Closest Distance: " + closestDistance + "m " + "Max travel distance: " + calculateMaxTravelDistance(route) + "m"); // REMOVE
+        if (((chargerDistance - lastChargerDistance) > calculateMaxTravelDistance(route))) {
+          if (((chargerDistance - closestDistance) > calculateMaxTravelDistance(route)) || closestCharger == null) {
+            logger.error("Could not find any chargers within range of foodAdjacentCharger based on current battery level and route.");
+            throw new NoChargerWithinRangeException("Unable to find any chargers within range based on current battery level and route.");
+          } else if (closestCharger != null) {
+            Double distanceTraveled = closestDistance - lastChargerDistance;
+            lastChargerDistance = closestDistance;
+            addChargerAndUpdateBattery(chargersAtIntervals, closestCharger, route, distanceTraveled);
+          }
         }
 
         route.setFoodAdjacentChargerUsed(true);
@@ -257,6 +265,7 @@ public class RoutingService {
           logger.info("Charge level at end of route: " + route.getCurrentBattery() + " m");
           return chargersAtIntervals;
         }
+
         nextTargetDistance = closestDistance + calculateMaxTravelDistance(route);  // calc next interval distance
         logger.info("Next target distance: " + nextTargetDistance + " m");
 
@@ -315,7 +324,7 @@ public class RoutingService {
       }
 
       // if the dist between the last added charger and the current charger exceeds maxTravelDistance, throw an exception
-      System.out.println("Charger distance: " + chargerDistance + "m" + " Last charger distance: " + lastChargerDistance + "m " + "Max travel distance: " + calculateMaxTravelDistance(route) + "m"); // REMOVE
+      System.out.println("Charger distance: " + chargerDistance + "m" + " Last charger distance: " + lastChargerDistance + "m " + " Closest Distance: " + closestDistance + "m " + "Max travel distance: " + calculateMaxTravelDistance(route) + "m"); // REMOVE
       if ((chargerDistance - lastChargerDistance) > calculateMaxTravelDistance(route)) {
         throw new NoChargerWithinRangeException("Unable to find any chargers within range based on current battery level and route.");
       }
