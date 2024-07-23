@@ -23,4 +23,7 @@ public class OpenRouteServiceProperties {
         return OSRDirectionsServiceBaseUrl;
     }
 
+
+
+
 }
