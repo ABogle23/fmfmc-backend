@@ -61,7 +61,7 @@ public class OsrDirectionsClient implements DirectionsClient {
                 CommonResponseHandler.handleResponse(
                     response, OSRDirectionsServiceGeoJSONResponse.class))
         .timeout(Duration.ofSeconds(timeoutSeconds)) // Set the timeout
-        .retryWhen(Retry.fixedDelay(2, Duration.ofSeconds(5))) // Set the retry policy
+        .retryWhen(Retry.fixedDelay(1, Duration.ofSeconds(5))) // Set the retry policy
         .map(this::processDirectionsResponse)
         .doOnSuccess(
             response -> {
