@@ -49,7 +49,8 @@ public class DirectionsClientManager {
   //    }
   //  }
 
-  public DirectionsResponse getDirections(DirectionsRequest directionsRequest) throws DirectionsClientException {
+  public DirectionsResponse getDirections(DirectionsRequest directionsRequest)
+      throws DirectionsClientException {
     try {
       return activeClient.getDirections(directionsRequest);
     } catch (ServiceUnavailableException e) {
@@ -59,20 +60,31 @@ public class DirectionsClientManager {
       logger.info("Switching to other client...");
       switchClient();
       return activeClient.getDirections(directionsRequest);
-
     } catch (Exception e) {
-      logger.error("Error occurred while fetching directions from active client: {}", e.getMessage());
-      throw new DirectionsClientException("Error occurred while fetching directions from active client: " + e.getMessage());
+      logger.error(
+          "Error occurred while fetching directions from active client: {}", e.getMessage());
+      throw new DirectionsClientException(
+          "Error occurred while fetching directions from active client: " + e.getMessage());
     }
   }
 
-  public void switchClient() {
+  private void switchClient() {
     if (activeClient.equals(osrClient)) {
       activeClient = mapboxClient;
       logger.info("Switched to Mapbox client");
     } else {
       activeClient = osrClient;
       logger.info("Switched to OSR client");
+    }
+  }
+
+  public void setClient(String client) {
+    if (client.equals("osr")) {
+      activeClient = osrClient;
+      logger.info("Switched to OSR client");
+    } else if (client.equals("mapbox")) {
+      activeClient = mapboxClient;
+      logger.info("Switched to Mapbox client");
     }
   }
 }
