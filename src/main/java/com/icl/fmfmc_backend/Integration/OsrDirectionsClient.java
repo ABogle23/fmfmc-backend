@@ -18,7 +18,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +42,7 @@ public class OsrDirectionsClient implements DirectionsClient {
         mapToOSRDirectionsServiceGeoJSONRequest(directionsRequest);
 
     int bufferSize = 16 * 1024 * 1024; // 16 MB
-    int timeoutSeconds = 180;
+    int timeoutSeconds = 10;
 
     WebClient webClient = buildWebClient();
 
@@ -58,6 +60,8 @@ public class OsrDirectionsClient implements DirectionsClient {
             response ->
                 CommonResponseHandler.handleResponse(
                     response, OSRDirectionsServiceGeoJSONResponse.class))
+        .timeout(Duration.ofSeconds(timeoutSeconds)) // Set the timeout
+        .retryWhen(Retry.fixedDelay(2, Duration.ofSeconds(5))) // Set the retry policy
         .map(this::processDirectionsResponse)
         .doOnSuccess(
             response -> {

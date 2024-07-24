@@ -26,7 +26,7 @@ public class OSRDirectionsServiceGeoJSONRequest {
   // additional constructor that allows overriding default values
   public OSRDirectionsServiceGeoJSONRequest(List<Double[]> coordinates) {
     this(); // call the default constructor to set defaults
-    this.coordinates = coordinates; // Override coordinates
+    this.coordinates = coordinates; // override coordinates
   }
 
   //  @NotNull(message = "Coordinates are required")

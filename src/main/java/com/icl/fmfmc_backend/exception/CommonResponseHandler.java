@@ -23,13 +23,12 @@ public class CommonResponseHandler {
             String cleanBody = cleanResponseBody(body);
             HttpStatusCode status = response.statusCode();
             int statusCode = status.value();
-            // Log the error
             logger.error("API Error: Status {}, Body {}", status, cleanBody);
-            // Throw a specific exception based on the status
+            // throw specific exception based on the status
             switch (statusCode) {
-                case 503:
+                case 500, 503:
                     return Mono.error(new ServiceUnavailableException("Service Unavailable: " + cleanBody));
-                case 400:
+                case 400, 404:
                     return Mono.error(new BadRequestException("Bad Request: " + cleanBody));
                 default:
                     return Mono.error(new GenericApiException("API error: " + status + " " + cleanBody, status));
@@ -37,7 +36,7 @@ public class CommonResponseHandler {
         });
     }
 
-    // Helper method to clean or summarize HTML content in the response body
+    // summarize HTML content in the response body
     private static String cleanResponseBody(String body) {
         if (body != null && body.contains("<html>")) {
             // Convert HTML content to plain text to simplify logs

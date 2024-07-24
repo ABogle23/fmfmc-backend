@@ -6,6 +6,7 @@ import com.icl.fmfmc_backend.dto.Api.MapboxResponse;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsRequest;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
 import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONResponse;
+import com.icl.fmfmc_backend.exception.CommonResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -31,10 +32,10 @@ public class MapboxDirectionsClient implements DirectionsClient {
 
   private final WebClient.Builder webClientBuilder = WebClient.builder();
 
-//  @Override
-//  public DirectionsResponse getDirections(DirectionsRequest request) {
-//    return null;
-//  }
+  //  @Override
+  //  public DirectionsResponse getDirections(DirectionsRequest request) {
+  //    return null;
+  //  }
 
   @Override
   public DirectionsResponse getDirections(DirectionsRequest directionsRequest) {
@@ -43,43 +44,37 @@ public class MapboxDirectionsClient implements DirectionsClient {
 
     System.out.println("Coordinates string: " + coordinatesString);
 
-    int timeoutSeconds = 180;
+    int timeoutSeconds = 10;
 
     WebClient webClient = buildWebClient();
 
     logger.info("Attempting to fetch directions from Mapbox");
 
-    String fullUrl =
-        UriComponentsBuilder.fromHttpUrl(mapboxProperties.getBaseUrl())
-            .path("/{coordinates}")
-            .queryParam("access_token", mapboxProperties.getApiKey())
-            .queryParam("geometries", "geojson")
-            .queryParam("overview", "full")
-            .buildAndExpand(coordinatesString)
-            .toUriString();
+    String fullUrl = buildUrl(coordinatesString);
 
-    System.out.println("Full URL: " + fullUrl);
+    logger.info("Attempting to fetch directions from Mapbox, URL: {}", fullUrl);
 
-    MapboxResponse response =
-        webClient
-            .get()
-            .uri(fullUrl)
-            .retrieve()
-            .bodyToMono(MapboxResponse.class)
-            .timeout(Duration.ofSeconds(timeoutSeconds))
-            .retryWhen(Retry.fixedDelay(2, Duration.ofSeconds(5)))
-            .doOnSuccess(
-                mapboxResponse -> {
-                  logger.info("Successfully fetched and processed directions");
-                })
-            .doOnError(error -> logger.error("Error fetching directions: {}", error.getMessage()))
-            .block();
+    return webClient
+        .get()
+        .uri(fullUrl)
+        .exchangeToMono(
+            response -> CommonResponseHandler.handleResponse(response, MapboxResponse.class))
+        .timeout(Duration.ofSeconds(timeoutSeconds))
+        .retryWhen(Retry.fixedDelay(2, Duration.ofSeconds(5)))
+        .map(this::processDirectionsResponse)
+        .doOnSuccess(resp -> logger.info("Successfully fetched and processed directions"))
+        .doOnError(error -> logger.error("Error fetching directions: {}", error.getMessage()))
+        .block();
+  }
 
-    DirectionsResponse directionsResponse = processDirectionsResponse(response);
-
-    logger.info("Directions response: " + directionsResponse);
-
-    return directionsResponse;
+  private String buildUrl(String coordinatesString) {
+    return UriComponentsBuilder.fromHttpUrl(mapboxProperties.getBaseUrl())
+        .path("/{coordinates}")
+        .queryParam("access_token", mapboxProperties.getApiKey())
+        .queryParam("geometries", "geojson")
+        .queryParam("overview", "full")
+        .buildAndExpand(coordinatesString)
+        .toUriString();
   }
 
   private MapboxRequest mapToMapBoxRequest(DirectionsRequest directionsRequest) {
