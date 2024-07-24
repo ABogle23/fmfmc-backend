@@ -3,7 +3,9 @@ package com.icl.fmfmc_backend.service;
 import com.icl.fmfmc_backend.Integration.DirectionsClient;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsRequest;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
+import com.icl.fmfmc_backend.exception.DirectionsClientException;
 import com.icl.fmfmc_backend.exception.ServiceUnavailableException;
+import com.icl.fmfmc_backend.exception.JourneyNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +49,7 @@ public class DirectionsClientManager {
   //    }
   //  }
 
-  public DirectionsResponse getDirections(DirectionsRequest directionsRequest) {
+  public DirectionsResponse getDirections(DirectionsRequest directionsRequest) throws DirectionsClientException {
     try {
       return activeClient.getDirections(directionsRequest);
     } catch (ServiceUnavailableException e) {
@@ -57,6 +59,10 @@ public class DirectionsClientManager {
       logger.info("Switching to other client...");
       switchClient();
       return activeClient.getDirections(directionsRequest);
+
+    } catch (Exception e) {
+      logger.error("Error occurred while fetching directions from active client: {}", e.getMessage());
+      throw new DirectionsClientException("Error occurred while fetching directions from active client: " + e.getMessage());
     }
   }
 

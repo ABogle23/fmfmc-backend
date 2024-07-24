@@ -11,6 +11,8 @@ import com.icl.fmfmc_backend.entity.*;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 
+import com.icl.fmfmc_backend.exception.DirectionsClientException;
+import com.icl.fmfmc_backend.exception.JourneyNotFoundException;
 import com.icl.fmfmc_backend.exception.NoChargerWithinRangeException;
 import com.icl.fmfmc_backend.exception.NoChargersOnRouteFoundException;
 import lombok.RequiredArgsConstructor;
@@ -74,7 +76,7 @@ public class RoutingService {
 
   }
 
-  public LineString snapRouteToStops(Route route, List<Charger> suitableChargers) {
+  public LineString snapRouteToStops(Route route, List<Charger> suitableChargers) throws JourneyNotFoundException {
 
     logger.info("Snapping route to stops");
 
@@ -129,16 +131,18 @@ public class RoutingService {
 //  }
 
   public DirectionsResponse getDirections(
-          List<Double[]> coordinates) {
+          List<Double[]> coordinates) throws JourneyNotFoundException {
 
     DirectionsRequest directionsRequest = new DirectionsRequest(coordinates);
 
     System.out.println(directionsRequest);
 
-    DirectionsResponse directionsResponse =
-            directionsClient.getDirections(directionsRequest);
+      DirectionsResponse directionsResponse = null;
+      try {
+          directionsResponse = directionsClient.getDirections(directionsRequest);
+      } catch (DirectionsClientException e) { throw new JourneyNotFoundException("No valid journey could be found."); }
 
-    return directionsResponse;
+      return directionsResponse;
   }
 
   // ROUTING RELATED FUNCTIONS
