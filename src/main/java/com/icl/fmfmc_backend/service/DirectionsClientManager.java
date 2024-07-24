@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -23,9 +25,10 @@ public class DirectionsClientManager {
 
   private static final Logger logger = LoggerFactory.getLogger(DirectionsClientManager.class);
   private final DirectionsClient osrClient;
-
   private final DirectionsClient mapboxClient;
   private DirectionsClient activeClient;
+  private LocalDateTime switchTime = null;
+  private static final long SWITCH_BACK_AFTER_HOURS = 1;
 
   @Autowired
   public DirectionsClientManager(
@@ -51,6 +54,9 @@ public class DirectionsClientManager {
 
   public DirectionsResponse getDirections(DirectionsRequest directionsRequest)
       throws DirectionsClientException {
+    if (shouldSwitchBackToOsr()) {
+      switchClient();
+    }
     try {
       return activeClient.getDirections(directionsRequest);
     } catch (ServiceUnavailableException e) {
@@ -72,9 +78,11 @@ public class DirectionsClientManager {
     if (activeClient.equals(osrClient)) {
       activeClient = mapboxClient;
       logger.info("Switched to Mapbox client");
+      switchTime = LocalDateTime.now();
     } else {
       activeClient = osrClient;
       logger.info("Switched to OSR client");
+      switchTime = null;
     }
   }
 
@@ -86,5 +94,13 @@ public class DirectionsClientManager {
       activeClient = mapboxClient;
       logger.info("Switched to Mapbox client");
     }
+  }
+
+  private boolean shouldSwitchBackToOsr() {
+    if (switchTime == null) {
+      return false;
+    }
+    long hoursSinceSwitch = ChronoUnit.HOURS.between(switchTime, LocalDateTime.now());
+    return hoursSinceSwitch >= SWITCH_BACK_AFTER_HOURS;
   }
 }
