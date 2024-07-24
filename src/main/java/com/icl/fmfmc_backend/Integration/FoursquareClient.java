@@ -8,6 +8,8 @@ import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishmentRequest;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
+import com.icl.fmfmc_backend.exception.BadRequestException;
+import com.icl.fmfmc_backend.exception.CommonResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
@@ -64,30 +66,11 @@ public class FoursquareClient implements FoodEstablishmentClient {
             .uri(
                 uriBuilder ->
                     uriBuilder.queryParams(foodEstablishmentRequest.getQueryParams()).build())
-            .retrieve()
-            .bodyToMono(FoursquareResponseDTO.class)
+            .exchangeToMono(
+                response ->
+                    CommonResponseHandler.handleResponse(response, FoursquareResponseDTO.class))
             .block();
-    //        .timeout(Duration.ofSeconds(timeoutSeconds));
-    //            .retryWhen(
-    //                Retry.fixedDelay(
-    //                    3,
-    //                    Duration.ofSeconds(
-    //                        10))) // Retry up to 3 times, waiting 5 seconds between
-    // attempts
-    //            .doOnSuccess(
-    //                    response -> {
-    //                      if (response != null && response.getResults() != null) {
-    //                        List<FoodEstablishment> processedEstablishments =
-    // response.getResults().stream()
-    //                                .map(this::processFoodEstablishment)
-    //                                .collect(Collectors.toList());
-    //                        establishments.addAll(processedEstablishments);
-    //                      }
-    //                    })
-    //            .doOnError(
-    //                    error -> logger.error("Error fetching food establishments: {}",
-    // error.getMessage()))
-    //            .block();
+
     logger.info("Fetched foodEstablishments from Foursquare");
     logger.info(
         "Fetched foodEstablishments from Foursquare: {}", foursquareResponseDTO.getResults());

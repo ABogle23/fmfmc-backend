@@ -12,7 +12,9 @@ public enum FallbackStrategy {
 
   EXPANDED_EATING_OPTION_CATEGORY_SEARCH("Expanded eating option category search"),
 
-  EXPANDED_EATING_OPTION_PRICE_RANGE("Expanded eating option price range");
+  EXPANDED_EATING_OPTION_PRICE_RANGE("Expanded eating option price range"),
+
+  SKIPPED_EATING_OPTION("Eating option failed, route returned without eating option"),;
   private String description;
 
   FallbackStrategy(String description) {

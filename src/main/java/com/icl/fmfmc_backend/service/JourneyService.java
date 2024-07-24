@@ -59,6 +59,8 @@ public class JourneyService {
       Tuple2<List<FoodEstablishment>, Charger> poiServiceTestResults = null;
       try {
         poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
+      } catch (PoiServiceException pe) {
+        logger.error("Error occurred while fetching food establishments from PoiService: {}", pe.getMessage());
       } catch (NoFoodEstablishmentsFoundException
           | NoFoodEstablishmentsInRangeofChargerException e1) {
         expandFoodEstablishmentSearch(route, context);
@@ -70,7 +72,7 @@ public class JourneyService {
         //                    poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
         //                } catch (NoFoodEstablishmentsFoundException |
         // NoFoodEstablishmentsInRangeofChargerException e2) {
-        //                    route.setStopForEating(false);
+        //                    skipEatingOptionService(route, context);
         //                    logger.error("No food establishments found within range of charger,
         // route will be returned without eating stop");
         //                }
@@ -86,6 +88,9 @@ public class JourneyService {
             GeometryService.bufferLineString(
                 routeSnappedToFoodAdjacentCharger, 0.009); // 500m is 0.0045
         route.setBufferedLineString(bufferedLineString);
+      } else {
+        skipEatingOptionService(route, context);
+        logger.error("Route will be returned without eating stop");
       }
     } else {
       logger.info("No eating stop requested, skipping food establishment search");
@@ -161,6 +166,11 @@ public class JourneyService {
   private static void resetRouteSearch(Route route) {
     route.resetBatteryLevel();
     route.clearChargersOnRoute();
+  }
+
+  private void skipEatingOptionService(Route route, JourneyContext context) {
+    route.setStopForEating(false);
+    context.addFallbackStrategies(List.of(FallbackStrategy.SKIPPED_EATING_OPTION));
   }
 
   private void relaxChargingConstraints(Route route, JourneyContext context) {

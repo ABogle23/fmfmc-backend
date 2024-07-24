@@ -9,6 +9,7 @@ import com.icl.fmfmc_backend.entity.FoodEstablishment.*;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 import com.icl.fmfmc_backend.exception.NoFoodEstablishmentsFoundException;
 import com.icl.fmfmc_backend.exception.NoFoodEstablishmentsInRangeofChargerException;
+import com.icl.fmfmc_backend.exception.PoiServiceException;
 import com.icl.fmfmc_backend.util.LogExecutionTime;
 import com.icl.fmfmc_backend.util.LogMessages;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,9 @@ public class PoiService {
 
   @LogExecutionTime(message = LogMessages.RETRIEVING_FOOD_ESTABLISHMENTS)
   public Tuple2<List<FoodEstablishment>, Charger> getFoodEstablishmentOnRoute(Route route)
-      throws NoFoodEstablishmentsFoundException, NoFoodEstablishmentsInRangeofChargerException {
+      throws NoFoodEstablishmentsFoundException,
+          NoFoodEstablishmentsInRangeofChargerException,
+          PoiServiceException {
     logger.info("Getting food establishment");
 
     this.setClusteringStrategy(new OutlierAdjustedKMeansClusteringService());
@@ -163,7 +166,8 @@ public class PoiService {
   }
 
   public List<FoodEstablishment> getFoodEstablishmentsAroundClusters(
-      Route route, List<Point> clusteredChargers) throws NoFoodEstablishmentsFoundException {
+      Route route, List<Point> clusteredChargers)
+      throws NoFoodEstablishmentsFoundException, PoiServiceException {
     // TODO: get rid of this and rename the func it calls
     Integer searchRadius =
         switch (route.getEatingOptionSearchDeviation()) {
@@ -191,7 +195,13 @@ public class PoiService {
               .build();
 
       List<FoodEstablishment> clusterFoodEstablishments =
-          foodEstablishmentService.getFoodEstablishmentsByParam(params);
+              null;
+      try {
+        clusterFoodEstablishments = foodEstablishmentService.getFoodEstablishmentsByParam(params);
+      } catch (Exception e) {
+        logger.error("Error occurred while fetching food establishments: " + e.getMessage());
+        throw new PoiServiceException("Error occurred while fetching food establishments: " + e.getMessage());
+      }
 
       if (clusterFoodEstablishments != null) {
         for (FoodEstablishment fe : clusterFoodEstablishments) {
