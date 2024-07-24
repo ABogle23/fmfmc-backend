@@ -1,7 +1,6 @@
 package com.icl.fmfmc_backend.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -17,7 +16,7 @@ public class MapboxProperties {
     return apiKey;
   }
 
-  public String getMapboxDirectionsServiceBaseUrl() {
+  public String getBaseUrl() {
     return mapboxDirectionsServiceBaseUrl;
   }
 }
