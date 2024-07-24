@@ -3,6 +3,7 @@ package com.icl.fmfmc_backend.service;
 import com.icl.fmfmc_backend.Integration.DirectionsClient;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsRequest;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
+import com.icl.fmfmc_backend.exception.BadRequestException;
 import com.icl.fmfmc_backend.exception.DirectionsClientException;
 import com.icl.fmfmc_backend.exception.ServiceUnavailableException;
 import com.icl.fmfmc_backend.exception.JourneyNotFoundException;
@@ -66,11 +67,15 @@ public class DirectionsClientManager {
       logger.info("Switching to other client...");
       switchClient();
       return activeClient.getDirections(directionsRequest);
-    } catch (Exception e) {
+    } catch (BadRequestException e) {
       logger.error(
-          "Error occurred while fetching directions from active client: {}", e.getMessage());
+          "DirectionsClientException occurred while fetching directions from active client: {}", e.getMessage());
       throw new DirectionsClientException(
           "Error occurred while fetching directions from active client: " + e.getMessage());
+    } catch (Exception e) {
+      logger.error(
+              "RuntimeException occurred while fetching directions from active client: {}", e.getMessage());
+      throw new RuntimeException();
     }
   }
 
@@ -93,6 +98,8 @@ public class DirectionsClientManager {
     } else if (client.equals("mapbox")) {
       activeClient = mapboxClient;
       logger.info("Switched to Mapbox client");
+    } else {
+      logger.error("Invalid client name: {}", client);
     }
   }
 

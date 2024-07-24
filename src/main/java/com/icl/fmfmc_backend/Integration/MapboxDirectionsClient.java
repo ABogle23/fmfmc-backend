@@ -59,8 +59,8 @@ public class MapboxDirectionsClient implements DirectionsClient {
         .uri(fullUrl)
         .exchangeToMono(
             response -> CommonResponseHandler.handleResponse(response, MapboxResponse.class))
-        .timeout(Duration.ofSeconds(timeoutSeconds))
-        .retryWhen(Retry.fixedDelay(1, Duration.ofSeconds(5)))
+//        .timeout(Duration.ofSeconds(timeoutSeconds))
+//        .retryWhen(Retry.fixedDelay(1, Duration.ofSeconds(5)))
         .map(this::processDirectionsResponse)
         .doOnSuccess(resp -> logger.info("Successfully fetched and processed directions"))
         .doOnError(error -> logger.error("Error fetching directions: {}", error.getMessage()))

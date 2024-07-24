@@ -44,8 +44,6 @@ public class RoutingService {
   public List<Charger> getChargersOnRoute(Route route) throws NoChargersOnRouteFoundException {
     logger.info("Fetching route from routing service");
 
-    // Find all chargers in BufferedLineString
-
     ChargerQuery query =
         ChargerQuery.builder()
             .polygon(route.getBufferedLineString())
@@ -132,6 +130,8 @@ public class RoutingService {
 
   public DirectionsResponse getDirections(
           List<Double[]> coordinates) throws JourneyNotFoundException {
+
+//    directionsClient.setClient("mapbox");
 
     DirectionsRequest directionsRequest = new DirectionsRequest(coordinates);
 
