@@ -42,6 +42,9 @@ public class FoursquareResponseDTO {
     @JsonProperty("rating")
     private Double rating;
 
+    @JsonProperty("website")
+    private String website;
+
     private StatsDTO stats;
 
     @Data
@@ -103,5 +106,6 @@ public class FoursquareResponseDTO {
       @JsonProperty("total_tips")
       private Integer totalTips;
     }
+
   }
 }

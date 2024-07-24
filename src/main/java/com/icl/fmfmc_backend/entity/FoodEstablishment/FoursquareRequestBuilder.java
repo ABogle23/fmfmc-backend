@@ -13,7 +13,7 @@ public class FoursquareRequestBuilder implements FoodEstablishmentBuilder {
   private Integer radius;
   private String categories = "13065";
   private final String fields =
-      "fsq_id,name,categories,closed_bucket,distance,geocodes,location,price,rating,popularity";
+      "fsq_id,name,categories,closed_bucket,distance,geocodes,location,price,rating,popularity,website";
   private Integer minPrice;
   private Integer maxPrice;
   private String openAt;

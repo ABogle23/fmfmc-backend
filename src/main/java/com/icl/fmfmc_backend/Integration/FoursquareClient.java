@@ -143,6 +143,7 @@ public class FoursquareClient implements FoodEstablishmentClient {
                 new Coordinate(
                     dto.getGeocodes().getMain().getLongitude(),
                     dto.getGeocodes().getMain().getLatitude())));
+    establishment.setWebsite(dto.getWebsite());
 
     return establishment;
   }
