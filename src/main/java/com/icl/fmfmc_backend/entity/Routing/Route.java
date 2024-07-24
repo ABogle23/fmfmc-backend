@@ -41,6 +41,8 @@ public class Route {
     private List<Double> stopDurations = new ArrayList<>();
     private List<Double> segmentDurations = new ArrayList<>();
     private List<Double> segmentDistances = new ArrayList<>();
+    private List<Double> arrivalCharges = new ArrayList<>();
+    private List<Double> departingCharges = new ArrayList<>();
 
     public void addSegment(Double duration, Double distance) {
       segmentDurations.add(duration);
@@ -52,8 +54,13 @@ public class Route {
       segmentDistances.clear();
     }
 
-    public void addStop(Double duration) {
+    public void addStopDuration(Double duration) {
       stopDurations.add(duration);
+    }
+
+    public void addChargeTime(Double arrivalCharge, Double departingCharge) {
+      arrivalCharges.add(arrivalCharge);
+      departingCharges.add(departingCharge);
     }
   }
 
@@ -175,6 +182,7 @@ public class Route {
 
   public void rechargeBattery(Double chargeSpeed) {
     addBatteryChargeTime(chargeSpeed);
+    addArrivalAndDepartureCharges();
     currentBattery = evRange * chargeLevelAfterEachStopPct;
   }
 
@@ -189,7 +197,13 @@ public class Route {
     chargeTime += CHARGE_OVERHEAD; // add charge overhead
     chargeTime = Math.round(chargeTime * 10) / 10.0; // round to 1dp
 
-    segmentDetails.addStop(chargeTime); // add charge time to segment details
+    segmentDetails.addStopDuration(chargeTime); // add charge time to segment details
+  }
+
+  public void addArrivalAndDepartureCharges() {
+    Double arrivalCharge = currentBattery / evRange;
+    Double departingCharge = chargeLevelAfterEachStopPct;
+    segmentDetails.addChargeTime(arrivalCharge, departingCharge);
   }
 
   public void setDurationsAndDistances(DirectionsResponse response) {
@@ -390,5 +404,4 @@ public class Route {
   public void resetBatteryLevel() {
     currentBattery = StartBattery * evRange;
   }
-
 }
