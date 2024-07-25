@@ -10,7 +10,10 @@ import com.icl.fmfmc_backend.entity.enums.*;
 import lombok.Data;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +46,9 @@ public class Route {
     private List<Double> segmentDistances = new ArrayList<>();
     private List<Double> arrivalCharges = new ArrayList<>();
     private List<Double> departingCharges = new ArrayList<>();
-    private List<Double> chargeSpeedKw = new ArrayList<>();
+    private List<Double> chargeSpeedsKw = new ArrayList<>();
+    private List<LocalTime> departTimes = new ArrayList<>();
+    private List<LocalTime> arrivalTimes = new ArrayList<>();
 
     public void addSegment(Double duration, Double distance) {
       segmentDurations.add(duration);
@@ -65,9 +70,16 @@ public class Route {
     }
 
     public void addChargeSpeed(Double chargeSpeed) {
-      chargeSpeedKw.add(chargeSpeed);
+      chargeSpeedsKw.add(chargeSpeed);
     }
 
+    public void addDepartTime(LocalTime departTime) {
+      departTimes.add(departTime);
+    }
+
+    public void addArrivalTime(LocalTime arrivalTime) {
+      arrivalTimes.add(arrivalTime);
+    }
   }
 
   private List<Charger> chargersOnRoute = new ArrayList<>();
@@ -102,6 +114,9 @@ public class Route {
   private Integer maxWalkingDistance;
   private Boolean includeAlternativeEatingOptions;
   private StoppingRange stoppingRange;
+
+  private LocalTime departTime;
+  private LocalTime stoppingTime;
 
   private DeviationScope chargerSearchDeviation;
   private DeviationScope eatingOptionSearchDeviation;
@@ -146,6 +161,9 @@ public class Route {
     this.maxWalkingDistance = routeRequest.getMaxWalkingDistance();
     this.includeAlternativeEatingOptions = routeRequest.getIncludeAlternativeEatingOptions();
     this.stoppingRange = routeRequest.getStoppingRange();
+
+    this.departTime = routeRequest.getDepartTime();
+    this.stoppingTime = routeRequest.getBreakDuration();
 
     this.chargerSearchDeviation = routeRequest.getChargerSearchDeviation();
     this.eatingOptionSearchDeviation = routeRequest.getEatingOptionSearchDeviation();
@@ -237,6 +255,33 @@ public class Route {
 
     setRouteLength(totalDistance);
     setRouteDuration(totalDuration);
+  }
+
+  public void setTimes() {
+    // updates route object routeLength and routeDuration to include detours to chargers and charge
+
+    segmentDetails.addDepartTime(departTime);
+
+    LocalTime workingTime = departTime;
+
+    for (int i = 0; i < segmentDetails.segmentDurations.size(); i++) {
+
+      workingTime = workingTime.plusSeconds(segmentDetails.segmentDurations.get(i).intValue());
+      segmentDetails.addArrivalTime(workingTime);
+
+      if (segmentDetails.stopDurations.size() > i) {
+
+        if (foodAdjacentCharger != null
+            && chargersOnRoute.get(i).equals(foodAdjacentCharger)
+            && stoppingTime.toSecondOfDay() > segmentDetails.stopDurations.get(i).intValue()) {
+          workingTime = workingTime.plusSeconds(stoppingTime.toSecondOfDay());
+          segmentDetails.addDepartTime(workingTime);
+        } else {
+          workingTime = workingTime.plusSeconds(segmentDetails.stopDurations.get(i).intValue());
+          segmentDetails.addDepartTime(workingTime);
+        }
+      }
+    }
   }
 
   @Deprecated // don't use, coupled to OSRDirectionsServiceGeoJSONResponse

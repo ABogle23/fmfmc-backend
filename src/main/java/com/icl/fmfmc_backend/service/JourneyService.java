@@ -154,6 +154,9 @@ public class JourneyService {
     LineString routeSnappedToStops = routingService.snapRouteToStops(route, suitableChargers);
     route.setFinalSnappedToStopsRoute(routeSnappedToStops);
 
+    // set time schedule in segments object
+    route.setTimes();
+
     /* -----Build Result----- */
 
     List<FoodEstablishment> foodEstablishmentsWithinPolygon = Collections.emptyList();
