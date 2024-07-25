@@ -117,7 +117,8 @@ public class ChargerService {
 
     String accessTypeIds = getAccessTypeIdsAsString(query);
 
-    List<Object> projections =  chargerRepo.findChargerLocationsByParams(
+    List<Object> projections =
+        chargerRepo.findChargerLocationsByParams(
             query.getPolygon(),
             query.getPoint(),
             query.getRadius(),
@@ -128,11 +129,10 @@ public class ChargerService {
             query.getMinNoChargePoints());
 
     return projections.stream()
-            .map(projection -> (org.geolatte.geom.Point) projection)
-            .map(GeolatteToPointConverter::convert)
-            .collect(Collectors.toList());
+        .map(projection -> (org.geolatte.geom.Point) projection)
+        .map(GeolatteToPointConverter::convert)
+        .collect(Collectors.toList());
   }
-
 
   @LogExecutionTime(message = LogMessages.SQL_QUERY)
   public Charger getNearestChargerByParams(ChargerQuery query) {
@@ -141,7 +141,8 @@ public class ChargerService {
 
     String accessTypeIds = getAccessTypeIdsAsString(query);
 
-    Charger nearestCharger =  chargerRepo.findNearestChargerByParam(
+    Charger nearestCharger =
+        chargerRepo.findNearestChargerByParam(
             query.getPoint(),
             query.getRadius(),
             connectionTypeIds,
@@ -153,24 +154,23 @@ public class ChargerService {
     return nearestCharger;
   }
 
-//  private String getConnectionTypeIds(ChargerQuery query) {
-//    String connectionTypeIds = getConnectionTypeIdsAsString(query);
-//    return connectionTypeIds;
-//  }
+  //  private String getConnectionTypeIds(ChargerQuery query) {
+  //    String connectionTypeIds = getConnectionTypeIdsAsString(query);
+  //    return connectionTypeIds;
+  //  }
 
   public Double getHighestPowerConnectionByTypeInCharger(Charger charger, Route route) {
 
     List<Integer> mappedConnectionTypeIds =
-            connectionTypeToOcmMapper.mapConnectionTypeToDbIds(route.getConnectionTypes());
+        connectionTypeToOcmMapper.mapConnectionTypeToDbIds(route.getConnectionTypes());
     String connectionTypeIds =
-            String.join(
-                    ",",
-                    mappedConnectionTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
+        String.join(
+            ",",
+            mappedConnectionTypeIds.stream().map(String::valueOf).collect(Collectors.toList()));
     System.out.println(connectionTypeIds);
 
-    Double chargeSpeed = chargerRepo.findHighestPowerConnectionByTypeInCharger(
-            charger.getId(), connectionTypeIds
-            );
+    Double chargeSpeed =
+        chargerRepo.findHighestPowerConnectionByTypeInCharger(charger.getId(), connectionTypeIds);
     System.out.println("Highest power connection speed: " + chargeSpeed);
     return chargeSpeed;
   }
@@ -268,5 +268,30 @@ public class ChargerService {
 
   public void deleteALLChargers() {
     chargerRepo.deleteAll();
+  }
+
+  @Transactional
+  public void saveChargersInBatch(List<Charger> chargers) {
+    List<Charger> failedChargers = new ArrayList<>();
+    for (Charger charger : chargers) {
+      charger.setCreatedAt(LocalDateTime.now());
+      charger.setUpdatedAt(LocalDateTime.now());
+      try {
+        chargerRepo.save(charger);
+      } catch (Exception e) {
+        log.error("Failed to save charger ID {}: {}", charger.getId(), e.getMessage());
+        failedChargers.add(charger);
+      }
+      log.info("Saved charger ID {}", charger.getId());
+    }
+    if (!failedChargers.isEmpty()) {
+      handleFailedChargers(failedChargers);
+    }
+    log.info("Saved {} chargers in batch", chargers.size());
+  }
+
+  private void handleFailedChargers(List<Charger> failedChargers) {
+    // TODO: implement this method
+    log.info("Handling {} failed chargers", failedChargers.size());
   }
 }
