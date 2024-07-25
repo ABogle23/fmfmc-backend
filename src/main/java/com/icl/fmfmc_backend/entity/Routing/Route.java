@@ -43,6 +43,7 @@ public class Route {
     private List<Double> segmentDistances = new ArrayList<>();
     private List<Double> arrivalCharges = new ArrayList<>();
     private List<Double> departingCharges = new ArrayList<>();
+    private List<Double> chargeSpeedKw = new ArrayList<>();
 
     public void addSegment(Double duration, Double distance) {
       segmentDurations.add(duration);
@@ -62,6 +63,11 @@ public class Route {
       arrivalCharges.add(arrivalCharge);
       departingCharges.add(departingCharge);
     }
+
+    public void addChargeSpeed(Double chargeSpeed) {
+      chargeSpeedKw.add(chargeSpeed);
+    }
+
   }
 
   private List<Charger> chargersOnRoute = new ArrayList<>();
@@ -198,6 +204,7 @@ public class Route {
     chargeTime = Math.round(chargeTime * 10) / 10.0; // round to 1dp
 
     segmentDetails.addStopDuration(chargeTime); // add charge time to segment details
+    segmentDetails.addChargeSpeed(chargeSpeedkw); // add charge speed to segment details
   }
 
   public void addArrivalAndDepartureCharges() {

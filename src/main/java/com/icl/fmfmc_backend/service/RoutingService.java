@@ -9,6 +9,7 @@ import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
 import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.entity.*;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
+import com.icl.fmfmc_backend.entity.Charger.Connection;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 
 import com.icl.fmfmc_backend.exception.DirectionsClientException;
@@ -171,20 +172,51 @@ public class RoutingService {
                     Map.Entry::getValue,
                     (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
-//  printChargerDistanceMap(chargerDistanceMap);
+    chargerDistanceMap = filterMatchingDistanceChargersByPower(chargerDistanceMap, route);
 
-//    return potentialChargers.stream()
-//        .filter(
-//            charger ->
-//                isChargerWithinTravelDistance(
-//                    route.getLineStringRoute(), charger.getLocation(), maxTravelDistance))
-//        .collect(Collectors.toList());
+//  printChargerDistanceMap(chargerDistanceMap);
 
       List<Charger> suitableChargers = findChargersAtIntervals(chargerDistanceMap, route);
 
       logger.info("Suitable chargers: " + suitableChargers.size());
     return suitableChargers;
 
+  }
+
+  private LinkedHashMap<Charger, Double> filterMatchingDistanceChargersByPower(LinkedHashMap<Charger, Double> chargerDistanceMap, Route route) {
+    Map<Double, Charger> bestChargerAtEachDistance = new LinkedHashMap<>();
+
+    // determine best charger at each dist
+    chargerDistanceMap.forEach((charger, distance) -> {
+      // check if charger is foodAdjacentCharger
+      Boolean isFoodAdjacentCharger = route.getFoodAdjacentCharger() != null && charger.equals(route.getFoodAdjacentCharger());
+
+      // check if there is already a charger for this dist or if charger is foodAdjacentCharger
+      if (!bestChargerAtEachDistance.containsKey(distance) || isFoodAdjacentCharger) {
+        bestChargerAtEachDistance.put(distance, charger);
+      } else {
+        Charger bestCharger = bestChargerAtEachDistance.get(distance);
+        if (getMaxPowerKW(charger) > getMaxPowerKW(bestCharger)) {
+          System.out.println("Charger ID: " + charger.getId() + " has higher power " + getMaxPowerKW(charger) + " than Charger ID: " + bestCharger.getId() + " power: " + getMaxPowerKW(bestCharger) + " at distance: " + distance + "m");
+
+          bestChargerAtEachDistance.put(distance, charger);
+        }
+      }
+    });
+
+    // convert best chargers back to hashmap by dist
+    LinkedHashMap<Charger, Double> filteredMap = new LinkedHashMap<>();
+    bestChargerAtEachDistance.forEach((distance, charger) -> filteredMap.put(charger, distance));
+    return filteredMap;
+  }
+
+
+  private Long getMaxPowerKW(Charger charger) {
+    return charger.getConnections().stream()
+        .filter(conn -> conn.getPowerKW() != null)
+        .map(Connection::getPowerKW)
+        .max(Double::compare)
+        .orElse(0L);
   }
 
   private Double calculateMaxTravelDistance(Route route) {
