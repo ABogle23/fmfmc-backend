@@ -32,7 +32,16 @@ public class ChargerUpdateScheduler {
           openChargeMapClient.getChargerFromOpenChargeMapApi(params);
         });
 
+    cleanUpChargers();
+
     logger.info("Charger update completed successfully");
+  }
+
+  private void cleanUpChargers() {
+    logger.info("Data cleanup started");
+    chargerService.updateNullConnectionPowerKW();
+    logger.info("Data cleanup completed");
+    // TODO: add more cleanup methods
   }
 
   private List<MultiValueMap<String, String>> createParameterListForDifferentRegions() {
