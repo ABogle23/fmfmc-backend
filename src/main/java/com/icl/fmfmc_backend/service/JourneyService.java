@@ -170,7 +170,7 @@ public class JourneyService {
 
   private void skipEatingOptionService(Route route, JourneyContext context) {
     route.setStopForEating(false);
-    context.addFallbackStrategies(List.of(FallbackStrategy.SKIPPED_EATING_OPTION));
+    context.addFallbackStrategies(List.of(FallbackStrategy.SKIPPED_EATING_OPTION_SEARCH));
   }
 
   private void relaxChargingConstraints(Route route, JourneyContext context) {
