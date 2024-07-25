@@ -37,6 +37,8 @@ public class ChargerService {
       new ConnectionTypeToOcmMapper();
   private final AccessTypeToOcmMapper accessTypeToOcmMapper = new AccessTypeToOcmMapper();
 
+  private final String STATUS_IDS = "30,75,100,150,200,210";
+
   public List<Charger> getAllChargers() {
     return chargerRepo.findAll();
   }
