@@ -204,4 +204,34 @@ public class OutlierAdjustedKMeansClusteringService implements ClusteringStrateg
     return geometryFactory.createPoint(
         new Coordinate(sumX / cluster.size(), sumY / cluster.size()));
   }
+
+  @Override
+  public List<Point> consolidateCloseCentroids(List<Point> centroids, Double threshold) {
+    // threshold is the maximum distance between two centroids in degrees, 0.01 = 1.11 km
+    List<Point> consolidatedCentroids = new ArrayList<>(centroids);
+    Boolean changed = true;
+    while (changed) {
+      changed = false;
+      for (int i = 0; i < consolidatedCentroids.size(); i++) {
+        for (int j = i + 1; j < consolidatedCentroids.size(); j++) {
+          Point ci = consolidatedCentroids.get(i);
+          Point cj = consolidatedCentroids.get(j);
+          if (ci.distance(cj) < threshold) {
+            // avg of two centroids
+            Double newX = (ci.getX() + cj.getX()) / 2;
+            Double newY = (ci.getY() + cj.getY()) / 2;
+            consolidatedCentroids.set(i, geometryFactory.createPoint(new Coordinate(newX, newY))); // update centroid
+            consolidatedCentroids.remove(j); // drop old centroid
+            changed = true;
+            break;
+          }
+        }
+        if (changed) {
+          break;
+        }
+      }
+    }
+    return consolidatedCentroids;
+  }
+
 }

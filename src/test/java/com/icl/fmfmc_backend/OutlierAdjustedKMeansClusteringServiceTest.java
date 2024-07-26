@@ -345,10 +345,10 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
         geometryFactory.createPoint(new Coordinate(-40.0, -40.0)));
   }
 
-
   @Test
   void testClustersAreNotTooSimilar() {
-    List<Point> chargers = Arrays.asList(
+    List<Point> chargers =
+        Arrays.asList(
             geometryFactory.createPoint(new Coordinate(1, 1)),
             geometryFactory.createPoint(new Coordinate(2, 2)),
             geometryFactory.createPoint(new Coordinate(3, 3)),
@@ -358,8 +358,7 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
             geometryFactory.createPoint(new Coordinate(20, 20)),
             geometryFactory.createPoint(new Coordinate(21, 21)),
             geometryFactory.createPoint(new Coordinate(22, 22)),
-            geometryFactory.createPoint(new Coordinate(15, 15))
-    );
+            geometryFactory.createPoint(new Coordinate(15, 15)));
 
     List<Point> result = service.clusterChargers(chargers, 3);
     System.out.println("Cluster similarity test:" + result);
@@ -379,7 +378,8 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
 
   @Test
   void testClustersAreNotTooSimilarWithOutliers() {
-    List<Point> balancedChargers = Arrays.asList(
+    List<Point> balancedChargers =
+        Arrays.asList(
             geometryFactory.createPoint(new Coordinate(1, 1)),
             geometryFactory.createPoint(new Coordinate(2, 2)),
             geometryFactory.createPoint(new Coordinate(3, 3)),
@@ -389,8 +389,41 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
             geometryFactory.createPoint(new Coordinate(20, 20)),
             geometryFactory.createPoint(new Coordinate(21, 21)),
             geometryFactory.createPoint(new Coordinate(22, 22)),
-            geometryFactory.createPoint(new Coordinate(15, 15))
-    );
+            geometryFactory.createPoint(new Coordinate(15, 15)));
+
+    List<Point> chargers = new ArrayList<>();
+    chargers.addAll(balancedChargers);
+    chargers.addAll(getOutliers());
+
+    List<Point> result = service.clusterChargers(chargers, 3);
+    System.out.println("Cluster similarity test:" + result);
+
+    assertEquals(3, result.size());
+
+    double distance1 = result.get(0).distance(result.get(1));
+    double distance2 = result.get(0).distance(result.get(2));
+    double distance3 = result.get(1).distance(result.get(2));
+
+    double threshold = 5.0;
+    assertTrue(distance1 > threshold, "Distance between cluster 1 and 2 is too small");
+    assertTrue(distance2 > threshold, "Distance between cluster 1 and 3 is too small");
+    assertTrue(distance3 > threshold, "Distance between cluster 2 and 3 is too small");
+  }
+
+  @Test
+  void testClustersAreNotTooSimilarWithVerySimilar() {
+    List<Point> balancedChargers =
+        Arrays.asList(
+            geometryFactory.createPoint(new Coordinate(1, 1)),
+            geometryFactory.createPoint(new Coordinate(2, 2)),
+            geometryFactory.createPoint(new Coordinate(3, 3)),
+            geometryFactory.createPoint(new Coordinate(10, 10)),
+            geometryFactory.createPoint(new Coordinate(11, 11)),
+            geometryFactory.createPoint(new Coordinate(12, 12)),
+            geometryFactory.createPoint(new Coordinate(20, 20)),
+            geometryFactory.createPoint(new Coordinate(21, 21)),
+            geometryFactory.createPoint(new Coordinate(22, 22)),
+            geometryFactory.createPoint(new Coordinate(15, 15)));
 
     List<Point> chargers = new ArrayList<>();
     chargers.addAll(balancedChargers);
@@ -555,5 +588,72 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
             geometryFactory.createPoint(new Coordinate(4, -4)));
     List<Point> result = service.clusterChargers(chargers, 2);
     assertEquals(2, result.size());
+  }
+
+  @Test
+  void singleCloseCentroidsAreConsolidated() {
+    //    List<Point> centroids =
+    //        Arrays.asList(
+    //            geometryFactory.createPoint(new Coordinate(1, 1)),
+    //            geometryFactory.createPoint(new Coordinate(1.1, 1.1)),
+    //            geometryFactory.createPoint(new Coordinate(5, 5)),
+    //            geometryFactory.createPoint(new Coordinate(10, 10)));
+
+    List<Point> centroids =
+        Arrays.asList(
+            geometryFactory.createPoint(new Coordinate(1.04, 1.045)),
+            geometryFactory.createPoint(new Coordinate(1.049, 1.045)),
+            geometryFactory.createPoint(new Coordinate(5, 5)),
+            geometryFactory.createPoint(new Coordinate(10, 10)));
+
+    Double threshold = 0.01; // 1.11 km
+    List<Point> result = service.consolidateCloseCentroids(centroids, threshold);
+
+    List<Point> expected =
+        Arrays.asList(
+            geometryFactory.createPoint(new Coordinate(1.045, 1.045)),
+            geometryFactory.createPoint(new Coordinate(5, 5)),
+            geometryFactory.createPoint(new Coordinate(10, 10)));
+
+    assertEquals(expected.size(), result.size());
+    for (int i = 0; i < expected.size(); i++) {
+      assertEquals(expected.get(i).getX(), result.get(i).getX(), 0.01);
+      assertEquals(expected.get(i).getY(), result.get(i).getY(), 0.01);
+    }
+  }
+
+  @Test
+  void multipleCloseCentroidsAreConsolidated() {
+    List<Point> centroids =
+        Arrays.asList(
+            // First four should not be consolidated into two
+            geometryFactory.createPoint(new Coordinate(1.04, 1.045)),
+            geometryFactory.createPoint(new Coordinate(1.049, 1.045)),
+            geometryFactory.createPoint(new Coordinate(1.058, 1.045)),
+            geometryFactory.createPoint(new Coordinate(1.067, 1.045)),
+            geometryFactory.createPoint(new Coordinate(4.999, 5)),
+            geometryFactory.createPoint(new Coordinate(5, 5)),
+            geometryFactory.createPoint(new Coordinate(5.001, 5)),
+            geometryFactory.createPoint(new Coordinate(9.999, 10)),
+            geometryFactory.createPoint(new Coordinate(10, 10)),
+            geometryFactory.createPoint(new Coordinate(10.001, 10)));
+
+    Double threshold = 0.01; // 1.11 km
+    List<Point> result = service.consolidateCloseCentroids(centroids, threshold);
+    List<Point> expected =
+        Arrays.asList(
+            geometryFactory.createPoint(new Coordinate(1.0445, 1.045)),
+            geometryFactory.createPoint(new Coordinate(1.0625, 1.045)),
+            geometryFactory.createPoint(new Coordinate(5, 5)),
+            geometryFactory.createPoint(new Coordinate(10, 10)));
+
+    System.out.println("Expected points:" + expected);
+    System.out.println("Consolidated points:" + result);
+
+    assertEquals(expected.size(), result.size());
+    for (int i = 0; i < expected.size(); i++) {
+      assertEquals(expected.get(i).getX(), result.get(i).getX(), 0.01);
+      assertEquals(expected.get(i).getY(), result.get(i).getY(), 0.01);
+    }
   }
 }

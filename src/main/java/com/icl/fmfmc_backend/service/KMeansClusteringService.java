@@ -117,4 +117,32 @@ public class KMeansClusteringService implements ClusteringStrategy {
         return centroids;
     }
 
+    @Override
+    public List<Point> consolidateCloseCentroids(List<Point> centroids, Double threshold) {
+        // threshold is the maximum distance between two centroids in degrees, 0.01 = 1.11 km
+        Boolean changed = true;
+        while (changed) {
+            changed = false;
+            for (int i = 0; i < centroids.size(); i++) {
+                for (int j = i + 1; j < centroids.size(); j++) {
+                    Point ci = centroids.get(i);
+                    Point cj = centroids.get(j);
+                    if (ci.distance(cj) < threshold) {
+                        // avg of two centroids
+                        Double newX = (ci.getX() + cj.getX()) / 2;
+                        Double newY = (ci.getY() + cj.getY()) / 2;
+                        centroids.set(i, geometryFactory.createPoint(new Coordinate(newX, newY))); // update centroid
+                        centroids.remove(j); // drop old centroid
+                        changed = true;
+                        break;
+                    }
+                }
+                if (changed) {
+                    break;
+                }
+            }
+        }
+        return centroids;
+    }
+
 }
