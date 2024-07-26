@@ -77,7 +77,7 @@ public class PoiService {
         GeometryService.bufferLineString(lineString, 0.009 * foodEstablishmentDeviationScope);
 
     // For testing
-    route.setEatingOptionSearch(PolylineUtility.polygonStringToFoursquareFormat(polygon));
+    route.setEatingOptionSearch(PolylineUtility.encodePolygon(polygon));
 
     List<Point> chargerLocations = getChargerLocationsInPolygon(route, polygon);
 
