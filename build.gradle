@@ -42,7 +42,8 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'javax.servlet:javax.servlet-api:4.0.1'
-
+	implementation 'com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter:0.6.0'
+//	implementation 'com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter-cache:0.7.0'
 
 	testImplementation 'org.mockito:mockito-core:3.+'
 	testImplementation 'org.mockito:mockito-junit-jupiter:3.+'
