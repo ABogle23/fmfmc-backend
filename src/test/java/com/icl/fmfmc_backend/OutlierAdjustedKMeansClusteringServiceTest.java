@@ -2,6 +2,7 @@ package com.icl.fmfmc_backend;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.service.ClusteringStrategy;
 import com.icl.fmfmc_backend.service.KMeansClusteringService;
 import com.icl.fmfmc_backend.service.OutlierAdjustedKMeansClusteringService;
@@ -342,6 +343,72 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
         //        geometryFactory.createPoint(new Coordinate(-20.0, -20.0)),
         //        geometryFactory.createPoint(new Coordinate(-30.0, -30.0)),
         geometryFactory.createPoint(new Coordinate(-40.0, -40.0)));
+  }
+
+
+  @Test
+  void testClustersAreNotTooSimilar() {
+    List<Point> chargers = Arrays.asList(
+            geometryFactory.createPoint(new Coordinate(1, 1)),
+            geometryFactory.createPoint(new Coordinate(2, 2)),
+            geometryFactory.createPoint(new Coordinate(3, 3)),
+            geometryFactory.createPoint(new Coordinate(10, 10)),
+            geometryFactory.createPoint(new Coordinate(11, 11)),
+            geometryFactory.createPoint(new Coordinate(12, 12)),
+            geometryFactory.createPoint(new Coordinate(20, 20)),
+            geometryFactory.createPoint(new Coordinate(21, 21)),
+            geometryFactory.createPoint(new Coordinate(22, 22)),
+            geometryFactory.createPoint(new Coordinate(15, 15))
+    );
+
+    List<Point> result = service.clusterChargers(chargers, 3);
+    System.out.println("Cluster similarity test:" + result);
+
+    // Ensure there are 3 clusters
+    assertEquals(3, result.size());
+
+    double distance1 = result.get(0).distance(result.get(1));
+    double distance2 = result.get(0).distance(result.get(2));
+    double distance3 = result.get(1).distance(result.get(2));
+
+    double threshold = 5.0;
+    assertTrue(distance1 > threshold, "Distance between cluster 1 and 2 is too small");
+    assertTrue(distance2 > threshold, "Distance between cluster 1 and 3 is too small");
+    assertTrue(distance3 > threshold, "Distance between cluster 2 and 3 is too small");
+  }
+
+  @Test
+  void testClustersAreNotTooSimilarWithOutliers() {
+    List<Point> balancedChargers = Arrays.asList(
+            geometryFactory.createPoint(new Coordinate(1, 1)),
+            geometryFactory.createPoint(new Coordinate(2, 2)),
+            geometryFactory.createPoint(new Coordinate(3, 3)),
+            geometryFactory.createPoint(new Coordinate(10, 10)),
+            geometryFactory.createPoint(new Coordinate(11, 11)),
+            geometryFactory.createPoint(new Coordinate(12, 12)),
+            geometryFactory.createPoint(new Coordinate(20, 20)),
+            geometryFactory.createPoint(new Coordinate(21, 21)),
+            geometryFactory.createPoint(new Coordinate(22, 22)),
+            geometryFactory.createPoint(new Coordinate(15, 15))
+    );
+
+    List<Point> chargers = new ArrayList<>();
+    chargers.addAll(balancedChargers);
+    chargers.addAll(getOutliers());
+
+    List<Point> result = service.clusterChargers(chargers, 3);
+    System.out.println("Cluster similarity test:" + result);
+
+    assertEquals(3, result.size());
+
+    double distance1 = result.get(0).distance(result.get(1));
+    double distance2 = result.get(0).distance(result.get(2));
+    double distance3 = result.get(1).distance(result.get(2));
+
+    double threshold = 5.0;
+    assertTrue(distance1 > threshold, "Distance between cluster 1 and 2 is too small");
+    assertTrue(distance2 > threshold, "Distance between cluster 1 and 3 is too small");
+    assertTrue(distance3 > threshold, "Distance between cluster 2 and 3 is too small");
   }
 
   @Test
