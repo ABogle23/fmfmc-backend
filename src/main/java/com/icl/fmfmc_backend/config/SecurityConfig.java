@@ -32,6 +32,12 @@ public class SecurityConfig {
             auth -> auth.requestMatchers("/api/**").authenticated().anyRequest().permitAll())
         .httpBasic(httpBasic -> httpBasic.disable())
         .formLogin(form -> form.disable())
+        .requiresChannel(channel -> channel.requestMatchers("/api/**").requiresSecure())
+        .headers(
+            headers ->
+                headers.httpStrictTransportSecurity(
+                    hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000))) // Enable HSTS
+
         //                .addFilterBefore(apiKeyFilter(), BasicAuthenticationFilter.class);
         .addFilterBefore(apiKeyFilter(), BasicAuthenticationFilter.class);
 
