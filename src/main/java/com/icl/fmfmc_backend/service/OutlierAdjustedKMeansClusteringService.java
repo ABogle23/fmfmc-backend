@@ -36,7 +36,9 @@ public class OutlierAdjustedKMeansClusteringService implements ClusteringStrateg
     Integer MAX_ITERATIONS = 200;
 
     // outlier filtering before clustering
-    chargers = filterOutliersByZScore(chargers);
+    chargers = filterOutliers(chargers);
+    System.out.println("Filtering outliers by Z-Score: " + chargers);
+
     List<Point> centroids = initializeCentroidsPlusPlus(chargers, k);
     List<Point> oldCentroids = null;
 
@@ -47,7 +49,7 @@ public class OutlierAdjustedKMeansClusteringService implements ClusteringStrateg
       // iteratively remove outliers from clusters
       refineClusters(clusters);
       centroids = recalculateCentroids(clusters);
-      System.out.println("calculating centroids");
+//      System.out.println("calculating centroids");
     }
 
     return centroids;
@@ -127,6 +129,7 @@ public class OutlierAdjustedKMeansClusteringService implements ClusteringStrateg
   }
 
   private static List<Point> filterOutliers(List<Point> points) {
+    System.out.println("Filtering outliers by Z-Score: " + points);
     double thresholdDistance = calculateThresholdDistance(points);
     Point medianPoint = calculateMedianPoint(points);
     return points.stream()
@@ -152,6 +155,9 @@ public class OutlierAdjustedKMeansClusteringService implements ClusteringStrateg
   }
 
   private static List<Point> filterOutliersByZScore(List<Point> points) {
+
+    System.out.println("Filtering outliers by Z-Score: " + points);
+
     double mean =
         points.stream()
             .mapToDouble(p -> p.distance(geometryFactory.createPoint(new Coordinate(0, 0))))

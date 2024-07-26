@@ -2,6 +2,8 @@ package com.icl.fmfmc_backend;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.icl.fmfmc_backend.service.ClusteringStrategy;
+import com.icl.fmfmc_backend.service.KMeansClusteringService;
 import com.icl.fmfmc_backend.service.OutlierAdjustedKMeansClusteringService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
@@ -14,7 +16,7 @@ import java.util.*;
 
 public class OutlierAdjustedKMeansClusteringServiceTest {
 
-  private OutlierAdjustedKMeansClusteringService service;
+  private ClusteringStrategy service = new OutlierAdjustedKMeansClusteringService();
   private GeometryFactory geometryFactory;
 
   @BeforeEach
@@ -121,21 +123,21 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
     List<Point> group1 =
         Arrays.asList(
             geometryFactory.createPoint(new Coordinate(1, 1)),
-                geometryFactory.createPoint(new Coordinate(1.1, 1.1)),
-                geometryFactory.createPoint(new Coordinate(1.2, 1.2)),
+            geometryFactory.createPoint(new Coordinate(1.1, 1.1)),
+            geometryFactory.createPoint(new Coordinate(1.2, 1.2)),
             geometryFactory.createPoint(new Coordinate(0.9, 0.9)));
     List<Point> group2 =
         Arrays.asList(
             geometryFactory.createPoint(new Coordinate(10, 10)),
-                geometryFactory.createPoint(new Coordinate(10.1, 10.1)),
-                geometryFactory.createPoint(new Coordinate(10.2, 10.2)),
+            geometryFactory.createPoint(new Coordinate(10.1, 10.1)),
+            geometryFactory.createPoint(new Coordinate(10.2, 10.2)),
             geometryFactory.createPoint(new Coordinate(9.9, 9.9)));
     List<Point> group3 =
         Arrays.asList(
             geometryFactory.createPoint(new Coordinate(20, 20)),
             geometryFactory.createPoint(new Coordinate(20.1, 20.1)),
-                geometryFactory.createPoint(new Coordinate(20.2, 20.2)),
-                geometryFactory.createPoint(new Coordinate(19.9, 19.9)));
+            geometryFactory.createPoint(new Coordinate(20.2, 20.2)),
+            geometryFactory.createPoint(new Coordinate(19.9, 19.9)));
 
     List<Point> chargers = new ArrayList<>();
     chargers.addAll(group1);
@@ -148,21 +150,21 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
     System.out.println(result);
 
     if (valid) {
-//      for (Point point : group1) {
-//        Point closestCentroid =
-//            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
-//        valid &= group1.stream().allMatch(p -> p.distance(closestCentroid) < 1);
-//      }
-//      for (Point point : group2) {
-//        Point closestCentroid =
-//            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
-//        valid &= group2.stream().allMatch(p -> p.distance(closestCentroid) < 1);
-//      }
-//      for (Point point : group3) {
-//        Point closestCentroid =
-//            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
-//        valid &= group3.stream().allMatch(p -> p.distance(closestCentroid) < 1);
-//      }
+      //      for (Point point : group1) {
+      //        Point closestCentroid =
+      //            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
+      //        valid &= group1.stream().allMatch(p -> p.distance(closestCentroid) < 1);
+      //      }
+      //      for (Point point : group2) {
+      //        Point closestCentroid =
+      //            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
+      //        valid &= group2.stream().allMatch(p -> p.distance(closestCentroid) < 1);
+      //      }
+      //      for (Point point : group3) {
+      //        Point closestCentroid =
+      //            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
+      //        valid &= group3.stream().allMatch(p -> p.distance(closestCentroid) < 1);
+      //      }
 
       int validCount = 0;
 
@@ -172,9 +174,15 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
         valid &= allPointsCloseToCentroid(group3, result);
         return valid;
       } else {
-        if (checkProximity(group1, result, 0.75)) {validCount++;}
-        if (checkProximity(group2, result, 0.75)) {validCount++;}
-        if (checkProximity(group3, result, 0.75)) {validCount++;}
+        if (checkProximity(group1, result, 0.75)) {
+          validCount++;
+        }
+        if (checkProximity(group2, result, 0.75)) {
+          validCount++;
+        }
+        if (checkProximity(group3, result, 0.75)) {
+          validCount++;
+        }
         return validCount >= 2;
       }
     }
@@ -223,24 +231,25 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
     System.out.println(result);
 
     if (valid) {
-//      for (Point point : group1) {
-//        Point closestCentroid =
-//            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
-//        valid &= group1.stream().allMatch(p -> p.distance(closestCentroid) < 1);
-//      }
-//      for (Point point : group2) {
-//        Point closestCentroid =
-//            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
-//        valid &= group2.stream().allMatch(p -> p.distance(closestCentroid) < 1);
-//      }
-//      for (Point point : group3) {
-//        Point closestCentroid =
-//            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
-//        valid &= group3.stream().allMatch(p -> p.distance(closestCentroid) < 1);
-//      }
+      //      for (Point point : group1) {
+      //        Point closestCentroid =
+      //            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
+      //        valid &= group1.stream().allMatch(p -> p.distance(closestCentroid) < 1);
+      //      }
+      //      for (Point point : group2) {
+      //        Point closestCentroid =
+      //            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
+      //        valid &= group2.stream().allMatch(p -> p.distance(closestCentroid) < 1);
+      //      }
+      //      for (Point point : group3) {
+      //        Point closestCentroid =
+      //            result.stream().min(Comparator.comparingDouble(point::distance)).orElse(null);
+      //        valid &= group3.stream().allMatch(p -> p.distance(closestCentroid) < 1);
+      //      }
       if (outliers.isEmpty()) {
         valid &= allPointsCloseToCentroid(group1, result);
-        valid &= allPointsCloseToCentroid(group2, result) || allPointsCloseToCentroid(group3, result);
+        valid &=
+            allPointsCloseToCentroid(group2, result) || allPointsCloseToCentroid(group3, result);
       } else {
         valid &= checkProximity(group1, result, 0.75);
         valid &= checkProximity(group2, result, 0.75) || checkProximity(group3, result, 0.75);
@@ -293,7 +302,8 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
     if (valid) {
       if (outliers.isEmpty()) {
         valid &= allPointsCloseToCentroid(group1, result);
-        valid &= allPointsCloseToCentroid(group2, result) || allPointsCloseToCentroid(group3, result);
+        valid &=
+            allPointsCloseToCentroid(group2, result) || allPointsCloseToCentroid(group3, result);
       } else {
         valid &= checkProximity(group1, result, 0.75);
         valid &= checkProximity(group2, result, 0.75) || checkProximity(group3, result, 0.75);
