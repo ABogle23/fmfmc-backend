@@ -8,7 +8,7 @@ import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.*;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 import com.icl.fmfmc_backend.exception.NoFoodEstablishmentsFoundException;
-import com.icl.fmfmc_backend.exception.NoFoodEstablishmentsInRangeofChargerException;
+import com.icl.fmfmc_backend.exception.NoFoodEstablishmentsInRangeOfChargerException;
 import com.icl.fmfmc_backend.exception.PoiServiceException;
 import com.icl.fmfmc_backend.util.LogExecutionTime;
 import com.icl.fmfmc_backend.util.LogMessages;
@@ -58,7 +58,7 @@ public class PoiService {
   @LogExecutionTime(message = LogMessages.RETRIEVING_FOOD_ESTABLISHMENTS)
   public Tuple2<List<FoodEstablishment>, Charger> getFoodEstablishmentOnRoute(Route route)
       throws NoFoodEstablishmentsFoundException,
-          NoFoodEstablishmentsInRangeofChargerException,
+          NoFoodEstablishmentsInRangeOfChargerException,
           PoiServiceException {
     logger.info("Getting food establishment");
 
@@ -89,12 +89,44 @@ public class PoiService {
 
     List<Point> clusteredChargers = clusteringStrategy.clusterChargers(chargerLocations, 4);
 
+    clusteredChargers = clusteringStrategy.consolidateCloseCentroids(clusteredChargers, 0.01); // 1.km
+
     for (Point charger : clusteredChargers) {
       System.out.println(charger.getY() + "," + charger.getX() + ",yellow,circle");
     }
 
     List<FoodEstablishment> foodEstablishmentsAroundClusters =
         getFoodEstablishmentsAroundClusters(route, clusteredChargers);
+
+    // FOR TESTING
+    System.out.println("Food Establishments Around Clusters Test Data");
+    for (FoodEstablishment foodEstablishment : foodEstablishmentsAroundClusters) {
+      Double X = foodEstablishment.getLocation().getX();
+      Double Y = foodEstablishment.getLocation().getY();
+      System.out.println("geometryFactory.createPoint(new Coordinate("+ X +", " + Y + ")),");
+    }
+//    System.out.println("Food Establishments Ratings Test Data");
+//    for (FoodEstablishment foodEstablishment : foodEstablishmentsAroundClusters) {
+//      Double rating = foodEstablishment.getRating();
+//      System.out.println(rating + ",");
+//    }
+//    System.out.println("Food Establishments Popularity Test Data");
+//    for (FoodEstablishment foodEstablishment : foodEstablishmentsAroundClusters) {
+//      Double popularity = foodEstablishment.getPopularity();
+//      System.out.println(popularity + ",");
+//    }
+//    System.out.println("Food Establishments price Test Data");
+//    for (FoodEstablishment foodEstablishment : foodEstablishmentsAroundClusters) {
+//      Integer price = foodEstablishment.getPrice();
+//      System.out.println(price + ",");
+//    }
+    System.out.println("Charger loc Test Data");
+    for (Point charger : chargerLocations) {
+      Double X = charger.getX();
+      Double Y = charger.getY();
+      System.out.println("geometryFactory.createPoint(new Coordinate("+ X +", " + Y + ")),");
+    }
+    // FOR TESTING
 
     // if no FoodEstablishments found are in the range of a charger expand the search of the
     // chargers prior to retrying the food establishment search which involves another costly
@@ -104,7 +136,7 @@ public class PoiService {
     try {
       foodEstablishmentsInRange = getFoodEstablishmentsInRangeOfChargers(
           chargerLocations, foodEstablishmentsAroundClusters, route);
-    } catch (NoFoodEstablishmentsInRangeofChargerException e) {
+    } catch (NoFoodEstablishmentsInRangeOfChargerException e) {
       logger.info("Expanding charger search range prior to retrying food establishment search");
       foodEstablishmentsInRange = getFoodEstablishmentsInRangeOfChargersFallback(route, foodEstablishmentsAroundClusters);
     }
@@ -126,10 +158,11 @@ public class PoiService {
     System.out.println("Optimal Food Establishment: " + optimalFoodEstablishment);
     System.out.println("Adjacent Charger: " + adjacentCharger);
 
+    // TODO: add null check for adjacent charger
     return Tuples.of(List.of(optimalFoodEstablishment), adjacentCharger);
   }
 
-  private List<FoodEstablishment> getFoodEstablishmentsInRangeOfChargersFallback(Route route, List<FoodEstablishment> foodEstablishmentsAroundClusters) throws NoFoodEstablishmentsInRangeofChargerException {
+  private List<FoodEstablishment> getFoodEstablishmentsInRangeOfChargersFallback(Route route, List<FoodEstablishment> foodEstablishmentsAroundClusters) throws NoFoodEstablishmentsInRangeOfChargerException {
     List<FoodEstablishment> foodEstablishmentsInRange = new ArrayList<>();
     List<Point> chargerLocations = new ArrayList<>();
     List<Point> foodEstablishmentLocations = new ArrayList<>();
@@ -144,7 +177,7 @@ public class PoiService {
     return foodEstablishmentsInRange;
   }
 
-  public List<Point> getChargerLocationsInPolygon(Route route, Polygon polygon) {
+  private List<Point> getChargerLocationsInPolygon(Route route, Polygon polygon) {
     logger.info("Getting chargers in polygon");
     ChargerQuery query =
         ChargerQuery.builder()
@@ -165,7 +198,7 @@ public class PoiService {
     return chargersWithinPolygon;
   }
 
-  public List<FoodEstablishment> getFoodEstablishmentsAroundClusters(
+  private List<FoodEstablishment> getFoodEstablishmentsAroundClusters(
       Route route, List<Point> clusteredChargers)
       throws NoFoodEstablishmentsFoundException, PoiServiceException {
     // TODO: get rid of this and rename the func it calls
@@ -180,6 +213,11 @@ public class PoiService {
 
     Map<String, FoodEstablishment> foodEstablishments = new HashMap<>();
 
+    // FOR TESTING
+    route.setEatingSearchCircles(new ArrayList<>());
+    List<Polygon> searchPolygons = new ArrayList<>();
+    // FOR TESTING
+
     for (Point cluster : clusteredChargers) {
       String[] coordinates = getLatLongAsString(cluster);
       //      String latLong = coordinates[0] + "," + coordinates[1];
@@ -192,7 +230,14 @@ public class PoiService {
               .setLatitude(latitude)
               .setLongitude(longitude)
               .setRadius(searchRadius)
+              .setMinPrice(route.getMinPrice())
+              .setMaxPrice(route.getMaxPrice())
               .build();
+
+      // FOR TESTING
+      searchPolygons.add(GeometryService.createCircle(cluster, searchRadius));
+      // FOR TESTING
+
 
       List<FoodEstablishment> clusterFoodEstablishments =
               null;
@@ -213,6 +258,10 @@ public class PoiService {
       }
     }
 
+    // FOR TESTING
+    route.setEatingSearchCircles(searchPolygons);
+    // FOR TESTING
+
     if (foodEstablishments.isEmpty()) {
       logger.error("No food establishments returned from API call");
       throw new NoFoodEstablishmentsFoundException();
@@ -222,7 +271,7 @@ public class PoiService {
     return new ArrayList<>(foodEstablishments.values());
   }
 
-  public static String[] getLatLongAsString(Point point) {
+  private static String[] getLatLongAsString(Point point) {
     String y = Double.toString(point.getY());
     String x = Double.toString(point.getX());
     return new String[] {y, x};
@@ -231,7 +280,7 @@ public class PoiService {
   private List<FoodEstablishment> getFoodEstablishmentsInRangeOfChargers(
       List<Point> clusteredChargers,
       List<FoodEstablishment> foodEstablishmentsAroundClusters,
-      Route route) throws NoFoodEstablishmentsInRangeofChargerException {
+      Route route) throws NoFoodEstablishmentsInRangeOfChargerException {
 
     Double maxWalkingDistance = route.getMaxWalkingDistance().doubleValue();
     System.out.println("Max walking distance: " + maxWalkingDistance);
@@ -254,7 +303,7 @@ public class PoiService {
 
     if (foodEstablishmentsInRange.isEmpty()) {
       logger.error("No food establishments found within range of charger");
-      throw new NoFoodEstablishmentsInRangeofChargerException();
+      throw new NoFoodEstablishmentsInRangeOfChargerException();
     }
 
     return foodEstablishmentsInRange;
@@ -268,14 +317,14 @@ public class PoiService {
         .orElse(null);
   }
 
-  public Double calculateScore(FoodEstablishment establishment) {
+  private Double calculateScore(FoodEstablishment establishment) {
     Double score = 0.0;
 
-    score += establishment.getPopularity() != null ? establishment.getPopularity() : 0;
-    score += establishment.getRating() != null ? establishment.getRating() / 10 : 0;
+    score += establishment.getPopularity() != null ? establishment.getPopularity() : 0.5;
+    score += establishment.getRating() != null ? (establishment.getRating() / 10) : 0.5;
     score +=
         (establishment.getPrice() != null && establishment.getPrice() != 4)
-            ? (double) (4 - establishment.getPrice()) / 8
+            ?  ((4.0 - establishment.getPrice()) / 20.0)
             : 0;
 
     System.out.println("Score: " + score + " for " + establishment.getName());
@@ -283,7 +332,7 @@ public class PoiService {
     return score;
   }
 
-  public Charger getNearestCharger(Route route, Point point) {
+  private Charger getNearestCharger(Route route, Point point) {
     logger.info("Getting adjacent Charger");
     ChargerQuery query =
         ChargerQuery.builder()
