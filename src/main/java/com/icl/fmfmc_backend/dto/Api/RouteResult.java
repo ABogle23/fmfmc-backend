@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -22,6 +23,7 @@ public class RouteResult {
   private String finalRoutePolyline;
   private String chargerPolygon;
   private String eatingOptionPolygon;
+  private List<String> eatingSearchCircles = new ArrayList<>();
   private Double distance;
   private Double time;
   private Route.SegmentDetails segmentDetails;
@@ -35,6 +37,9 @@ public class RouteResult {
     this.finalRoutePolyline = PolylineUtility.encodeLineString(route.getFinalSnappedToStopsRoute());
     this.chargerPolygon = PolylineUtility.encodePolygon(route.getBufferedLineString());
     this.eatingOptionPolygon = route.getEatingOptionSearch();
+    for (int i = 0; i < route.getEatingSearchCircles().size(); i++) {
+      this.eatingSearchCircles.add(PolylineUtility.encodePolygon(route.getEatingSearchCircles().get(i)));
+    }
     this.distance = route.getRouteLength();
     this.time = route.getRouteDuration();
     this.segmentDetails = route.getSegmentDetails();

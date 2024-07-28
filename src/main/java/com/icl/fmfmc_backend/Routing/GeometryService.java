@@ -17,6 +17,7 @@ import org.locationtech.jts.linearref.LengthIndexedLine;
 @Service
 public class GeometryService {
     private static final GeometryFactory geometryFactory = new GeometryFactory();
+    private static final GeometricShapeFactory shapeFactory = new GeometricShapeFactory();
 
     public static Polygon bufferLineStringSquare(LineString lineString, double distance) {
         BufferParameters bufferParameters = new BufferParameters();
@@ -198,6 +199,13 @@ public class GeometryService {
     public static Polygon getBufferedMinimumBoundingCircleAsPolygon(List<Point> points, Double bufferDistance) {
         MinimumBoundingCircle mbc = createMinimumBoundingCircle(points);
         return getMinimumBoundingCircleAsPolygon(mbc, bufferDistance);
+    }
+
+    public static Polygon createCircle(Point center, double radiusInMeters) {
+        Double radiusInDegrees = radiusInMeters / 111320.0; // 1 deg is approx 111.32 km
+        shapeFactory.setCentre(center.getCoordinate());
+        shapeFactory.setSize(radiusInDegrees * 2); // diameter
+        return shapeFactory.createCircle();
     }
 
 }

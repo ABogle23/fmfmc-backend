@@ -10,9 +10,7 @@ import com.icl.fmfmc_backend.entity.enums.*;
 import lombok.Data;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
-import org.springframework.cglib.core.Local;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,7 +31,7 @@ public class Route {
   private LineString finalSnappedToStopsRoute;
   private Polygon bufferedLineString;
   private String eatingOptionSearch;
-
+  private List<Polygon> eatingSearchCircles = new ArrayList<>();
   private Double routeLength;
   private Double routeDuration;
 
