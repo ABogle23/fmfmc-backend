@@ -62,20 +62,19 @@ public class JourneyService {
       } catch (PoiServiceException pe) {
         logger.error("Error occurred while fetching food establishments from PoiService: {}", pe.getMessage());
       } catch (NoFoodEstablishmentsFoundException
-          | NoFoodEstablishmentsInRangeofChargerException e1) {
+               | NoFoodEstablishmentsInRangeOfChargerException e1) {
         expandFoodEstablishmentSearch(route, context);
         logger.warn(
             "{}, increasing search range to {}km, retrying...",
             e1.getMessage(),
             route.getEatingOptionSearchDeviationAsFraction());
-        //                try {
-        //                    poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
-        //                } catch (NoFoodEstablishmentsFoundException |
-        // NoFoodEstablishmentsInRangeofChargerException e2) {
-        //                    skipEatingOptionService(route, context);
-        //                    logger.error("No food establishments found within range of charger,
-        // route will be returned without eating stop");
-        //                }
+                        try {
+                            poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
+                        } catch (NoFoodEstablishmentsFoundException |
+                                 NoFoodEstablishmentsInRangeOfChargerException | PoiServiceException e3) {
+//                            skipEatingOptionService(route, context);
+                            logger.error("No food establishments found within range of charger, route will be returned without eating stop");
+                        }
       }
 
       if (poiServiceTestResults != null) {

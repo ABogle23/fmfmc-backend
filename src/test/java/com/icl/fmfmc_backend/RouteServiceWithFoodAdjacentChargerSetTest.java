@@ -36,7 +36,7 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
 
   private final Route route = new Route(directionsResponse, routeRequest);
 
-  private final List<Charger> chargers = TestDataFactory.createChargers();
+  private final List<Charger> chargers = TestDataFactory.createChargersForBatteryTest();
 
   @BeforeEach
   public void setUp() {
