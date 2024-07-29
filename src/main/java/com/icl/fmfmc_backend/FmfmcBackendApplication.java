@@ -11,6 +11,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 
 import java.util.Scanner;
@@ -32,6 +33,7 @@ public class FmfmcBackendApplication {
   //	}
 
   @Bean
+  @Profile("!test")
   public CommandLineRunner commandLineRunner() {
     return args ->
         new Thread(
