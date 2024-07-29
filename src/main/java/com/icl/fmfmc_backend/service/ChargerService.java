@@ -176,67 +176,69 @@ public class ChargerService {
     System.out.println("Highest power connection speed: " + chargeSpeed);
     return chargeSpeed;
   }
-//
-//  @PersistenceContext private EntityManager entityManager;
-//
-//  public List<Charger> findChargersByParam(
-//      Polygon polygon,
-//      Point point,
-//      Double radius,
-//      List<ConnectionType> connectionTypes,
-//      Integer minKwChargeSpeed,
-//      Integer maxKwChargeSpeed,
-//      Integer minNoChargePoints) {
-//    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-//    CriteriaQuery<Charger> cq = cb.createQuery(Charger.class);
-//    Root<Charger> charger = cq.from(Charger.class);
-//    Join<Charger, Connection> connection = charger.join("connections", JoinType.INNER);
-//
-//    List<Predicate> predicates = new ArrayList<>();
-//
-//    // spatial params
-//    if (polygon != null) {
-//      predicates.add(
-//          cb.isTrue(
-//              cb.function(
-//                  "ST_Within", Boolean.class, charger.get("location"), cb.literal(polygon))));
-//    }
-//    if (point != null && radius != null) {
-//      predicates.add(
-//          cb.lessThanOrEqualTo(
-//              cb.function(
-//                  "ST_Distance_Sphere", Double.class, charger.get("location"), cb.literal(point)),
-//              radius));
-//    }
-//
-//    // connection type IDs
-//    if (connectionTypes != null && !connectionTypes.isEmpty()) {
-//      List<Integer> connectionTypeIds =
-//          connectionTypeToOcmMapper.mapConnectionTypeToDbIds(connectionTypes);
-//      predicates.add(connection.get("connectionTypeID").in(connectionTypeIds));
-//    }
-//
-//    // min charge speed
-//    if (minKwChargeSpeed != null) {
-//      predicates.add(cb.greaterThanOrEqualTo(connection.get("powerKW"), minKwChargeSpeed));
-//    } else {
-//      predicates.add(cb.greaterThanOrEqualTo(connection.get("powerKW"), cb.literal(0)));
-//    }
-//
-//    // max charge speed
-//    if (maxKwChargeSpeed != null) {
-//      predicates.add(cb.lessThanOrEqualTo(connection.get("powerKW"), maxKwChargeSpeed));
-//    }
-//
-//    // min number of charge points
-//    predicates.add(
-//        cb.greaterThanOrEqualTo(
-//            charger.get("numberOfPoints"),
-//            cb.coalesce(cb.literal(minNoChargePoints), cb.literal(1))));
-//
-//    cq.where(cb.and(predicates.toArray(new Predicate[0])));
-//    return entityManager.createQuery(cq).getResultList();
-//  }
+
+  //
+  //  @PersistenceContext private EntityManager entityManager;
+  //
+  //  public List<Charger> findChargersByParam(
+  //      Polygon polygon,
+  //      Point point,
+  //      Double radius,
+  //      List<ConnectionType> connectionTypes,
+  //      Integer minKwChargeSpeed,
+  //      Integer maxKwChargeSpeed,
+  //      Integer minNoChargePoints) {
+  //    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+  //    CriteriaQuery<Charger> cq = cb.createQuery(Charger.class);
+  //    Root<Charger> charger = cq.from(Charger.class);
+  //    Join<Charger, Connection> connection = charger.join("connections", JoinType.INNER);
+  //
+  //    List<Predicate> predicates = new ArrayList<>();
+  //
+  //    // spatial params
+  //    if (polygon != null) {
+  //      predicates.add(
+  //          cb.isTrue(
+  //              cb.function(
+  //                  "ST_Within", Boolean.class, charger.get("location"), cb.literal(polygon))));
+  //    }
+  //    if (point != null && radius != null) {
+  //      predicates.add(
+  //          cb.lessThanOrEqualTo(
+  //              cb.function(
+  //                  "ST_Distance_Sphere", Double.class, charger.get("location"),
+  // cb.literal(point)),
+  //              radius));
+  //    }
+  //
+  //    // connection type IDs
+  //    if (connectionTypes != null && !connectionTypes.isEmpty()) {
+  //      List<Integer> connectionTypeIds =
+  //          connectionTypeToOcmMapper.mapConnectionTypeToDbIds(connectionTypes);
+  //      predicates.add(connection.get("connectionTypeID").in(connectionTypeIds));
+  //    }
+  //
+  //    // min charge speed
+  //    if (minKwChargeSpeed != null) {
+  //      predicates.add(cb.greaterThanOrEqualTo(connection.get("powerKW"), minKwChargeSpeed));
+  //    } else {
+  //      predicates.add(cb.greaterThanOrEqualTo(connection.get("powerKW"), cb.literal(0)));
+  //    }
+  //
+  //    // max charge speed
+  //    if (maxKwChargeSpeed != null) {
+  //      predicates.add(cb.lessThanOrEqualTo(connection.get("powerKW"), maxKwChargeSpeed));
+  //    }
+  //
+  //    // min number of charge points
+  //    predicates.add(
+  //        cb.greaterThanOrEqualTo(
+  //            charger.get("numberOfPoints"),
+  //            cb.coalesce(cb.literal(minNoChargePoints), cb.literal(1))));
+  //
+  //    cq.where(cb.and(predicates.toArray(new Predicate[0])));
+  //    return entityManager.createQuery(cq).getResultList();
+  //  }
 
   @Transactional
   public Charger saveCharger(Charger charger) {
@@ -301,5 +303,4 @@ public class ChargerService {
     int updatedCount = chargerRepo.updateNullPowerKW();
     System.out.println("Updated " + updatedCount + " connections where powerKW was null.");
   }
-
 }

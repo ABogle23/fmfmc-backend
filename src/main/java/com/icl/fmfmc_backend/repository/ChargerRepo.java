@@ -7,13 +7,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Repository
 public interface ChargerRepo extends JpaRepository<Charger, Long> {
   @Query(
-      value = "SELECT * FROM fmfmc_db.chargers c WHERE ST_Within(c.location, :polygon) = true",
+      value = "SELECT * FROM {h-schema}chargers c WHERE ST_Within(c.location, :polygon) = true",
       nativeQuery = true)
   List<Charger> findAllWithinPolygon(@Param("polygon") Polygon polygon);
 
@@ -21,8 +23,8 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
   //  @Query(
   //      value =
   //          """
-  //                      SELECT DISTINCT c.* FROM fmfmc_db.chargers c\s
-  //                      JOIN fmfmc_db.charger_connections cc ON c.id = cc.charger_id\s
+  //                      SELECT DISTINCT c.* FROM {h-schema}chargers c\s
+  //                      JOIN {h-schema}charger_connections cc ON c.id = cc.charger_id\s
   //                      WHERE cc.connection_typeid IN (:typeIds)""",
   //      nativeQuery = true)
   List<Charger> findByConnectionTypeIds(@Param("typeIds") List<Integer> typeIds);
@@ -43,7 +45,7 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
 
   @Query(
       value =
-          "SELECT * FROM fmfmc_db.chargers c WHERE ST_Distance_Sphere(c.location, :point) <= :radius",
+          "SELECT * FROM {h-schema}chargers c WHERE ST_Distance_Sphere(c.location, :point) <= :radius",
       nativeQuery = true)
   List<Charger> findChargersWithinRadius(
       @Param("point") Point point, @Param("radius") Double radius);
@@ -51,8 +53,8 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
   @Query(
       value =
           """
-               SELECT DISTINCT c.* FROM fmfmc_db.chargers c
-               JOIN fmfmc_db.charger_connections cc ON c.id = cc.charger_id
+               SELECT DISTINCT c.* FROM {h-schema}chargers c
+               JOIN {h-schema}charger_connections cc ON c.id = cc.charger_id
                WHERE
                (:polygon IS NULL OR ST_Within(c.location, :polygon) = TRUE)
                AND (:point IS NULL OR :radius IS NULL OR ST_Distance_Sphere(c.location, :point) <= :radius)
@@ -78,8 +80,8 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
   @Query(
       value =
           """
-               SELECT DISTINCT c.location FROM fmfmc_db.chargers c
-               JOIN fmfmc_db.charger_connections cc ON c.id = cc.charger_id
+               SELECT DISTINCT c.location FROM {h-schema}chargers c
+               JOIN {h-schema}charger_connections cc ON c.id = cc.charger_id
                WHERE
                (:polygon IS NULL OR ST_Within(c.location, :polygon) = TRUE)
                AND (:point IS NULL OR :radius IS NULL OR ST_Distance_Sphere(c.location, :point) <= :radius)
@@ -105,8 +107,8 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
   @Query(
       value =
           """
-             SELECT c.* FROM fmfmc_db.chargers c
-             JOIN fmfmc_db.charger_connections cc ON c.id = cc.charger_id
+             SELECT c.* FROM {h-schema}chargers c
+             JOIN {h-schema}charger_connections cc ON c.id = cc.charger_id
              WHERE
              (:point IS NOT NULL AND :radius IS NOT NULL AND ST_Distance_Sphere(c.location, :point) <= :radius)
              AND ((:connectionTypeIds IS NULL OR :connectionTypeIds = '' OR FIND_IN_SET(cc.connection_typeid, :connectionTypeIds) > 0)
@@ -132,7 +134,7 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
   @Query(
       value =
           """
-               SELECT cc.powerkw FROM fmfmc_db.charger_connections cc
+               SELECT cc.powerkw FROM {h-schema}charger_connections cc
                WHERE cc.charger_id = :chargerId
                AND (:connectionTypeIds IS NULL OR :connectionTypeIds = '' OR FIND_IN_SET(cc.connection_typeid, :connectionTypeIds) > 0)
                AND cc.status_typeid NOT IN (30, 75, 100, 150, 200, 210)
