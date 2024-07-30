@@ -150,7 +150,7 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
   @Transactional
   @Query(
       value =
-          "UPDATE connection SET power_kw = 3 WHERE power_kw IS NULL AND charger_id IN (SELECT id FROM charger)",
+          "UPDATE {h-schema}charger_connections SET powerkw = 3 WHERE powerkw IS NULL AND charger_id IN (SELECT id FROM {h-schema}chargers)",
       nativeQuery = true)
   int updateNullPowerKW();
 }
