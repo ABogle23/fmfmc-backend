@@ -34,7 +34,7 @@ public class DirectionsClientManagerTest {
   }
 
   @Test
-  void fetchDirectionsSuccessfully() throws DirectionsClientException {
+  public void fetchDirectionsSuccessfully() throws DirectionsClientException {
     DirectionsRequest request = new DirectionsRequest();
     DirectionsResponse response = new DirectionsResponse();
     when(osrClient.getDirections(request)).thenReturn(response);
@@ -46,7 +46,7 @@ public class DirectionsClientManagerTest {
   }
 
   @Test
-  void switchToMapboxOnServiceUnavailableException() throws DirectionsClientException {
+  public void switchToMapboxOnServiceUnavailableException() throws DirectionsClientException {
     DirectionsRequest request = new DirectionsRequest();
     when(osrClient.getDirections(request))
         .thenThrow(new ServiceUnavailableException("Service Unavailable"));
@@ -61,7 +61,7 @@ public class DirectionsClientManagerTest {
   }
 
   @Test
-  void throwDirectionsClientExceptionOnBadRequest() {
+  public void throwDirectionsClientExceptionOnBadRequest() {
     DirectionsRequest request = new DirectionsRequest();
     when(osrClient.getDirections(request)).thenThrow(new BadRequestException("Bad Request"));
 
@@ -71,7 +71,7 @@ public class DirectionsClientManagerTest {
   }
 
   @Test
-  void throwRuntimeExceptionOnGenericException() {
+  public void throwRuntimeExceptionOnGenericException() {
     DirectionsRequest request = new DirectionsRequest();
     when(osrClient.getDirections(request)).thenThrow(new RuntimeException("Runtime Exception"));
 
@@ -80,7 +80,7 @@ public class DirectionsClientManagerTest {
   }
 
   @Test
-  void invalidClientNameDoesNotSwitch() {
+  public void invalidClientNameDoesNotSwitch() {
     directionsClientManager.setClient("invalid");
 
     assertEquals("osr", directionsClientManager.getActiveClientName());

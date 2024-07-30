@@ -67,6 +67,8 @@ public class TestDataFactory {
     LineString linestring = GeometryUtil.createLineString(TestGeoConstants.ls1);
 
     directionsResponse.setLineString(linestring);
+    directionsResponse.setTotalDuration(1000.0);
+    directionsResponse.setTotalDistance(1000.0);
 
     return directionsResponse;
   }
