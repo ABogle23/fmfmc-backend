@@ -63,9 +63,10 @@ public class ElectricVehicleService {
             "Duplicate model found, updating existing ElectricVehicle with model: {}",
             ev.getModel());
         ElectricVehicle existingVehicle = existingEV.get();
+        log.info("Existing ElectricVehicle: {}", existingVehicle.getModel());
         updateExistingVehicle(existingVehicle, ev);
-        existingVehicle.setUpdatedAt(LocalDateTime.now());
-        return Optional.of(electricVehicleRepo.save(existingVehicle));
+        log.info("Updated ElectricVehicle: {}", existingVehicle.getModel());
+        return Optional.of(existingVehicle);
       } else {
         log.info(
             "No existing ElectricVehicle found, creating new entry for model: {}", ev.getModel());
@@ -80,6 +81,8 @@ public class ElectricVehicleService {
   }
 
   private void updateExistingVehicle(ElectricVehicle existing, ElectricVehicle updated) {
+    log.info("Updating ElectricVehicle: {} with new values", existing.getModel());
+    existing.setBrand(updated.getBrand());
     existing.setBatteryCapacity(updated.getBatteryCapacity());
     existing.setPricePerMile(updated.getPricePerMile());
     existing.setTopSpeed(updated.getTopSpeed());
@@ -87,5 +90,6 @@ public class ElectricVehicleService {
     existing.setEfficiency(updated.getEfficiency());
     existing.setRapidChargeSpeed(updated.getRapidChargeSpeed());
     existing.setChargePortTypes(updated.getChargePortTypes());
+    existing.setUpdatedAt(LocalDateTime.now());
   }
 }

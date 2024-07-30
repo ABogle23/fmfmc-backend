@@ -25,7 +25,6 @@ public class ElectricVehicle {
     private String model;
     @NotNull
     @Column(nullable = false)
-    @NotNull
     private String brand;
     @NotNull
     private Double batteryCapacity; // in kWh
