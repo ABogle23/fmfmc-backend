@@ -5,6 +5,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -14,6 +15,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 
 @TestConfiguration
 @Testcontainers
@@ -37,8 +39,8 @@ public class TestContainerConfig {
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
     }
 
-    public void loadData(DataSource dataSource) {
-        Resource resource = new ClassPathResource("build_Test_DB_Data.sql");
+    public void loadData(DataSource dataSource, String sqlFile) {
+        Resource resource = new ClassPathResource(sqlFile);
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator(resource);
         databasePopulator.execute(dataSource);
     }
@@ -55,7 +57,34 @@ public class TestContainerConfig {
 
     @PostConstruct
     public void startContainer() {
+        System.out.println("Starting MySQL container...");
         mysql.start();
+        System.out.println("MySQL container started.");    }
+
+//    @Bean
+//    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+//        return new JdbcTemplate(dataSource);
+//    }
+
+    public void clearTables(JdbcTemplate jdbcTemplate) {
+
+        String url = null;
+        try {
+            url = jdbcTemplate.getDataSource().getConnection().getMetaData().getURL();
+            System.out.println("Datasource URL: " + url);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        if (!url.contains("container") && !url.contains("3306")) {
+            throw new IllegalStateException("Attempting to clear tables on a non-test database URL: " + url);
+        }
+
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
+        jdbcTemplate.update("TRUNCATE TABLE chargers;");
+        jdbcTemplate.update("TRUNCATE TABLE charger_connections;");
+        jdbcTemplate.update("TRUNCATE TABLE address_info;");
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
+
     }
 
 }

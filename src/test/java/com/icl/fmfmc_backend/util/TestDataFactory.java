@@ -77,7 +77,8 @@ public class TestDataFactory {
     return route;
   }
 
-  public static Charger createDefaultCharger(Long chargerId, Integer numberOfConnections, Double x, Double y) {
+  public static Charger createDefaultCharger(
+      Long chargerId, Integer numberOfConnections, Double x, Double y) {
     Charger charger = new Charger();
     charger.setId(chargerId);
     charger.setNumberOfPoints(Long.valueOf(numberOfConnections));
@@ -90,6 +91,7 @@ public class TestDataFactory {
       Connection connection = new Connection();
       connection.setId(Long.valueOf(i + 1));
       connection.setConnectionTypeID(25L);
+      connection.setStatusTypeID(50L);
       connection.setPowerKW(50L);
       connections.add(connection);
     }
@@ -543,7 +545,7 @@ public class TestDataFactory {
             1, 2, 1, 1, null, 1, 1, null, 1, 1, 1, 2, 1, 3, null, 1, null, 1, null, 1, 1);
 
     List<Double> popularity =
-            Arrays.asList(
+        Arrays.asList(
             0.42881446648396204,
             0.6463361344236966,
             0.9761232384290401,
@@ -692,7 +694,7 @@ public class TestDataFactory {
             1.0);
 
     List<Double> ratings =
-            Arrays.asList(
+        Arrays.asList(
             null, null, null, null, null, null, null, null, null, null, null, 5.2, null, 6.4, 6.3,
             null, null, 6.3, 6.0, 6.7, null, 6.2, null, null, null, 6.6, null, null, null, null,
             null, null, null, null, null, null, 7.2, null, null, null, 7.1, null, null, 6.2, null,

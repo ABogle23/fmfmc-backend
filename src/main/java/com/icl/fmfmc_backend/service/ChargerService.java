@@ -70,8 +70,8 @@ public class ChargerService {
     return chargerRepo.findByMinNoChargePoints(minNoChargePoints);
   }
 
-  public List<Charger> getChargersWithinRadius(Point minNoChargePoints, Double radius) {
-    return chargerRepo.findChargersWithinRadius(minNoChargePoints, radius);
+  public List<Charger> getChargersWithinRadius(Point point, Double radius) {
+    return chargerRepo.findChargersWithinRadius(point, radius);
   }
 
   @LogExecutionTime(message = LogMessages.SQL_QUERY)
@@ -114,6 +114,8 @@ public class ChargerService {
 
   @LogExecutionTime(message = LogMessages.SQL_QUERY)
   public List<Point> getChargerLocationsByParams(ChargerQuery query) {
+
+    // function will not return duplicate points, should it?
 
     String connectionTypeIds = getConnectionTypeIdsAsString(query);
 
