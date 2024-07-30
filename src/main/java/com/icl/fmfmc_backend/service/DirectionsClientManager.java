@@ -110,4 +110,15 @@ public class DirectionsClientManager {
     long hoursSinceSwitch = ChronoUnit.HOURS.between(switchTime, LocalDateTime.now());
     return hoursSinceSwitch >= SWITCH_BACK_AFTER_HOURS;
   }
+
+  public String getActiveClientName() {
+    if (activeClient == osrClient) {
+      return "osr";
+    } else if (activeClient == mapboxClient) {
+      return "mapbox";
+    } else {
+      return "unknown";
+    }
+  }
+
 }
