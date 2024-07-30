@@ -77,6 +77,27 @@ public class TestDataFactory {
     return route;
   }
 
+  public static Charger createDefaultCharger(Long chargerId, Integer numberOfConnections, Double x, Double y) {
+    Charger charger = new Charger();
+    charger.setId(chargerId);
+    charger.setNumberOfPoints(Long.valueOf(numberOfConnections));
+    charger.setStatusTypeID(50L);
+    charger.setUsageTypeID(25L);
+    charger.setLocation(geometryFactory.createPoint(new Coordinate(x, y)));
+
+    List<Connection> connections = new ArrayList<>();
+    for (int i = 0; i < numberOfConnections; i++) {
+      Connection connection = new Connection();
+      connection.setId(Long.valueOf(i + 1));
+      connection.setConnectionTypeID(25L);
+      connection.setPowerKW(50L);
+      connections.add(connection);
+    }
+
+    charger.setConnections(connections);
+    return charger;
+  }
+
   public static List<Charger> createChargersForBatteryTest() {
 
     Charger charger1 = new Charger();

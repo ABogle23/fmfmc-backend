@@ -5,6 +5,7 @@ import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.Charger.Connection;
 import com.icl.fmfmc_backend.service.ChargerService;
+import com.icl.fmfmc_backend.util.TestDataFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.*;
@@ -70,33 +71,7 @@ public class ChargerServiceTest {
   @Transactional
   public void canSaveCharger() {
 
-    Charger charger1 = new Charger();
-    charger1.setId(1L);
-    charger1.setNumberOfPoints(3L);
-    charger1.setStatusTypeID(50L);
-    charger1.setUsageTypeID(25L);
-    charger1.setLocation(geometryFactory.createPoint(new Coordinate(0, 0)));
-
-    List<Connection> connections1 = new ArrayList<>();
-    Connection connection1 = new Connection();
-    connection1.setId(1L);
-    connection1.setConnectionTypeID(25L);
-    connection1.setPowerKW(50L);
-    connections1.add(connection1);
-
-    Connection connection2 = new Connection();
-    connection2.setId(1L);
-    connection2.setConnectionTypeID(25L);
-    connection2.setPowerKW(50L);
-    connections1.add(connection2);
-
-    Connection connection3 = new Connection();
-    connection3.setId(1L);
-    connection3.setConnectionTypeID(25L);
-    connection3.setPowerKW(50L);
-    connections1.add(connection3);
-
-    charger1.setConnections(connections1);
+    Charger charger1 = TestDataFactory.createDefaultCharger(1L, 3, 0.0, 0.0);
 
     chargerService.saveCharger(charger1);
 
