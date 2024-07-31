@@ -2,17 +2,21 @@ package com.icl.fmfmc_backend.util;
 
 import com.icl.fmfmc_backend.dto.Api.RouteRequest;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
+import com.icl.fmfmc_backend.entity.AddressInfo;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.Charger.Connection;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
+import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import com.icl.fmfmc_backend.entity.Routing.Route;
 import com.icl.fmfmc_backend.entity.enums.DeviationScope;
+import com.icl.fmfmc_backend.entity.enums.FoodCategory;
 import com.icl.fmfmc_backend.entity.enums.StoppingRange;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,6 +81,24 @@ public class TestDataFactory {
     Route route = new Route(createDefaultDirectionsResponse(), createDefaultRouteRequest());
 
     return route;
+  }
+
+  public static FoodEstablishment createDefaultFoodEstablishment(
+          String establishmentId, String name, Double x, Double y) {
+    FoodEstablishment foodEstablishment = new FoodEstablishment();
+    foodEstablishment.setId(establishmentId);
+    foodEstablishment.setName(name);
+//    foodEstablishment.setCategories(Arrays.asList(FoodCategory.RESTAURANT, FoodCategory.CAFE)); // Assuming Category is an enum
+    foodEstablishment.setGeocodes(new GeoCoordinates(x, y)); // Assuming GeoCoordinates stores coordinates directly
+    foodEstablishment.setLocation(geometryFactory.createPoint(new Coordinate(x, y)));
+    foodEstablishment.setClosedStatus("Open");
+    foodEstablishment.setPopularity(0.5);
+    foodEstablishment.setPrice(2); // Assuming price is an integer level 1-3
+    foodEstablishment.setRating(5.0);
+    foodEstablishment.setCreatedAt(LocalDateTime.now());
+    foodEstablishment.setWebsite("http://www.example.com");
+
+    return foodEstablishment;
   }
 
   public static Charger createDefaultCharger(
