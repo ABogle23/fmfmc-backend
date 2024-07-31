@@ -3,8 +3,6 @@ package com.icl.fmfmc_backend;
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.config.TestContainerConfig;
 import com.icl.fmfmc_backend.config.TestDataLoaderConfig;
-import com.icl.fmfmc_backend.dto.Api.RouteRequest;
-import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.Routing.Route;
@@ -14,21 +12,16 @@ import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import com.icl.fmfmc_backend.service.PoiService;
 import com.icl.fmfmc_backend.util.TestDataFactory;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import reactor.util.function.Tuple2;
 
@@ -43,7 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @ContextConfiguration(classes = {TestContainerConfig.class, TestDataLoaderConfig.class})
-public class PoiServiceTest {
+public class PoiServiceIntegrationTest {
 
   //  @Mock private ChargerService chargerService;
 
