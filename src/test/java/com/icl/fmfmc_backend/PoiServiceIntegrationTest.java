@@ -139,12 +139,20 @@ public class PoiServiceIntegrationTest {
         .thenReturn(List.of(outOfRangeFe1));
 
     Tuple2<List<FoodEstablishment>, Charger> result = null;
+    try {
+      result = poiService.getFoodEstablishmentOnRoute(route);
+    } catch (NoFoodEstablishmentsFoundException e) {
+      fail("NoFoodEstablishmentsFoundException should not have been thrown");
+    } catch (NoFoodEstablishmentsInRangeOfChargerException e) {
+      fail("NoFoodEstablishmentsInRangeofChargerException should not have been thrown");
+    } catch (PoiServiceException e) {
+      fail("PoiServiceException should not have been thrown");
+    }
 
-    NoFoodEstablishmentsInRangeOfChargerException thrown =
-        assertThrows(
-            NoFoodEstablishmentsInRangeOfChargerException.class,
-            () -> poiService.getFoodEstablishmentOnRoute(route),
-            "Expected findSuitableChargers to throw, it didn't");
+    assertEquals(1, result.getT1().size());
+    assertEquals("1", result.getT1().get(0).getId());
+    assertNotNull(result.getT2().getId());
+
   }
 
   @Test
