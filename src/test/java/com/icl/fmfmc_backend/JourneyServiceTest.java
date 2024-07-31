@@ -111,7 +111,12 @@ public class JourneyServiceTest {
 
   @Test
   public void getJourneyReturnsRouteResultWithFoodEstablishmentAfterFallback()
-      throws JourneyNotFoundException {
+      throws JourneyNotFoundException,
+          NoFoodEstablishmentsFoundException,
+          NoFoodEstablishmentsInRangeOfChargerException,
+          PoiServiceException,
+          NoChargersOnRouteFoundException,
+          NoChargerWithinRangeException {
 
     setRequestRelatedParams();
 
@@ -126,31 +131,15 @@ public class JourneyServiceTest {
     Mockito.when(routingService.getDirections(any()))
         .thenReturn(TestDataFactory.createDefaultDirectionsResponse());
 
-    try {
-      Mockito.when(poiService.getFoodEstablishmentOnRoute(any()))
-          .thenThrow(new NoFoodEstablishmentsFoundException("No food establishments found"))
-          .thenReturn(Tuples.of(List.of(optimalFe), adjacentCharger));
-    } catch (NoFoodEstablishmentsFoundException e) {
-      fail("NoFoodEstablishmentsFoundException should not have been thrown");
-    } catch (NoFoodEstablishmentsInRangeOfChargerException e) {
-      fail("NoFoodEstablishmentsInRangeOfChargerException should not have been thrown");
-    } catch (PoiServiceException e) {
-      fail("PoiServiceException should not have been thrown");
-    }
+    Mockito.when(poiService.getFoodEstablishmentOnRoute(any()))
+        .thenThrow(new NoFoodEstablishmentsFoundException("No food establishments found"))
+        .thenReturn(Tuples.of(List.of(optimalFe), adjacentCharger));
 
-    try {
-      Mockito.when(routingService.getChargersOnRoute(any()))
-          .thenReturn(Arrays.asList(adjacentCharger));
-    } catch (NoChargersOnRouteFoundException e) {
-      fail("NoChargersOnRouteFoundException should not have been thrown");
-    }
+    Mockito.when(routingService.getChargersOnRoute(any()))
+        .thenReturn(Arrays.asList(adjacentCharger));
 
-    try {
-      Mockito.when(routingService.findSuitableChargers(any(), any()))
-          .thenReturn(Arrays.asList(adjacentCharger));
-    } catch (NoChargerWithinRangeException e2) {
-      fail("NoChargerWithinRangeException should not have been thrown");
-    }
+    Mockito.when(routingService.findSuitableChargers(any(), any()))
+        .thenReturn(Arrays.asList(adjacentCharger));
 
     Mockito.when(routingService.snapRouteToStops(any(), any()))
         .thenReturn(TestDataFactory.createDefaultDirectionsResponse().getLineString());
@@ -167,10 +156,9 @@ public class JourneyServiceTest {
     assertNotNull(result);
     assertEquals(optimalFe.getId(), result.getFoodEstablishments().get(0).getId());
     assertEquals(adjacentCharger.getId(), result.getChargers().get(0).getId());
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.EXPANDED_EATING_OPTION_SEARCH_AREA));
+
+    assertFallbackStrategies(
+        journeyContext, List.of(FallbackStrategy.EXPANDED_EATING_OPTION_SEARCH_AREA));
 
     System.out.println("RouteResult: " + result);
   }
@@ -222,10 +210,9 @@ public class JourneyServiceTest {
     assertNotNull(result);
     assertEquals(0, result.getFoodEstablishments().size());
     assertEquals(charger.getId(), result.getChargers().get(0).getId());
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.SKIPPED_EATING_OPTION_SEARCH));
+
+    assertFallbackStrategies(
+        journeyContext, List.of(FallbackStrategy.SKIPPED_EATING_OPTION_SEARCH));
 
     System.out.println("RouteResult: " + result);
   }
@@ -254,14 +241,12 @@ public class JourneyServiceTest {
 
     assertNotNull(result);
     assertEquals(charger.getId(), result.getChargers().get(0).getId());
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.EXPANDED_CHARGER_SEARCH_AREA));
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.EXPANDED_CHARGER_SPEED_RANGE));
+
+    assertFallbackStrategies(
+        journeyContext,
+        List.of(
+            FallbackStrategy.EXPANDED_CHARGER_SEARCH_AREA,
+            FallbackStrategy.EXPANDED_CHARGER_SPEED_RANGE));
   }
 
   @Test
@@ -286,14 +271,11 @@ public class JourneyServiceTest {
             () -> journeyService.getJourney(routeRequest, journeyContext),
             "Expected getJourney to throw, it didn't");
 
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.EXPANDED_CHARGER_SEARCH_AREA));
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.EXPANDED_CHARGER_SPEED_RANGE));
+    assertFallbackStrategies(
+        journeyContext,
+        List.of(
+            FallbackStrategy.EXPANDED_CHARGER_SEARCH_AREA,
+            FallbackStrategy.EXPANDED_CHARGER_SPEED_RANGE));
   }
 
   @Test
@@ -322,10 +304,8 @@ public class JourneyServiceTest {
 
     assertNotNull(result);
     assertEquals(charger.getId(), result.getChargers().get(0).getId());
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.RELAXED_CHARGING_CONSTRAINTS));
+    assertFallbackStrategies(
+        journeyContext, List.of(FallbackStrategy.RELAXED_CHARGING_CONSTRAINTS));
   }
 
   @Test
@@ -356,18 +336,13 @@ public class JourneyServiceTest {
 
     assertNotNull(result);
     assertEquals(charger.getId(), result.getChargers().get(0).getId());
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.RELAXED_CHARGING_CONSTRAINTS));
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.EXPANDED_CHARGER_SEARCH_AREA));
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.EXPANDED_CHARGER_SPEED_RANGE));
+
+    assertFallbackStrategies(
+        journeyContext,
+        List.of(
+            FallbackStrategy.RELAXED_CHARGING_CONSTRAINTS,
+            FallbackStrategy.EXPANDED_CHARGER_SEARCH_AREA,
+            FallbackStrategy.EXPANDED_CHARGER_SPEED_RANGE));
   }
 
   @Test
@@ -397,18 +372,13 @@ public class JourneyServiceTest {
 
     assertNotNull(result);
     assertEquals(charger.getId(), result.getChargers().get(0).getId());
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.EXPANDED_CHARGER_SEARCH_AREA));
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.EXPANDED_CHARGER_SPEED_RANGE));
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.RELAXED_CHARGING_CONSTRAINTS));
+
+    assertFallbackStrategies(
+        journeyContext,
+        List.of(
+            FallbackStrategy.EXPANDED_CHARGER_SEARCH_AREA,
+            FallbackStrategy.EXPANDED_CHARGER_SPEED_RANGE,
+            FallbackStrategy.RELAXED_CHARGING_CONSTRAINTS));
   }
 
   @Test
@@ -436,17 +406,18 @@ public class JourneyServiceTest {
             JourneyNotFoundException.class,
             () -> journeyService.getJourney(routeRequest, journeyContext),
             "Expected getJourney to throw, it didn't");
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.EXPANDED_CHARGER_SEARCH_AREA));
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.EXPANDED_CHARGER_SPEED_RANGE));
-    assertTrue(
-        journeyContext
-            .getFallbackStrategies()
-            .contains(FallbackStrategy.RELAXED_CHARGING_CONSTRAINTS));
+    assertFallbackStrategies(
+        journeyContext,
+        List.of(
+            FallbackStrategy.EXPANDED_CHARGER_SEARCH_AREA,
+            FallbackStrategy.EXPANDED_CHARGER_SPEED_RANGE,
+            FallbackStrategy.RELAXED_CHARGING_CONSTRAINTS));
+  }
+
+  private void assertFallbackStrategies(
+      JourneyContext journeyContext, List<FallbackStrategy> strategies) {
+    for (FallbackStrategy strategy : strategies) {
+      assertTrue(journeyContext.getFallbackStrategies().contains(strategy));
+    }
   }
 }
