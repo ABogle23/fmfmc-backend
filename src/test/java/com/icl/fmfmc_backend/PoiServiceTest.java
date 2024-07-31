@@ -1,18 +1,21 @@
 package com.icl.fmfmc_backend;
 
 import com.icl.fmfmc_backend.Routing.GeometryService;
+import com.icl.fmfmc_backend.config.TestContainerConfig;
+import com.icl.fmfmc_backend.config.TestDataLoaderConfig;
 import com.icl.fmfmc_backend.dto.Api.RouteRequest;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.Routing.Route;
-import com.icl.fmfmc_backend.exception.NoFoodEstablishmentsFoundException;
-import com.icl.fmfmc_backend.exception.NoFoodEstablishmentsInRangeOfChargerException;
-import com.icl.fmfmc_backend.exception.PoiServiceException;
+import com.icl.fmfmc_backend.entity.enums.DeviationScope;
+import com.icl.fmfmc_backend.exception.*;
 import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import com.icl.fmfmc_backend.service.PoiService;
 import com.icl.fmfmc_backend.util.TestDataFactory;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Coordinate;
@@ -22,8 +25,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import reactor.util.function.Tuple2;
 
+import javax.sql.DataSource;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,43 +41,45 @@ import static org.mockito.ArgumentMatchers.any;
 
 // @SpringBootTest
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@ContextConfiguration(classes = {TestContainerConfig.class, TestDataLoaderConfig.class})
 public class PoiServiceTest {
 
-  @Mock private ChargerService chargerService;
+  //  @Mock private ChargerService chargerService;
 
-  @Mock private FoodEstablishmentService foodEstablishmentService;
+  @Autowired private ChargerService chargerService;
 
-  @InjectMocks private PoiService poiService;
+  @Autowired private TestContainerConfig testContainerConfig;
 
-  private GeometryService geometryService;
+  @Autowired private DataSource dataSource;
 
-  private final RouteRequest routeRequest = TestDataFactory.createDefaultRouteRequest();
+  @MockBean private FoodEstablishmentService foodEstablishmentService;
 
-  private final DirectionsResponse directionsResponse =
-      TestDataFactory.createDefaultDirectionsResponse();
+  @Autowired private PoiService poiService;
 
-  private final Route route = new Route(directionsResponse, routeRequest);
+  private final Route route =
+      new Route(
+          TestDataFactory.createDefaultDirectionsResponse(),
+          TestDataFactory.createDefaultRouteRequest());
 
-  private final List<Point> chargersLocations = TestDataFactory.createPointsForChargersPoiTest();
-
-  private final List<FoodEstablishment> foodEstablishmentLocations =
-      TestDataFactory.createFoodEstablishmentsForPoiTest();
+  @BeforeEach
+  public void setRequestRelatedParams() {
+    route.setStopForEating(true);
+    route.setChargerSearchDeviation(DeviationScope.moderate);
+    route.setEatingOptionSearchDeviation(DeviationScope.moderate);
+  }
 
   @Test
-  public void getFoodEstablishmentOnRouteReturnsFiveOptimalChoice() {
+  public void getFoodEstablishmentOnRouteReturnsFiveOptimalChoices() {
 
-    route.setStopForEating(true);
     route.setIncludeAlternativeEatingOptions(true);
 
-    Mockito.when(chargerService.getChargerLocationsByParams(any()))
-        .thenReturn(TestDataFactory.createPointsForChargersPoiTest());
     Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
         .thenReturn(TestDataFactory.createFoodEstablishmentsForPoiTest());
-    Charger adjacentCharger = new Charger();
-    adjacentCharger.setLocation(
-        new GeometryFactory().createPoint(new Coordinate(-1.481754, 51.20814)));
-    adjacentCharger.setId(1L);
-    Mockito.when(chargerService.getNearestChargerByParams(any())).thenReturn(adjacentCharger);
+//    Charger adjacentCharger = new Charger();
+//    adjacentCharger.setLocation(
+//        new GeometryFactory().createPoint(new Coordinate(-1.481754, 51.20814)));
+//    adjacentCharger.setId(1L);
 
     Tuple2<List<FoodEstablishment>, Charger> result = null;
     try {
@@ -81,7 +93,6 @@ public class PoiServiceTest {
     }
 
     assertEquals(5, result.getT1().size());
-
     assertEquals("144", result.getT1().get(0).getId());
     assertEquals("96", result.getT1().get(1).getId());
     assertEquals("121", result.getT1().get(2).getId());
@@ -101,4 +112,79 @@ public class PoiServiceTest {
       System.out.println("FoodEstablishment: " + foodEstablishment.getName());
     }
   }
+
+  @Test
+  public void getFoodEstablishmentOnRouteThrowsNoFoodEstablishmentsInRangeOfChargerException() {
+
+    FoodEstablishment outOfRangeFe1 =
+        TestDataFactory.createDefaultFoodEstablishment("1", "Food1", -1.490539557859501, 51.197202);
+
+    Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
+        .thenReturn(List.of(outOfRangeFe1));
+
+    Charger adjacentCharger = new Charger();
+    adjacentCharger.setLocation(
+        new GeometryFactory().createPoint(new Coordinate(-1.481754, 51.20814)));
+    adjacentCharger.setId(1L);
+
+    Tuple2<List<FoodEstablishment>, Charger> result = null;
+
+    NoFoodEstablishmentsInRangeOfChargerException thrown =
+        assertThrows(
+            NoFoodEstablishmentsInRangeOfChargerException.class,
+            () -> poiService.getFoodEstablishmentOnRoute(route),
+            "Expected findSuitableChargers to throw, it didn't");
+  }
+
+  @Test
+  public void getFoodEstablishmentOnRouteTriggersSuccessfulFallback() {
+
+    FoodEstablishment outOfRangeFe1 =
+        TestDataFactory.createDefaultFoodEstablishment("1", "Food1", -1.488499, 51.114205);
+
+    Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
+        .thenReturn(List.of(outOfRangeFe1));
+
+    Tuple2<List<FoodEstablishment>, Charger> result = null;
+
+    NoFoodEstablishmentsInRangeOfChargerException thrown =
+        assertThrows(
+            NoFoodEstablishmentsInRangeOfChargerException.class,
+            () -> poiService.getFoodEstablishmentOnRoute(route),
+            "Expected findSuitableChargers to throw, it didn't");
+  }
+
+  @Test
+  public void getFoodEstablishmentOnRouteThrowsNoFoodEstablishmentsFoundException() {
+
+    Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
+        .thenReturn(Collections.emptyList());
+
+    Tuple2<List<FoodEstablishment>, Charger> result = null;
+
+    NoFoodEstablishmentsFoundException thrown =
+        assertThrows(
+            NoFoodEstablishmentsFoundException.class,
+            () -> poiService.getFoodEstablishmentOnRoute(route),
+            "Expected findSuitableChargers to throw, it didn't");
+  }
+
+  @Test
+  public void getFoodEstablishmentOnRouteThrowsPoiServiceException() {
+
+    Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
+            .thenThrow(new ServiceUnavailableException("Service Unavailable"));
+
+    Tuple2<List<FoodEstablishment>, Charger> result = null;
+
+    PoiServiceException thrown =
+            assertThrows(
+                    PoiServiceException.class,
+                    () -> poiService.getFoodEstablishmentOnRoute(route),
+                    "Expected findSuitableChargers to throw, it didn't");
+  }
+
+
+
+
 }
