@@ -1,12 +1,11 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.Integration.DirectionsClient;
+import com.icl.fmfmc_backend.integration.DirectionsClient;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsRequest;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
 import com.icl.fmfmc_backend.exception.BadRequestException;
 import com.icl.fmfmc_backend.exception.DirectionsClientException;
 import com.icl.fmfmc_backend.exception.ServiceUnavailableException;
-import com.icl.fmfmc_backend.exception.JourneyNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +13,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 @Service
 @Slf4j

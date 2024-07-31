@@ -1,11 +1,10 @@
-package com.icl.fmfmc_backend.Integration;
+package com.icl.fmfmc_backend.integration;
 
 import com.icl.fmfmc_backend.config.MapboxProperties;
 import com.icl.fmfmc_backend.dto.Api.MapboxRequest;
 import com.icl.fmfmc_backend.dto.Api.MapboxResponse;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsRequest;
 import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
-import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.exception.CommonResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.util.retry.Retry;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,11 +28,6 @@ public class MapboxDirectionsClient implements DirectionsClient {
   private final MapboxProperties mapboxProperties;
 
   private final WebClient.Builder webClientBuilder = WebClient.builder();
-
-  //  @Override
-  //  public DirectionsResponse getDirections(DirectionsRequest request) {
-  //    return null;
-  //  }
 
   @Override
   public DirectionsResponse getDirections(DirectionsRequest directionsRequest) {
