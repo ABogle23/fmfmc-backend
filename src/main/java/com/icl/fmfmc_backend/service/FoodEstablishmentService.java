@@ -58,20 +58,6 @@ public class FoodEstablishmentService {
     foodEstablishmentRepo.deleteById(id);
   }
 
-  public void deleteAllFoodEstablishemts() {
-    foodEstablishmentRepo.deleteAll();
-  }
-
-  //    public List<FoodEstablishment> getFoodEstablishmentsFromFoursquare(MultiValueMap<String,
-  // String> parameters) {
-  //        FoursquareResponseDTO response =
-  // foursquareClient.getFoodEstablishmentFromFoursquarePlacesApi(parameters);
-  //        if (response != null && response.getResults() != null) {
-  //            response.getResults().forEach(this::saveFoodEstablishmentFromDTO);
-  //        }
-  //        return foodEstablishmentRepo.findAll();
-  //    }
-
   public List<FoodEstablishment> getFoodEstablishmentsByParam(FoodEstablishmentRequest request) {
     List<FoodEstablishment> establishments =
         foodEstablishmentClient.getFoodEstablishmentsByParam(request);
