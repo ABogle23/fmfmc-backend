@@ -50,7 +50,7 @@ public class PoiService {
   private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
   private final ChargerService chargerService;
   private final FoodEstablishmentService foodEstablishmentService;
-  private final GeometryService geometryService;
+//  private final GeometryService geometryService;
   private final FoodEstablishmentBuilder requestBuilder = new FoursquareRequestBuilder();
 
   @Setter private ClusteringStrategy clusteringStrategy;
@@ -89,7 +89,7 @@ public class PoiService {
 
     List<Point> clusteredChargers = clusteringStrategy.clusterChargers(chargerLocations, 4);
 
-    clusteredChargers = clusteringStrategy.consolidateCloseCentroids(clusteredChargers, 0.01); // 1.km
+    clusteredChargers = clusteringStrategy.consolidateCloseCentroids(clusteredChargers, 0.02); // 2.km
 
     for (Point charger : clusteredChargers) {
       System.out.println(charger.getY() + "," + charger.getX() + ",yellow,circle");
