@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.Integration;
+package com.icl.fmfmc_backend.integration;
 
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishmentRequest;

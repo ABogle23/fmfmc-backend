@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.Integration;
+package com.icl.fmfmc_backend.integration;
 
 import com.icl.fmfmc_backend.config.FoursquareProperties;
 import com.icl.fmfmc_backend.dto.FoodEstablishment.FoursquareResponseDTO;
@@ -6,9 +6,7 @@ import com.icl.fmfmc_backend.entity.AddressInfo;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.Category;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishmentRequest;
-import com.icl.fmfmc_backend.entity.FoodEstablishment.FoursquareRequest;
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
-import com.icl.fmfmc_backend.exception.BadRequestException;
 import com.icl.fmfmc_backend.exception.CommonResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

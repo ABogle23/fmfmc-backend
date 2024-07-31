@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.Integration.OsrDirectionsClient;
+import com.icl.fmfmc_backend.integration.OsrDirectionsClient;
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.controller.JourneyController;
 import com.icl.fmfmc_backend.dto.Api.JourneyContext;

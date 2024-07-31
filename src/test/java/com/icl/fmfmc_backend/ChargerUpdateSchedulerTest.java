@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend;
 
-import com.icl.fmfmc_backend.Integration.OpenChargeMapClient;
+import com.icl.fmfmc_backend.integration.OpenChargeMapClient;
 import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.ChargerUpdateScheduler;
@@ -10,10 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.util.MultiValueMap;
-
-import javax.sql.DataSource;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

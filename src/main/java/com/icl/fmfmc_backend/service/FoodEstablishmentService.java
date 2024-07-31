@@ -1,7 +1,6 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.Integration.FoodEstablishmentClient;
-import com.icl.fmfmc_backend.dto.FoodEstablishment.FoursquareResponseDTO;
+import com.icl.fmfmc_backend.integration.FoodEstablishmentClient;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishmentRequest;
 import com.icl.fmfmc_backend.repository.FoodEstablishmentRepo;

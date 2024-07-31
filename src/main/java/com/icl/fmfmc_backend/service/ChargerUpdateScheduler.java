@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.Integration.OpenChargeMapClient;
+import com.icl.fmfmc_backend.integration.OpenChargeMapClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -11,7 +11,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service

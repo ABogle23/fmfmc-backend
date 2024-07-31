@@ -1,7 +1,7 @@
 package com.icl.fmfmc_backend.controller;
 
 
-import com.icl.fmfmc_backend.Integration.OpenChargeMapClient;
+import com.icl.fmfmc_backend.integration.OpenChargeMapClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
