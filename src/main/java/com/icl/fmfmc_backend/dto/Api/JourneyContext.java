@@ -22,4 +22,9 @@ public class JourneyContext {
         .map(FallbackStrategy::getDescription)
         .collect(Collectors.joining(", "));
   }
+
+  public Boolean hasFallbackStrategy(FallbackStrategy strategy) {
+    return fallbackStrategies.contains(strategy);
+  }
+
 }

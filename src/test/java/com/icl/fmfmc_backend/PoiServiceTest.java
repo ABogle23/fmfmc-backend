@@ -42,11 +42,9 @@ public class PoiServiceTest {
 
   @Mock private ChargerService chargerService;
 
-  @Mock
-  private FoodEstablishmentService foodEstablishmentService;
+  @Mock private FoodEstablishmentService foodEstablishmentService;
 
-  @InjectMocks
-  private PoiService poiService;
+  @InjectMocks private PoiService poiService;
 
   private final Route route =
       new Route(
@@ -56,7 +54,7 @@ public class PoiServiceTest {
   private final List<Point> chargersLocations = TestDataFactory.createPointsForChargersPoiTest();
 
   private final List<FoodEstablishment> foodEstablishmentLocations =
-          TestDataFactory.createFoodEstablishmentsForPoiTest();
+      TestDataFactory.createFoodEstablishmentsForPoiTest();
 
   @BeforeEach
   public void setRequestRelatedParams() {
@@ -71,15 +69,14 @@ public class PoiServiceTest {
     route.setIncludeAlternativeEatingOptions(true);
 
     Mockito.when(chargerService.getChargerLocationsByParams(any()))
-            .thenReturn(TestDataFactory.createPointsForChargersPoiTest());
+        .thenReturn(TestDataFactory.createPointsForChargersPoiTest());
     Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
-            .thenReturn(TestDataFactory.createFoodEstablishmentsForPoiTest());
+        .thenReturn(TestDataFactory.createFoodEstablishmentsForPoiTest());
     Charger adjacentCharger = new Charger();
     adjacentCharger.setLocation(
-            new GeometryFactory().createPoint(new Coordinate(-1.481754, 51.20814)));
+        new GeometryFactory().createPoint(new Coordinate(-1.481754, 51.20814)));
     adjacentCharger.setId(1L);
     Mockito.when(chargerService.getNearestChargerByParams(any())).thenReturn(adjacentCharger);
-
 
     Tuple2<List<FoodEstablishment>, Charger> result = null;
     try {
@@ -113,12 +110,6 @@ public class PoiServiceTest {
     }
   }
 
-
-
-
-
-
-
   @Test
   public void getFoodEstablishmentOnRouteThrowsNoFoodEstablishmentsInRangeOfChargerException() {
 
@@ -126,7 +117,7 @@ public class PoiServiceTest {
         TestDataFactory.createDefaultFoodEstablishment("1", "Food1", -1.490539557859501, 51.197202);
 
     Mockito.when(chargerService.getChargerLocationsByParams(any()))
-            .thenReturn(TestDataFactory.createPointsForChargersPoiTest());
+        .thenReturn(TestDataFactory.createPointsForChargersPoiTest());
     Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
         .thenReturn(List.of(outOfRangeFe1));
 
@@ -142,22 +133,21 @@ public class PoiServiceTest {
   @Test
   public void getFoodEstablishmentOnRouteTriggersSuccessfulFallback() {
     FoodEstablishment outOfRangeFe1 =
-            TestDataFactory.createDefaultFoodEstablishment("1", "Food1", -1.49053, 51.19722);
+        TestDataFactory.createDefaultFoodEstablishment("1", "Food1", -1.49053, 51.19722);
 
     Charger chargerInFallback = TestDataFactory.createDefaultCharger(1000L, 1, -1.49054, 51.19723);
     Charger chargerInFallback1 = TestDataFactory.createDefaultCharger(2000L, 1, -1.49100, 51.19600);
 
     List<Point> chargerServiceCallInFallback =
-            new ArrayList<>(TestDataFactory.createPointsForChargersPoiTest());
+        new ArrayList<>(TestDataFactory.createPointsForChargersPoiTest());
     chargerServiceCallInFallback.add(chargerInFallback.getLocation());
     chargerServiceCallInFallback.add(chargerInFallback1.getLocation());
 
     Mockito.when(chargerService.getChargerLocationsByParams(any()))
-            .thenReturn(TestDataFactory.createPointsForChargersPoiTest())
-            .thenReturn(chargerServiceCallInFallback);
+        .thenReturn(TestDataFactory.createPointsForChargersPoiTest())
+        .thenReturn(chargerServiceCallInFallback);
     Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
-            .thenReturn(List.of(outOfRangeFe1));
-
+        .thenReturn(List.of(outOfRangeFe1));
 
     Mockito.when(chargerService.getNearestChargerByParams(any())).thenReturn(chargerInFallback);
 
@@ -195,18 +185,14 @@ public class PoiServiceTest {
   public void getFoodEstablishmentOnRouteThrowsPoiServiceException() {
 
     Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
-            .thenThrow(new ServiceUnavailableException("Service Unavailable"));
+        .thenThrow(new ServiceUnavailableException("Service Unavailable"));
 
     Tuple2<List<FoodEstablishment>, Charger> result = null;
 
     PoiServiceException thrown =
-            assertThrows(
-                    PoiServiceException.class,
-                    () -> poiService.getFoodEstablishmentOnRoute(route),
-                    "Expected findSuitableChargers to throw, it didn't");
+        assertThrows(
+            PoiServiceException.class,
+            () -> poiService.getFoodEstablishmentOnRoute(route),
+            "Expected findSuitableChargers to throw, it didn't");
   }
-
-
-
-
 }
