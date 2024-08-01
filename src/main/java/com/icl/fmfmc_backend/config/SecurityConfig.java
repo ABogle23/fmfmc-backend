@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -15,12 +16,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.web.authentication.AuthenticationFilter;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
-//@Profile("!test")
+// @Profile("!test")
 public class SecurityConfig {
 
   private final FmfmcApiKeyProperties fmfmcApiKeyProperties;
@@ -32,15 +34,15 @@ public class SecurityConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             auth -> auth.requestMatchers("/api/**").authenticated().anyRequest().permitAll())
+        .exceptionHandling(
+            e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
         .httpBasic(httpBasic -> httpBasic.disable())
         .formLogin(form -> form.disable())
         .requiresChannel(channel -> channel.requestMatchers("/api/**").requiresSecure())
         .headers(
             headers ->
                 headers.httpStrictTransportSecurity(
-                    hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000))) // Enable HSTS
-
-        //                .addFilterBefore(apiKeyFilter(), BasicAuthenticationFilter.class);
+                    hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000))) // enable hsts
         .addFilterBefore(apiKeyFilter(), BasicAuthenticationFilter.class);
 
     return http.build();
