@@ -8,7 +8,7 @@ import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("!test")
+//@Profile("!test")
 public class FilterConfig {
 
     @Bean

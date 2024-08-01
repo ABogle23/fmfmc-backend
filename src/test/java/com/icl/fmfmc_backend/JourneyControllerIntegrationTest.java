@@ -45,9 +45,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 // @WebMvcTest(controllers = JourneyController.class)
 @SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@Import(JourneyControllerIntegrationTest.MockSecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
+//@ActiveProfiles("test")
+//@Import(JourneyControllerIntegrationTest.MockSecurityConfig.class)
 public class JourneyControllerIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
@@ -60,15 +60,15 @@ public class JourneyControllerIntegrationTest {
 
   @Autowired private ObjectMapper objectMapper;
 
-  @TestConfiguration
-  static class MockSecurityConfig {
-    @Bean
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-      http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
-          .csrf(csrf -> csrf.disable());
-      return http.build();
-    }
-  }
+//  @TestConfiguration
+//  static class MockSecurityConfig {
+//    @Bean
+//    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+//      http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+//          .csrf(csrf -> csrf.disable());
+//      return http.build();
+//    }
+//  }
 
   @Test
   public void minValidRequestParamsReturnsSuccess() throws Exception {

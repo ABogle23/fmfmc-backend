@@ -20,7 +20,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
-@Profile("!test")
+//@Profile("!test")
 public class SecurityConfig {
 
   private final FmfmcApiKeyProperties fmfmcApiKeyProperties;
