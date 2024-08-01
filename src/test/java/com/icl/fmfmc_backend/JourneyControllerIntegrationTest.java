@@ -183,6 +183,33 @@ public class JourneyControllerIntegrationTest {
             jsonPath("$.message").value("Please check your input parameters and try again."));
   }
 
+  @Test
+  public void validationFailureReturnsBadRequestAndReason() throws Exception {
+    String jsonPayload =
+        """
+            {
+              "start_lat": 34.0522,
+              "start_long": -118.2437,
+              "end_lat": 34.0522,
+              "end_long": -118.2437,
+              "eating_option_search_deviation": "INVALID"
+            }
+            """;
+
+    RouteResult expectedRouteResult = new RouteResult();
+    when(journeyService.getJourney(any(RouteRequest.class), any(JourneyContext.class)))
+        .thenReturn(expectedRouteResult);
+
+    mockMvc
+        .perform(
+            post("/api/find-route").contentType(MediaType.APPLICATION_JSON).content(jsonPayload))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.details[0]")
+                .value("eating_option_search_deviation" + ": Invalid input provided."))
+        .andDo(print());
+  }
+
   /*************************
    *  Parameterized Tests  *
    *************************/
