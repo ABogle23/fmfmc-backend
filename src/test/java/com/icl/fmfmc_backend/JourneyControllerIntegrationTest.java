@@ -144,11 +144,13 @@ public class JourneyControllerIntegrationTest {
         .andDo(print());
   }
 
-  @Test
-  public void testGetJourneyValidationFailure() throws Exception {
-    RouteRequest invalidRequest = new RouteRequest();
+  /*************************
+   *  Exception Tests  *
+   *************************/
 
-    //        System.out.println("Api Key" + fmfmcApiKeyProperties.getApiKey());
+  @Test
+  public void validationFailureReturnsBadRequest() throws Exception {
+    RouteRequest invalidRequest = new RouteRequest();
 
     mockMvc
         .perform(
@@ -161,7 +163,7 @@ public class JourneyControllerIntegrationTest {
   }
 
   @Test
-  public void testGetJourneyNotFound() throws Exception {
+  public void journeyNotFoundExceptionReturnsNotFound() throws Exception {
     RouteRequest validRequest = new RouteRequest();
     validRequest.setStartLat(34.0522);
     validRequest.setStartLong(-118.2437);
@@ -170,10 +172,6 @@ public class JourneyControllerIntegrationTest {
 
     when(journeyService.getJourney(any(RouteRequest.class), any(JourneyContext.class)))
         .thenThrow(new JourneyNotFoundException("No valid journey found."));
-
-    System.out.println("object mapper");
-    System.out.println(objectMapper.writeValueAsString(validRequest));
-    System.out.println(validRequest.getEatingOptions().get(0).getApiName());
 
     mockMvc
         .perform(
@@ -185,7 +183,12 @@ public class JourneyControllerIntegrationTest {
             jsonPath("$.message").value("Please check your input parameters and try again."));
   }
 
+  /*************************
+   *  Parameterized Tests  *
+   *************************/
+
   public static final Double DEFAULT_START_LAT = 34.0522;
+
   public static final Double DEFAULT_START_LONG = -118.2437;
   public static final Double DEFAULT_END_LAT = 34.0522;
   public static final Double DEFAULT_END_LONG = -118.2437;

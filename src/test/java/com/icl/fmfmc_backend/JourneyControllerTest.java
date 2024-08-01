@@ -30,7 +30,7 @@ public class JourneyControllerTest {
   }
 
   @Test
-  public void testGetJourneyReturnsSuccess() throws JourneyNotFoundException {
+  public void getJourneyReturnsSuccess() throws JourneyNotFoundException {
     RouteRequest routeRequest = new RouteRequest();
     RouteResult expectedRouteResult = new RouteResult();
     when(journeyService.getJourney(any(RouteRequest.class), any(JourneyContext.class)))
@@ -41,7 +41,7 @@ public class JourneyControllerTest {
   }
 
   @Test
-  public void testGetJourneyThrowsJourneyNotFoundException() throws JourneyNotFoundException {
+  public void getJourneyThrowsJourneyNotFoundException() throws JourneyNotFoundException {
     RouteRequest routeRequest = new RouteRequest(); // setup
     when(journeyService.getJourney(any(RouteRequest.class), any(JourneyContext.class)))
         .thenThrow(new JourneyNotFoundException("Not found"));
