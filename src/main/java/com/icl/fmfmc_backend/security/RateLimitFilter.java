@@ -17,6 +17,14 @@ public class RateLimitFilter implements Filter, jakarta.servlet.Filter {
 
     private Bucket bucket;
 
+    public RateLimitFilter() {
+        // Configure the rate limit
+        Bandwidth limit = Bandwidth.classic(20, Refill.greedy(20, Duration.ofMinutes(1)));
+        this.bucket = Bucket4j.builder()
+                .addLimit(limit)
+                .build();
+    }
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         Bandwidth limit = Bandwidth.classic(1, Refill.greedy(1, Duration.ofMinutes(1)));
@@ -63,5 +71,9 @@ public class RateLimitFilter implements Filter, jakarta.servlet.Filter {
 
     @Override
     public void destroy() {
+    }
+
+    public Bucket getBucket() {
+        return bucket;
     }
 }
