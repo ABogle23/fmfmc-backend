@@ -53,22 +53,23 @@ public class GlobalExceptionHandler {
   }
 
   private String inferFieldFromException(HttpMessageNotReadableException ex) {
-    if (ex.getCause().getMessage().contains("eatingOptions")) {
-      return "eatingOptions";
-    } else if (ex.getCause().getMessage().contains("connectorType")) {
-      return "connectorType";
-    } else if (ex.getCause().getMessage().contains("stoppingRange")) {
-      return "stoppingRange";
-    } else if (ex.getCause().getMessage().contains("chargerSearchDeviation")) {
-      return "chargerSearchDeviation";
-    } else if (ex.getCause().getMessage().contains("eatingOptionSearchDeviation")) {
-      return "eatingOptionSearchDeviation";
-    } else if (ex.getCause().getMessage().contains("electricVehicleId")) {
-      return "electricVehicleId";
-    } else if (ex.getCause().getMessage().contains("stopForEating")) {
-      return "stopForEating";
+    if (ex.getCause().getMessage().contains("eating_options")) {
+      return "eating_options";
+    } else if (ex.getCause().getMessage().contains("connector_type")) {
+      return "connector_type";
+    } else if (ex.getCause().getMessage().contains("stopping_range")) {
+      return "stopping_range";
+    } else if (ex.getCause().getMessage().contains("charger_search_deviation")) {
+      return "charger_search_deviation";
+    } else if (ex.getCause().getMessage().contains("eating_option_search_deviation")) {
+      return "eating_option_search_deviation";
+    } else if (ex.getCause().getMessage().contains("electric_vehicle_id")) {
+      return "electric_vehicle_id";
+    } else if (ex.getCause().getMessage().contains("stop_for_eating")) {
+      return "stop_for_eating";
+    } else if (ex.getCause().getMessage().contains("access_types")) {
+      return "access_types";
     }
-
     return "Unknown";
   }
 
