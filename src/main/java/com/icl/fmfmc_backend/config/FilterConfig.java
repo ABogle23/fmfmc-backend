@@ -3,10 +3,12 @@ package com.icl.fmfmc_backend.config;
 import com.icl.fmfmc_backend.security.RateLimitFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("!test")
 public class FilterConfig {
 
     @Bean
