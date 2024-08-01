@@ -24,42 +24,50 @@ public class RouteRequest {
 
   // location
 
+  @Min(value = -90, message = "Latitude must be greater than or equal to -90")
+  @Max(value = 90, message = "Latitude must be less than or equal to 90")
   @NotNull(message = "Start latitude is required")
-  @JsonProperty("startLat")
+  @JsonProperty("start_lat")
   private Double startLat;
 
+  @Min(value = -180, message = "Latitude must be greater than or equal to -180")
+  @Max(value = 180, message = "Longitude must be less than or equal to 180")
   @NotNull(message = "Start longitude is required")
-  @JsonProperty("startLong")
+  @JsonProperty("start_long")
   private Double startLong;
 
+  @Min(value = -90, message = "Latitude must be greater than or equal to -90")
+  @Max(value = 90, message = "Latitude must be less than or equal to 90")
   @NotNull(message = "End latitude is required")
-  @JsonProperty("endLat")
+  @JsonProperty("end_lat")
   private Double endLat;
 
+  @Min(value = -180, message = "Latitude must be greater than or equal to -180")
+  @Max(value = 180, message = "Longitude must be less than or equal to 180")
   @NotNull(message = "End longitude is required")
-  @JsonProperty("endLong")
+  @JsonProperty("end_long")
   private Double endLong;
 
   // vehicle info
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @JsonProperty("electricVehicleId")
+  @JsonProperty("electric_vehicle_id")
   private Long electricVehicleId = null;
 
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Starting battery must be greater than 0")
   @Max(value = 1, message = "Starting battery must be less than or equal to 1")
-  @JsonProperty("startingBattery")
+  @JsonProperty("starting_battery")
   private Double startingBattery = 1.0;
 
   @JsonSetter(nulls = Nulls.SKIP)
   @NotNull(message = "EV range is required")
   @Min(value = 1, message = "EV range must be greater than 0")
-  @JsonProperty("evRange") // metres
+  @JsonProperty("ev_range") // metres
   private Double evRange = 300000.0;
 
   @Min(value = 1, message = "Battery capacity must be greater than 0")
-  @JsonProperty("batteryCapacity") // kWh
+  @JsonProperty("battery_capacity") // kWh
   private Double batteryCapacity;
 
   // charging preferences
@@ -68,13 +76,13 @@ public class RouteRequest {
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Minimum charge level must be non-negative")
   @Max(value = 1, message = "Minimum charge level must be less than or equal to 1")
-  @JsonProperty("minChargeLevel")
+  @JsonProperty("min_charge_level")
   private Double minChargeLevel = 0.2;
 
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 0, message = "Charge level after each stop must be non-negative")
   @Max(value = 1, message = "Charge level after each stop must be less than or equal to 1")
-  @JsonProperty("chargeLevelAfterEachStop")
+  @JsonProperty("charge_level_after_each_stop")
   private Double chargeLevelAfterEachStop = 0.8;
 
   @JsonSetter(nulls = Nulls.SKIP)
@@ -84,7 +92,7 @@ public class RouteRequest {
   @DecimalMax(
       value = "0.9",
       message = "Final destination charge level after each stop must be less or equal to 0.9")
-  @JsonProperty("finalDestinationChargeLevel")
+  @JsonProperty("final_destination_charge_level")
   private Double finalDestinationChargeLevel = 0.2;
 
   @AssertTrue(
@@ -94,10 +102,10 @@ public class RouteRequest {
     return finalDestinationChargeLevel <= chargeLevelAfterEachStop;
   }
 
-  @JsonProperty("connectionTypes")
+  @JsonProperty("connection_types")
   private List<ConnectionType> connectionTypes;
 
-  @JsonSetter("connectionTypes")
+  @JsonSetter("connection_types")
   public void setConnectionTypes(List<String> options) {
     if (options != null && !options.isEmpty()) {
       this.connectionTypes =
@@ -107,10 +115,10 @@ public class RouteRequest {
     }
   }
 
-  @JsonProperty("accessTypes")
+  @JsonProperty("access_types")
   private List<AccessType> accessTypes;
 
-  @JsonSetter("accessTypes")
+  @JsonSetter("access_types")
   public void setAccessTypes(List<String> options) {
     if (options != null && !options.isEmpty()) {
       this.accessTypes =
@@ -122,16 +130,16 @@ public class RouteRequest {
 
   @Min(value = 0, message = "Minimum charge speed must be non-negative")
   @Max(value = 350, message = "Minimum charge speed must be less than or equal to 350")
-  @JsonProperty("minKwChargeSpeed")
+  @JsonProperty("min_kw_charge_speed")
   private Integer minKwChargeSpeed;
 
   @Min(value = 1, message = "Maximum charge speed must be greater than 0")
   @Max(value = 350, message = "Maximum charge speed must be less than or equal to 350")
-  @JsonProperty("maxKwChargeSpeed")
+  @JsonProperty("max_kw_charge_speed")
   private Integer maxKwChargeSpeed;
 
   @Min(value = 1, message = "Minimum number of charging points must be greater than 0")
-  @JsonProperty("minNoChargePoints")
+  @JsonProperty("min_no_charge_points")
   private Integer minNoChargePoints;
 
   // Operator/Network
@@ -139,13 +147,13 @@ public class RouteRequest {
   // dining preferences
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @JsonProperty("stopForEating")
+  @JsonProperty("stop_for_eating")
   private Boolean stopForEating = true;
 
-  @JsonProperty("eatingOptions")
+  @JsonProperty("eating_options")
   private List<FoodCategory> eatingOptions = getDefaultEatingOptions();
 
-  @JsonSetter("eatingOptions")
+  @JsonSetter("eating_options")
   public void setEatingOptions(List<String> options) {
     if (options != null && !options.isEmpty()) {
       this.eatingOptions =
@@ -162,40 +170,40 @@ public class RouteRequest {
 
   @Min(value = 1, message = "Minimum Price range must be non-negative")
   @Max(value = 4, message = "Minimum Price range must be less than or equal to 4")
-  @JsonProperty("minPrice")
+  @JsonProperty("min_price")
   private Integer minPrice;
 
   @Min(value = 1, message = "Maximum Price range must be non-negative")
   @Max(value = 4, message = "Maximum Price range must be less than or equal to 4")
-  @JsonProperty("maxPrice")
+  @JsonProperty("max_price")
   private Integer maxPrice;
 
   @JsonSetter(nulls = Nulls.SKIP)
   @Min(value = 200, message = "Max walking distance must be equal or greater than 200")
   @Max(value = 5000, message = "Max walking distance must be less than or equal to 500")
-  @JsonProperty("maxWalkingDistance")
+  @JsonProperty("max_walking_distance")
   private Integer maxWalkingDistance = 500;
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @JsonProperty("includeAlternativeEatingOptions")
+  @JsonProperty("include_alternative_Eating_options")
   private Boolean includeAlternativeEatingOptions = false;
 
   // time constraints
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @JsonProperty("departTime")
+  @JsonProperty("depart_time")
   private LocalTime departTime = LocalTime.now();
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @JsonProperty("mealTime")
+  @JsonProperty("meal_time")
   private LocalTime mealTime = null;
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @JsonProperty("breakDuration")
+  @JsonProperty("break_duration")
   private LocalTime breakDuration = LocalTime.of(1, 0);
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @JsonProperty("stoppingRange")
+  @JsonProperty("stopping_range")
   private StoppingRange stoppingRange = StoppingRange.middle;
 
   public Double[] getStoppingRangeAsFraction() {
@@ -215,11 +223,11 @@ public class RouteRequest {
   // Route search preference
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @JsonProperty("chargerSearchDeviation")
+  @JsonProperty("charger_search_deviation")
   private DeviationScope chargerSearchDeviation = DeviationScope.moderate;
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @JsonProperty("eatingOptionSearchDeviation")
+  @JsonProperty("eating_option_search_deviation")
   private DeviationScope eatingOptionSearchDeviation = DeviationScope.moderate;
 
   // mot implemented due to potential routing service algo issues

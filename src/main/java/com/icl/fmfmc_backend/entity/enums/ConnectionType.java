@@ -5,7 +5,7 @@ public enum ConnectionType implements FmfmcEnum {
   CHADEMO("CHAdeMO", "chademo"),
   CCS("CCS", "ccs"),
   TESLA("Tesla", "tesla"),
-  DOMESTIC_3_PIN("Domestic 3-pin", "domestic3Pin"),
+  DOMESTIC_3_PIN("Domestic 3-pin", "domestic_3_pin"),
   TYPE1("Type 1", "type1");
 
   private final String displayName;
