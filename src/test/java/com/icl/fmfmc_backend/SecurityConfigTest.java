@@ -1,10 +1,12 @@
 package com.icl.fmfmc_backend;
 
+import com.icl.fmfmc_backend.config.FmfmcApiKeyProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,6 +26,8 @@ public class SecurityConfigTest {
   @Autowired private MockMvc mockMvc;
 
   @Autowired private WebApplicationContext context;
+
+  @Autowired private FmfmcApiKeyProperties fmfmcApiKeyProperties;
 
   @BeforeEach
   public void setup() {
@@ -51,6 +55,17 @@ public class SecurityConfigTest {
         .perform(post("/api/find-route").secure(true))
         .andDo(print())
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void shouldAllowAuthenticatedAccessForValidApiKey() throws Exception {
+    mockMvc
+            .perform(post("/api/find-route")
+                    .secure(true)
+                    .header("X-Api-Key", fmfmcApiKeyProperties.getApiKey())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
   }
 
   @Test
