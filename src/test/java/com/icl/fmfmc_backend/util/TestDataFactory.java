@@ -71,11 +71,47 @@ public class TestDataFactory {
     LineString linestring = GeometryUtil.createLineString(TestGeoConstants.ls1);
 
     directionsResponse.setLineString(linestring);
-    directionsResponse.setTotalDuration(1000.0);
-    directionsResponse.setTotalDistance(1000.0);
+    directionsResponse.setTotalDuration(TestGeoConstants.ls1TotalDuration);
+    directionsResponse.setTotalDistance(TestGeoConstants.ls1TotalDistance);
+    directionsResponse.setLegDurations(TestGeoConstants.ls1legDurations);
+    directionsResponse.setLegDistances(TestGeoConstants.ls1legDistances);
+
 
     return directionsResponse;
   }
+
+  public static DirectionsResponse createSnappedDirectionsResponse() {
+    DirectionsResponse directionsResponse = new DirectionsResponse();
+
+    LineString linestring = GeometryUtil.createLineString(TestGeoConstants.ls1Snapped);
+
+    directionsResponse.setLineString(linestring);
+    directionsResponse.setTotalDuration(TestGeoConstants.ls1SnappedTotalDuration);
+    directionsResponse.setTotalDistance(TestGeoConstants.ls1SnappedTotalDistance);
+    directionsResponse.setLegDurations(TestGeoConstants.ls1SnappedLegDurations);
+    directionsResponse.setLegDistances(TestGeoConstants.ls1SnappedLegDistances);
+
+
+    return directionsResponse;
+  }
+
+  public static DirectionsResponse createFinalDirectionsResponse() {
+    DirectionsResponse directionsResponse = new DirectionsResponse();
+
+    LineString linestring = GeometryUtil.createLineString(TestGeoConstants.ls1Final);
+
+    directionsResponse.setLineString(linestring);
+    directionsResponse.setTotalDuration(TestGeoConstants.ls1FinalTotalDuration);
+    directionsResponse.setTotalDistance(TestGeoConstants.ls1FinalTotalDistance);
+    directionsResponse.setLegDurations(TestGeoConstants.ls1FinalLegDurations);
+    directionsResponse.setLegDistances(TestGeoConstants.ls1FinalLegDistances);
+
+
+    return directionsResponse;
+  }
+
+
+
 
   public static Route createDefaultRoute() {
     Route route = new Route(createDefaultDirectionsResponse(), createDefaultRouteRequest());
