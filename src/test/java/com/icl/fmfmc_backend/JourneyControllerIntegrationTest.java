@@ -119,7 +119,7 @@ public class JourneyControllerIntegrationTest {
           "include_alternative_eating_options": false,
           "depart_time": "14:46:24.700000",
           "meal_time": "00:00:00.000000",
-          "break_duration": "00:00:00.000000",
+          "break_duration": "00:01:00.000000",
           "stopping_range": "middle",
           "charger_search_deviation": "moderate",
           "eating_option_search_deviation": "moderate"
