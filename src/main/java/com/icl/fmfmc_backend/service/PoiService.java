@@ -156,7 +156,7 @@ public class PoiService {
     }
 
     System.out.println("Optimal Food Establishment: " + optimalFoodEstablishment);
-    System.out.println("Adjacent Charger: " + adjacentCharger);
+    System.out.println("Adjacent Charger: " + adjacentCharger.getId());
 
     // TODO: add null check for adjacent charger
     return Tuples.of(List.of(optimalFoodEstablishment), adjacentCharger);

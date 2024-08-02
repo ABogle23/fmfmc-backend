@@ -169,6 +169,9 @@ public class PoiServiceTest {
   @Test
   public void getFoodEstablishmentOnRouteThrowsNoFoodEstablishmentsFoundException() {
 
+    Mockito.when(chargerService.getChargerLocationsByParams(any()))
+            .thenReturn(TestDataFactory.createPointsForChargersPoiTest());
+
     Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
         .thenReturn(Collections.emptyList());
 
@@ -178,11 +181,14 @@ public class PoiServiceTest {
         assertThrows(
             NoFoodEstablishmentsFoundException.class,
             () -> poiService.getFoodEstablishmentOnRoute(route),
-            "Expected findSuitableChargers to throw, it didn't");
+            "Expected NoFoodEstablishmentsFoundException to throw, it didn't");
   }
 
   @Test
   public void getFoodEstablishmentOnRouteThrowsPoiServiceException() {
+
+    Mockito.when(chargerService.getChargerLocationsByParams(any()))
+            .thenReturn(TestDataFactory.createPointsForChargersPoiTest());
 
     Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
         .thenThrow(new ServiceUnavailableException("Service Unavailable"));
