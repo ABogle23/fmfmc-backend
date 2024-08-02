@@ -132,6 +132,9 @@ public class JourneyPlanningIntegrationTest {
     RouteRequest validRouteRequest = objectMapper.readValue(jsonPayload, RouteRequest.class);
     System.out.println("Json Payload:\n" + jsonPayload);
 
+    Integer expChargersCount = 0;
+    Integer expSegmentCount = 1;
+
     mockMvc
         .perform(
             post("/api/find-route")
@@ -139,9 +142,17 @@ public class JourneyPlanningIntegrationTest {
                 .content(objectMapper.writeValueAsString(validRouteRequest)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
-        .andExpect(jsonPath("$.data.chargers.length()").value(0))
-        //        .andExpect(jsonPath("$.data.chargers[0].id").value(41030))
-        .andDo(print());
+        .andExpect(jsonPath("$.data.chargers.length()").value(expChargersCount))
+            .andExpect(jsonPath("$.data.segment_details.stop_durations.length()").value(expChargersCount))
+            .andExpect(jsonPath("$.data.segment_details.charge_speeds_kw.length()").value(expChargersCount))
+            .andExpect(jsonPath("$.data.segment_details.arrival_charges.length()").value(expSegmentCount))
+            .andExpect(jsonPath("$.data.segment_details.departing_charges.length()").value(expSegmentCount))
+            .andExpect(jsonPath("$.data.segment_details.arrival_times.length()").value(expSegmentCount))
+            .andExpect(jsonPath("$.data.segment_details.depart_times.length()").value(expSegmentCount))
+            .andExpect(jsonPath("$.data.segment_details.segment_distances.length()").value(expSegmentCount))
+            .andExpect(jsonPath("$.data.segment_details.segment_durations.length()").value(expSegmentCount))
+
+            .andDo(print());
   }
 
   @Test
