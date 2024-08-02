@@ -155,6 +155,7 @@ public class JourneyService {
 
     // set time schedule in segments object
     route.setTimes();
+    route.setStartAndEndBatteryLevels();
 
     /* -----Build Result----- */
 
@@ -168,6 +169,7 @@ public class JourneyService {
   private static void resetRouteSearch(Route route) {
     route.resetBatteryLevel();
     route.clearChargersOnRoute();
+    route.resetSegmentDetails();
   }
 
   private void skipEatingOptionService(Route route, JourneyContext context) {

@@ -78,6 +78,29 @@ public class Route {
     public void addArrivalTime(LocalTime arrivalTime) {
       arrivalTimes.add(arrivalTime);
     }
+
+    public void clearTimes() {
+      departTimes.clear();
+      arrivalTimes.clear();
+    }
+
+    public void clearChargeSpeeds() {
+      chargeSpeedsKw.clear();
+    }
+
+    public void clearStopDurations() {
+      stopDurations.clear();
+    }
+
+    public void clearArrivalAndDepartureCharges() {
+      arrivalCharges.clear();
+      departingCharges.clear();
+    }
+
+    public void setStartAndEndBatteryLevel(Double startBatteryPct, Double endBatteryPct) {
+      departingCharges.add(0, startBatteryPct);
+      arrivalCharges.add(endBatteryPct);
+    }
   }
 
   private List<Charger> chargersOnRoute = new ArrayList<>();
@@ -453,5 +476,17 @@ public class Route {
 
   public void resetBatteryLevel() {
     currentBattery = StartBattery * evRange;
+  }
+
+  public void resetSegmentDetails() {
+    segmentDetails.clearArrivalAndDepartureCharges();
+    segmentDetails.clearChargeSpeeds();
+    segmentDetails.clearStopDurations();
+    segmentDetails.clearTimes();
+  }
+
+  public void setStartAndEndBatteryLevels() {
+    Double finalChargeLevel = this.currentBattery / evRange;
+    segmentDetails.setStartAndEndBatteryLevel(StartBattery, finalChargeLevel);
   }
 }
