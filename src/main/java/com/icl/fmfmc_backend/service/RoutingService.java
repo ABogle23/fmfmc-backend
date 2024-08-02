@@ -143,7 +143,9 @@ public class RoutingService {
           directionsResponse = directionsClient.getDirections(directionsRequest);
       } catch (DirectionsClientException e) { throw new JourneyNotFoundException("No valid journey could be found."); }
 
-      return directionsResponse;
+    System.out.println(directionsResponse);
+
+    return directionsResponse;
   }
 
   // ROUTING RELATED FUNCTIONS
