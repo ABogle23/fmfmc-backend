@@ -31,12 +31,9 @@ public class SecurityConfigTest {
 
   @BeforeEach
   public void setup() {
-    // Setup MockMvc to include security settings using the application context
     this.mockMvc =
         MockMvcBuilders.webAppContextSetup(context)
-            .apply(
-                SecurityMockMvcConfigurers
-                    .springSecurity()) // Correct method to apply security configuration
+            .apply(SecurityMockMvcConfigurers.springSecurity())
             .build();
   }
 
@@ -60,23 +57,25 @@ public class SecurityConfigTest {
   @Test
   public void shouldAllowAuthenticatedAccessForValidApiKey() throws Exception {
     mockMvc
-            .perform(post("/api/find-route")
-                    .secure(true)
-                    .header("X-Api-Key", fmfmcApiKeyProperties.getApiKey())
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isBadRequest());
+        .perform(
+            post("/api/find-route")
+                .secure(true)
+                .header("X-Api-Key", fmfmcApiKeyProperties.getApiKey())
+                .contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
   }
 
   @Test
   public void shouldDisallowAuthenticatedAccessForInvalidApiKey() throws Exception {
     mockMvc
-            .perform(post("/api/find-route")
-                    .secure(true)
-                    .header("X-Api-Key", "123")
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isUnauthorized());
+        .perform(
+            post("/api/find-route")
+                .secure(true)
+                .header("X-Api-Key", "123")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
