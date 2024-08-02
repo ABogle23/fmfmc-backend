@@ -24,7 +24,7 @@ public class ApiKeyAuthenticationProvider implements AuthenticationProvider {
       auth.setAuthenticated(true);
       return auth;
     }
-    throw new IllegalArgumentException("Authentication failed");
+    throw new AuthenticationException("Authentication failed") {};
   }
 
   @Override
