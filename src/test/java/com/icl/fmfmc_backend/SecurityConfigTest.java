@@ -69,6 +69,17 @@ public class SecurityConfigTest {
   }
 
   @Test
+  public void shouldDisallowAuthenticatedAccessForInvalidApiKey() throws Exception {
+    mockMvc
+            .perform(post("/api/find-route")
+                    .secure(true)
+                    .header("X-Api-Key", "123")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
+  }
+
+  @Test
   @WithMockUser()
   public void shouldEnforceHttps() throws Exception {
     mockMvc.perform(post("/api/find-route")).andDo(print()).andExpect(status().is3xxRedirection());
