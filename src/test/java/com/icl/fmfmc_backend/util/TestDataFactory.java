@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
+import org.springframework.security.core.parameters.P;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -401,8 +402,7 @@ public class TestDataFactory {
   // 90986.9922907895
 
   public static List<Point> createPointsForFoodEstablishments() {
-
-    List<Point> foodEstablishmentPoints =
+      List<Point> points =
         List.of(
             geometryFactory.createPoint(new Coordinate(-1.781991, 51.172076)),
             geometryFactory.createPoint(new Coordinate(-1.638145, 51.238996)),
@@ -551,7 +551,7 @@ public class TestDataFactory {
             geometryFactory.createPoint(new Coordinate(-1.481379, 51.207228)),
             geometryFactory.createPoint(new Coordinate(-1.397654, 51.25069)));
 
-    return foodEstablishmentPoints;
+      return new ArrayList<>(points);
   }
 
   public static List<Point> createPointsForChargersPoiTest() {

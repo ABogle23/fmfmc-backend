@@ -17,10 +17,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -112,6 +114,35 @@ public class RouteServiceTest {
     Double expectedFinalBattery = 90000.0 - (route.getRouteLength() - 55586.0);
     TestHelperFunctions.assertEqualsWithTolerance(
         expectedFinalBattery, route.getCurrentBattery(), 100);
+  }
+
+  @Test
+  @DisplayName("Should select higher power charger if multiple chargers are very close")
+  public void shouldFindHighestPowerKwChargerOnRouteSuccessfully() {
+
+    List<Charger> chargersWithHigherKwAtSameDist = new ArrayList<>(TestDataFactory.createChargersForBatteryTest());
+    Charger highPowerKwCharger = TestDataFactory.createDefaultCharger(9999L, 1, 0.0, 0.0);
+    highPowerKwCharger.getConnections().get(0).setPowerKW(350L);
+    // prior to setting the powerKw, the charger with id 41030L has the highest powerKw.
+    Point expectedChargerLocation = TestHelperFunctions.findChargerById(chargersWithHigherKwAtSameDist, 41030L).getLocation();
+    highPowerKwCharger.setLocation(expectedChargerLocation);
+    chargersWithHigherKwAtSameDist.add(highPowerKwCharger);
+
+    List<Charger> suitableChargers = null;
+
+    try {
+      suitableChargers = routingService.findSuitableChargers(route, chargersWithHigherKwAtSameDist);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
+    } catch (NoChargerWithinRangeException e) {
+      fail("NoChargerWithinRangeException should not have been thrown");
+    }
+
+    TestHelperFunctions.assertSuitableChargers(suitableChargers, 1, 9999L);
+    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
+    assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
+    Double expectedFinalBattery = 90000.0 - (route.getRouteLength() - 55586.0);
+    TestHelperFunctions.assertEqualsWithTolerance(
+            expectedFinalBattery, route.getCurrentBattery(), 100);
   }
 
   @Test

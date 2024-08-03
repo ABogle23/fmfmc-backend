@@ -13,6 +13,7 @@ import com.icl.fmfmc_backend.util.TestHelperFunctions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Point;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -318,4 +319,35 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
     assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
     TestHelperFunctions.assertEqualsWithTolerance(83396, route.getCurrentBattery(), 100);
   }
+
+  @Test
+  @DisplayName(
+          "Only food adjacent charger should be added despite it being very close to charger with higher powerKw")
+  public void onlyFoodAdjacentChargerIsAddedDespiteBeingHigherPowerKwChargerNearby() {
+
+    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.2);
+
+    List<Charger> chargersWithHigherKwAtSameDist = new ArrayList<>(TestDataFactory.createChargersForBatteryTest());
+    Charger highPowerKwCharger = TestDataFactory.createDefaultCharger(9999L, 1, 0.0, 0.0);
+    highPowerKwCharger.getConnections().get(0).setPowerKW(350L);
+    Point foodAdjacentChargerLocation = TestHelperFunctions.findChargerById(chargers, 117934L).getLocation();
+    highPowerKwCharger.setLocation(foodAdjacentChargerLocation);
+    chargersWithHigherKwAtSameDist.add(highPowerKwCharger);
+    TestHelperFunctions.setFoodAdjacentCharger(chargersWithHigherKwAtSameDist, route, 117934L);
+
+
+    List<Charger> suitableChargers = null;
+    try {
+      suitableChargers = routingService.findSuitableChargers(route, chargersWithHigherKwAtSameDist);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
+    } catch (NoChargerWithinRangeException e) {
+      fail("NoChargerWithinRangeException should not have been thrown");
+    }
+
+    TestHelperFunctions.assertSuitableChargers(suitableChargers, 1, 117934L);
+    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
+    assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
+    TestHelperFunctions.assertEqualsWithTolerance(43094, route.getCurrentBattery(), 100);
+  }
+
 }

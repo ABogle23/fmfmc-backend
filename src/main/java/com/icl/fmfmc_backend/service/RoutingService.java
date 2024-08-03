@@ -188,27 +188,46 @@ public class RoutingService {
   private LinkedHashMap<Charger, Double> filterMatchingDistanceChargersByPower(LinkedHashMap<Charger, Double> chargerDistanceMap, Route route) {
     Map<Double, Charger> bestChargerAtEachDistance = new LinkedHashMap<>();
 
-    // determine best charger at each dist
     chargerDistanceMap.forEach((charger, distance) -> {
       // check if charger is foodAdjacentCharger
       Boolean isFoodAdjacentCharger = route.getFoodAdjacentCharger() != null && charger.equals(route.getFoodAdjacentCharger());
 
-      // check if there is already a charger for this dist or if charger is foodAdjacentCharger
       if (!bestChargerAtEachDistance.containsKey(distance) || isFoodAdjacentCharger) {
         bestChargerAtEachDistance.put(distance, charger);
       } else {
         Charger bestCharger = bestChargerAtEachDistance.get(distance);
-        if (getMaxPowerKW(charger) > getMaxPowerKW(bestCharger)) {
+        // Ensure food adjacent charger is not replaced by a higher power charger unless it's also food adjacent
+        if (!isFoodAdjacentCharger && getMaxPowerKW(charger) > getMaxPowerKW(bestCharger)) {
           System.out.println("Charger ID: " + charger.getId() + " has higher power " + getMaxPowerKW(charger) + " than Charger ID: " + bestCharger.getId() + " power: " + getMaxPowerKW(bestCharger) + " at distance: " + distance + "m");
-
           bestChargerAtEachDistance.put(distance, charger);
         }
       }
     });
 
+    // add foodAdjacentCharger to bestChargerAtEachDistance, prevents it being overridden by higher powerKw
+    if (route.getFoodAdjacentCharger() !=null) {
+//      Charger charger = route.getFoodAdjacentCharger();
+      Double distance = null;
+      for (Map.Entry<Charger, Double> entry : chargerDistanceMap.entrySet()) {
+        if (entry.getKey().getId().equals(route.getFoodAdjacentCharger().getId())) {
+          distance = entry.getValue();
+//          charger = entry.getKey();
+          break;
+        }
+      }
+      bestChargerAtEachDistance.put(distance, route.getFoodAdjacentCharger());
+//      System.out.println("food adjacent charger: " + charger);
+//      System.out.println("food adjacent charger: " + route.getFoodAdjacentCharger());
+    }
+
     // convert best chargers back to hashmap by dist
     LinkedHashMap<Charger, Double> filteredMap = new LinkedHashMap<>();
     bestChargerAtEachDistance.forEach((distance, charger) -> filteredMap.put(charger, distance));
+
+    for (Map.Entry<Charger, Double> entry : filteredMap.entrySet()) {
+      System.out.println("Charger ID: " + entry.getKey().getId() + " at distance: " + entry.getValue() + "m");
+    }
+
     return filteredMap;
   }
 
