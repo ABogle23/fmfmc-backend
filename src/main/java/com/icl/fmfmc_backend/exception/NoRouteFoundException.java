@@ -1,5 +1,6 @@
 package com.icl.fmfmc_backend.exception;
 
+@Deprecated
 public class NoRouteFoundException extends Throwable {
   public NoRouteFoundException(String string) {
     super(string);

@@ -97,6 +97,8 @@ public class OutlierAdjustedKMeansClusteringService extends AbstractClusteringSe
     return points.get(medianIndex);
   }
 
+
+  @Deprecated
   private static List<Point> filterOutliersByZScore(List<Point> points) {
 
     System.out.println("Filtering outliers by Z-Score: " + points);
