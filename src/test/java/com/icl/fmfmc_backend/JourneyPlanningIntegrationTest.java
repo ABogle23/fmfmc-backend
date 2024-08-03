@@ -13,6 +13,9 @@ import com.icl.fmfmc_backend.integration.FoodEstablishmentClient;
 import com.icl.fmfmc_backend.service.JourneyService;
 import com.icl.fmfmc_backend.util.JsonPayloadBuilder;
 import com.icl.fmfmc_backend.util.TestDataFactory;
+import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,9 +29,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+
+import javax.sql.DataSource;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,17 +53,46 @@ import java.util.stream.Stream;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-@ContextConfiguration(classes = {TestContainerConfig.class, TestDataLoaderConfig.class})
+//@ContextConfiguration(classes = {TestContainerConfig.class, TestDataLoaderConfig.class})
+@ContextConfiguration(classes = {TestContainerConfig.class})
 public class JourneyPlanningIntegrationTest {
 
+  String HEAVY_DATA = "build_Test_DB_Data.sql";
+  String LITE_DATA = "build_Test_DB_Data_lite.sql";
+
   @Autowired private MockMvc mockMvc;
+
   @Autowired private ObjectMapper objectMapper;
 
-  @Autowired private JourneyService journeyService;
+//  @Autowired private JourneyService journeyService;
 
   @MockBean private DirectionsClient directionsClient;
 
   @MockBean private FoodEstablishmentClient foodEstablishmentClient;
+
+  @Autowired private DataSource dataSource;
+
+  @Autowired TestContainerConfig testContainerConfig;
+
+  @Autowired private JdbcTemplate jdbcTemplate;
+
+  private void addTestData(String sqlFile) {
+    testContainerConfig.loadData(dataSource, sqlFile);
+  }
+  @BeforeEach
+  public void setUp() {
+    addTestData(HEAVY_DATA);
+  }
+
+  @AfterEach
+  public void tearDown() {
+    testContainerConfig.clearTables(jdbcTemplate);
+  }
+
+  @AfterEach
+    public void resetMocks() {
+        Mockito.reset(directionsClient, foodEstablishmentClient);
+    }
 
   @Test
   public void requestWithoutEatingOptionReturnsValidResult() throws Exception {
@@ -130,7 +166,10 @@ public class JourneyPlanningIntegrationTest {
         .thenReturn(foodEstablishments);
 
     RouteRequest validRouteRequest = objectMapper.readValue(jsonPayload, RouteRequest.class);
+    System.out.println("validRouteRequest:\n" + validRouteRequest);
     System.out.println("Json Payload:\n" + jsonPayload);
+    String converted = objectMapper.writeValueAsString(validRouteRequest);
+    System.out.println("Converted Back:\n" + converted);
 
     Integer expChargersCount = 0;
     Integer expSegmentCount = 1;
