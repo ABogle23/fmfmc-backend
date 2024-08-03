@@ -12,6 +12,7 @@ import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import com.icl.fmfmc_backend.service.PoiService;
 import com.icl.fmfmc_backend.util.TestDataFactory;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +23,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.util.function.Tuple2;
 
 import javax.sql.DataSource;
@@ -35,8 +38,12 @@ import static org.mockito.ArgumentMatchers.any;
 // @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-@ContextConfiguration(classes = {TestContainerConfig.class, TestDataLoaderConfig.class})
+// @ContextConfiguration(classes = {TestContainerConfig.class, TestDataLoaderConfig.class})
+@ContextConfiguration(classes = {TestContainerConfig.class})
 public class PoiServiceIntegrationTest {
+
+  String HEAVY_DATA = "build_Test_DB_Data.sql";
+  String LITE_DATA = "build_Test_DB_Data_lite.sql";
 
   //  @Mock private ChargerService chargerService;
 
@@ -50,6 +57,12 @@ public class PoiServiceIntegrationTest {
 
   @Autowired private PoiService poiService;
 
+  @Autowired private JdbcTemplate jdbcTemplate;
+
+  private void addTestData(String sqlFile) {
+    testContainerConfig.loadData(dataSource, sqlFile);
+  }
+
   private final Route route =
       new Route(
           TestDataFactory.createDefaultDirectionsResponse(),
@@ -62,6 +75,16 @@ public class PoiServiceIntegrationTest {
     route.setEatingOptionSearchDeviation(DeviationScope.moderate);
   }
 
+  @BeforeEach
+  public void setUp() {
+    addTestData(HEAVY_DATA);
+  }
+
+  @AfterEach
+  public void tearDown() {
+    testContainerConfig.clearTables(jdbcTemplate);
+  }
+
   @Test
   public void getFoodEstablishmentOnRouteReturnsFiveOptimalChoices() {
 
@@ -69,10 +92,10 @@ public class PoiServiceIntegrationTest {
 
     Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
         .thenReturn(TestDataFactory.createFoodEstablishmentsForPoiTest());
-//    Charger adjacentCharger = new Charger();
-//    adjacentCharger.setLocation(
-//        new GeometryFactory().createPoint(new Coordinate(-1.481754, 51.20814)));
-//    adjacentCharger.setId(1L);
+    //    Charger adjacentCharger = new Charger();
+    //    adjacentCharger.setLocation(
+    //        new GeometryFactory().createPoint(new Coordinate(-1.481754, 51.20814)));
+    //    adjacentCharger.setId(1L);
 
     Tuple2<List<FoodEstablishment>, Charger> result = null;
     try {
@@ -152,7 +175,6 @@ public class PoiServiceIntegrationTest {
     assertEquals(1, result.getT1().size());
     assertEquals("1", result.getT1().get(0).getId());
     assertNotNull(result.getT2().getId());
-
   }
 
   @Test
@@ -174,18 +196,14 @@ public class PoiServiceIntegrationTest {
   public void getFoodEstablishmentOnRouteThrowsPoiServiceException() {
 
     Mockito.when(foodEstablishmentService.getFoodEstablishmentsByParam(any()))
-            .thenThrow(new ServiceUnavailableException("Service Unavailable"));
+        .thenThrow(new ServiceUnavailableException("Service Unavailable"));
 
     Tuple2<List<FoodEstablishment>, Charger> result = null;
 
     PoiServiceException thrown =
-            assertThrows(
-                    PoiServiceException.class,
-                    () -> poiService.getFoodEstablishmentOnRoute(route),
-                    "Expected findSuitableChargers to throw, it didn't");
+        assertThrows(
+            PoiServiceException.class,
+            () -> poiService.getFoodEstablishmentOnRoute(route),
+            "Expected findSuitableChargers to throw, it didn't");
   }
-
-
-
-
 }
