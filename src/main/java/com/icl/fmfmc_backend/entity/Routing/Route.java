@@ -54,8 +54,8 @@ public class Route {
     }
 
     private void clearSegmentDurationAndDistance() {
-      segmentDurations.clear();
-      segmentDistances.clear();
+      segmentDurations  = new ArrayList<>();
+      segmentDistances = new ArrayList<>();
     }
 
     public void addStopDuration(Double duration) {
@@ -285,7 +285,9 @@ public class Route {
 
     LocalTime workingTime = departTime;
 
+    System.out.println("Working time: " + workingTime);
     for (int i = 0; i < segmentDetails.segmentDurations.size(); i++) {
+      System.out.println("Working time: " + workingTime);
 
       workingTime = workingTime.plusSeconds(segmentDetails.segmentDurations.get(i).intValue());
       segmentDetails.addArrivalTime(workingTime);
