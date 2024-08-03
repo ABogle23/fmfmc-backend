@@ -79,11 +79,11 @@ public class TestContainerConfig {
             throw new IllegalStateException("Attempting to clear tables on a non-test database URL: " + url);
         }
 
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
-        jdbcTemplate.update("TRUNCATE TABLE chargers;");
-        jdbcTemplate.update("TRUNCATE TABLE charger_connections;");
-        jdbcTemplate.update("TRUNCATE TABLE address_info;");
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
+//        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
+        jdbcTemplate.update("DELETE FROM charger_connections;");
+        jdbcTemplate.update("DELETE FROM chargers;");
+        jdbcTemplate.update("DELETE FROM address_info;");
+//        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
 
     }
 
