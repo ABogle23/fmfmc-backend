@@ -272,6 +272,7 @@ public class ChargerService {
     chargerRepo.deleteById(id);
   }
 
+  @Deprecated
   public void deleteALLChargers() {
     chargerRepo.deleteAll();
   }

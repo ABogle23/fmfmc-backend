@@ -67,9 +67,30 @@ public class ElectricVehicleServiceTest {
   @Test
   @Transactional
   public void canFindAllVehiclesCompact() {
-
     addTestData(DATA);
     List<ElectricVehicleDto> evs = electricVehicleService.findAllVehiclesCompact();
     assertTrue(evs.size() > 200);
   }
+
+  @Test
+  @Transactional
+  public void canFindAllVehicles() {
+    addTestData(DATA);
+    List<ElectricVehicle> evs = electricVehicleService.findAllVehicles();
+    assertTrue(evs.size() > 200);
+  }
+
+  @Test
+  @Transactional
+  public void canFindVehicleById() {
+    addTestData(DATA);
+    ElectricVehicle existingEv = electricVehicleService.findElectricVehicleById(1L);
+    assertNotNull(existingEv);
+
+    ElectricVehicle nonExistentEv = electricVehicleService.findElectricVehicleById(10000L);
+    assertNull(nonExistentEv);
+  }
+
+
+
 }

@@ -28,7 +28,7 @@ public class ElectricVehicleService {
     return electricVehicleRepo.findAllVehiclesCompact();
   }
 
-  public ElectricVehicle getElectricVehicleById(Long id) {
+  public ElectricVehicle findElectricVehicleById(Long id) {
     Optional<ElectricVehicle> optionalElectricVehicle = electricVehicleRepo.findById(id);
     if (optionalElectricVehicle.isPresent()) {
       log.info("ElectricVehicle with id: {} found", id);

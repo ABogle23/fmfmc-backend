@@ -85,6 +85,16 @@ public class ChargerServiceTest {
 
   @Test
   @Transactional
+  public void getChargerByIdReturnsNullIfNotInDb() {
+
+    Charger charger1 = TestDataFactory.createDefaultCharger(1L, 3, 0.0, 0.0);
+
+    Charger notSavedCharger = chargerService.getChargerById(charger1.getId());
+    assertNull(notSavedCharger);
+  }
+
+  @Test
+  @Transactional
   public void canUpdateCharger() {
     Charger charger1 = TestDataFactory.createDefaultCharger(1L, 3, 0.0, 0.0);
     charger1.setNumberOfPoints(3L);
@@ -96,6 +106,27 @@ public class ChargerServiceTest {
     assertNotNull(updatedCharger);
     assertEquals(charger1.getId(), updatedCharger.getId());
     assertEquals(charger1.getNumberOfPoints(), updatedCharger.getNumberOfPoints());
+  }
+
+  @Test
+  @Transactional
+  public void cannotUpdateChargerNotInDb() {
+    Charger charger1 = TestDataFactory.createDefaultCharger(1L, 3, 0.0, 0.0);
+    charger1.setNumberOfPoints(6L);
+    Charger updatedCharger = chargerService.updateCharger(charger1);
+
+    assertNull(updatedCharger);
+  }
+
+  @Test
+  @Transactional
+  public void canDeleteCharger() {
+    Charger charger1 = TestDataFactory.createDefaultCharger(1L, 3, 0.0, 0.0);
+
+    chargerService.saveCharger(charger1);
+    chargerService.deleteChargerById(charger1.getId());
+    Charger deletedCharger = chargerService.getChargerById(charger1.getId());
+    assertNull(deletedCharger);
   }
 
   @Test
