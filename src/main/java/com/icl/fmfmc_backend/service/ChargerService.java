@@ -1,18 +1,14 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
-import com.icl.fmfmc_backend.entity.Charger.Charger;
-import com.icl.fmfmc_backend.entity.Charger.Connection;
-import com.icl.fmfmc_backend.entity.Routing.Route;
+import com.icl.fmfmc_backend.dto.charger.ChargerQuery;
+import com.icl.fmfmc_backend.entity.charger.Charger;
+import com.icl.fmfmc_backend.entity.routing.Route;
 import com.icl.fmfmc_backend.entity.enums.AccessTypeToOcmMapper;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import com.icl.fmfmc_backend.entity.enums.ConnectionTypeToOcmMapper;
 import com.icl.fmfmc_backend.repository.ChargerRepo;
 import com.icl.fmfmc_backend.util.LogExecutionTime;
 import com.icl.fmfmc_backend.util.LogMessages;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.*;
-import jakarta.persistence.EntityManager;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

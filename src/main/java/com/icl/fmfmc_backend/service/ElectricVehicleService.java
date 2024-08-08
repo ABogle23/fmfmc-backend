@@ -1,8 +1,7 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.dto.Api.ElectricVehicleDto;
+import com.icl.fmfmc_backend.dto.api.ElectricVehicleDto;
 import com.icl.fmfmc_backend.dto.ElectricVehicle;
-import com.icl.fmfmc_backend.entity.Charger.Charger;
 import com.icl.fmfmc_backend.repository.ElectricVehicleRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

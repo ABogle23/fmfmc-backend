@@ -1,7 +1,7 @@
 package com.icl.fmfmc_backend.util;
 
-import com.icl.fmfmc_backend.entity.Charger.Charger;
-import com.icl.fmfmc_backend.entity.Routing.Route;
+import com.icl.fmfmc_backend.entity.charger.Charger;
+import com.icl.fmfmc_backend.entity.routing.Route;
 
 import java.util.List;
 import java.util.Objects;

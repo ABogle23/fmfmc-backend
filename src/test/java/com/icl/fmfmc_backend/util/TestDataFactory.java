@@ -1,21 +1,18 @@
 package com.icl.fmfmc_backend.util;
 
-import com.icl.fmfmc_backend.dto.Api.RouteRequest;
-import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
-import com.icl.fmfmc_backend.entity.AddressInfo;
-import com.icl.fmfmc_backend.entity.Charger.Charger;
-import com.icl.fmfmc_backend.entity.Charger.Connection;
-import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
+import com.icl.fmfmc_backend.dto.api.RouteRequest;
+import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
+import com.icl.fmfmc_backend.entity.charger.Charger;
+import com.icl.fmfmc_backend.entity.charger.Connection;
+import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
-import com.icl.fmfmc_backend.entity.Routing.Route;
+import com.icl.fmfmc_backend.entity.routing.Route;
 import com.icl.fmfmc_backend.entity.enums.DeviationScope;
-import com.icl.fmfmc_backend.entity.enums.FoodCategory;
 import com.icl.fmfmc_backend.entity.enums.StoppingRange;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
-import org.springframework.security.core.parameters.P;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -1,17 +1,17 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.integration.OsrDirectionsClient;
+import com.icl.fmfmc_backend.exception.service.*;
+import com.icl.fmfmc_backend.integration.directions.OsrDirectionsClient;
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.controller.JourneyController;
-import com.icl.fmfmc_backend.dto.Api.JourneyContext;
-import com.icl.fmfmc_backend.dto.Api.RouteRequest;
-import com.icl.fmfmc_backend.dto.Api.RouteResult;
-import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
-import com.icl.fmfmc_backend.entity.Charger.Charger;
-import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
-import com.icl.fmfmc_backend.entity.Routing.Route;
+import com.icl.fmfmc_backend.dto.api.JourneyContext;
+import com.icl.fmfmc_backend.dto.api.RouteRequest;
+import com.icl.fmfmc_backend.dto.api.RouteResult;
+import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
+import com.icl.fmfmc_backend.entity.charger.Charger;
+import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
+import com.icl.fmfmc_backend.entity.routing.Route;
 import com.icl.fmfmc_backend.entity.enums.FallbackStrategy;
-import com.icl.fmfmc_backend.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.LineString;
@@ -80,6 +80,9 @@ public class JourneyService {
       if (poiServiceTestResults != null) {
         route.setFoodEstablishments(poiServiceTestResults.getT1());
         route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
+        for (FoodEstablishment fe : route.getFoodEstablishments()) {
+            fe.setAdjacentChargerId(route.getFoodAdjacentCharger().getId());
+        }
         LineString routeSnappedToFoodAdjacentCharger =
             routingService.snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
         route.setWorkingLineStringRoute(routeSnappedToFoodAdjacentCharger);

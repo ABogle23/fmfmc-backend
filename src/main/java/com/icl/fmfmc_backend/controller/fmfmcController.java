@@ -1,7 +1,7 @@
 package com.icl.fmfmc_backend.controller;
 
-import com.icl.fmfmc_backend.entity.Charger.Charger;
-import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
+import com.icl.fmfmc_backend.entity.charger.Charger;
+import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import lombok.RequiredArgsConstructor;

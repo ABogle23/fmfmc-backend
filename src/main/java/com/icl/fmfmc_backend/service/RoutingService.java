@@ -3,19 +3,19 @@ package com.icl.fmfmc_backend.service;
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.Routing.PolylineUtility;
 import com.icl.fmfmc_backend.controller.JourneyController;
-import com.icl.fmfmc_backend.dto.Charger.ChargerQuery;
-import com.icl.fmfmc_backend.dto.Routing.DirectionsRequest;
-import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
-import com.icl.fmfmc_backend.dto.Routing.OSRDirectionsServiceGeoJSONResponse;
+import com.icl.fmfmc_backend.dto.charger.ChargerQuery;
+import com.icl.fmfmc_backend.dto.directions.DirectionsRequest;
+import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
+import com.icl.fmfmc_backend.dto.directions.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.entity.*;
-import com.icl.fmfmc_backend.entity.Charger.Charger;
-import com.icl.fmfmc_backend.entity.Charger.Connection;
-import com.icl.fmfmc_backend.entity.Routing.Route;
+import com.icl.fmfmc_backend.entity.charger.Charger;
+import com.icl.fmfmc_backend.entity.charger.Connection;
+import com.icl.fmfmc_backend.entity.routing.Route;
 
-import com.icl.fmfmc_backend.exception.DirectionsClientException;
-import com.icl.fmfmc_backend.exception.JourneyNotFoundException;
-import com.icl.fmfmc_backend.exception.NoChargerWithinRangeException;
-import com.icl.fmfmc_backend.exception.NoChargersOnRouteFoundException;
+import com.icl.fmfmc_backend.exception.integration.DirectionsClientException;
+import com.icl.fmfmc_backend.exception.service.JourneyNotFoundException;
+import com.icl.fmfmc_backend.exception.service.NoChargerWithinRangeException;
+import com.icl.fmfmc_backend.exception.service.NoChargersOnRouteFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
@@ -374,7 +374,7 @@ public class RoutingService {
         }
       }
 
-      // TO BE DELETED
+      // TO BE DELETED for testing
       logger.info("2 Checking charger distance: " + chargerDistance + " m, Closest Charger: " + closestCharger); // REMOVE
       if (entry.getValue().equals(max(sortedChargers.values()))) {
         logger.info("End of sortedChargers loop");
@@ -402,7 +402,7 @@ public class RoutingService {
       logger.info("Next target distance: " + nextTargetDistance + " m");
     }
 
-    // add the last found closest charger if any and not already added
+    // CAN DELETE add the last found closest charger if any and not already added
     if (closestCharger != null && !chargersAtIntervals.contains(closestCharger)) {
       logger.info("Adding charger in outer loop");
       Double finalSegmentDistance = closestDistance - lastChargerDistance;

@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.security;
 
-import com.icl.fmfmc_backend.config.FmfmcApiKeyProperties;
+import com.icl.fmfmc_backend.config.integration.FmfmcApiKeyProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;

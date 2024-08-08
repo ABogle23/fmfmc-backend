@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Deprecated
 //@AllArgsConstructor
 public class Coordinates {
   private Double latitude;

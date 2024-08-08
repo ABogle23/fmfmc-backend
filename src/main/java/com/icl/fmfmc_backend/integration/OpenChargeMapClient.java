@@ -1,10 +1,10 @@
 package com.icl.fmfmc_backend.integration;
 
-import com.icl.fmfmc_backend.config.OpenChargeMapProperties;
-import com.icl.fmfmc_backend.dto.Charger.OpenChargeMapResponseDTO;
+import com.icl.fmfmc_backend.config.integration.OpenChargeMapProperties;
+import com.icl.fmfmc_backend.dto.charger.OpenChargeMapResponseDTO;
 import com.icl.fmfmc_backend.entity.AddressInfo;
-import com.icl.fmfmc_backend.entity.Charger.Charger;
-import com.icl.fmfmc_backend.entity.Charger.Connection;
+import com.icl.fmfmc_backend.entity.charger.Charger;
+import com.icl.fmfmc_backend.entity.charger.Connection;
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import com.icl.fmfmc_backend.service.ChargerService;
 import lombok.RequiredArgsConstructor;

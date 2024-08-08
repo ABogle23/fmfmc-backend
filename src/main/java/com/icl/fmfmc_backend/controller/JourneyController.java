@@ -1,12 +1,12 @@
 package com.icl.fmfmc_backend.controller;
 
-import com.icl.fmfmc_backend.dto.Api.ApiResponse;
-import com.icl.fmfmc_backend.dto.Api.JourneyContext;
-import com.icl.fmfmc_backend.exception.JourneyNotFoundException;
+import com.icl.fmfmc_backend.dto.api.ApiResponse;
+import com.icl.fmfmc_backend.dto.api.JourneyContext;
+import com.icl.fmfmc_backend.exception.service.JourneyNotFoundException;
 import com.icl.fmfmc_backend.service.JourneyService;
 
-import com.icl.fmfmc_backend.dto.Api.RouteRequest;
-import com.icl.fmfmc_backend.dto.Api.RouteResult;
+import com.icl.fmfmc_backend.dto.api.RouteRequest;
+import com.icl.fmfmc_backend.dto.api.RouteResult;
 import com.icl.fmfmc_backend.util.LogExecutionTime;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

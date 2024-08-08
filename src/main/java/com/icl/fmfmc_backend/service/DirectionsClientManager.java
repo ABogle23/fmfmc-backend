@@ -1,11 +1,11 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.integration.DirectionsClient;
-import com.icl.fmfmc_backend.dto.Routing.DirectionsRequest;
-import com.icl.fmfmc_backend.dto.Routing.DirectionsResponse;
-import com.icl.fmfmc_backend.exception.BadRequestException;
-import com.icl.fmfmc_backend.exception.DirectionsClientException;
-import com.icl.fmfmc_backend.exception.ServiceUnavailableException;
+import com.icl.fmfmc_backend.integration.directions.DirectionsClient;
+import com.icl.fmfmc_backend.dto.directions.DirectionsRequest;
+import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
+import com.icl.fmfmc_backend.exception.integration.BadRequestException;
+import com.icl.fmfmc_backend.exception.integration.DirectionsClientException;
+import com.icl.fmfmc_backend.exception.integration.ServiceUnavailableException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,8 +1,8 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.integration.FoodEstablishmentClient;
-import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishment;
-import com.icl.fmfmc_backend.entity.FoodEstablishment.FoodEstablishmentRequest;
+import com.icl.fmfmc_backend.integration.foodEstablishment.FoodEstablishmentClient;
+import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
+import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishmentRequest;
 import com.icl.fmfmc_backend.repository.FoodEstablishmentRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
