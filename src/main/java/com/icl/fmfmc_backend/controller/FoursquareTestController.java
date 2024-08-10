@@ -3,6 +3,7 @@ package com.icl.fmfmc_backend.controller;
 import com.icl.fmfmc_backend.entity.foodEstablishment.*;
 import com.icl.fmfmc_backend.entity.enums.FoodCategory;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/test")
+@Hidden
 public class FoursquareTestController {
 
   private final FoodEstablishmentBuilder requestBuilder = new FoursquareRequestBuilder();

@@ -2,6 +2,7 @@ package com.icl.fmfmc_backend.controller;
 
 
 import com.icl.fmfmc_backend.integration.OpenChargeMapClient;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +11,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 @RestController
 @RequestMapping("/test")
+@Hidden
 public class OCMTestController {
 
     private final OpenChargeMapClient openChargeMapClient;
