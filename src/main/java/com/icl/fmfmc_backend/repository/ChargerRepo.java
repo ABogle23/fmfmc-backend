@@ -57,6 +57,7 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
                JOIN {h-schema}charger_connections cc ON c.id = cc.charger_id
                WHERE
                (:polygon IS NULL OR ST_Within(c.location, :polygon) = TRUE)
+               AND ((:topLeftLatLng IS NULL OR :bottomRightLatLng IS NULL) OR ST_Within(c.location, ST_MakeEnvelope(:topLeftLatLng, :bottomRightLatLng)) = TRUE)
                AND (:point IS NULL OR :radius IS NULL OR ST_Distance_Sphere(c.location, :point) <= :radius)
                AND ((:connectionTypeIds IS NULL OR :connectionTypeIds = '' OR FIND_IN_SET(cc.connection_typeid, :connectionTypeIds) > 0)
                AND (COALESCE(:minKwChargeSpeed, 0) = 0 OR cc.powerkw >= :minKwChargeSpeed)
@@ -75,7 +76,9 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
       @Param("accessTypeIds") String accessTypeIds,
       @Param("minKwChargeSpeed") Integer minKwChargeSpeed,
       @Param("maxKwChargeSpeed") Integer maxKwChargeSpeed,
-      @Param("minNoChargePoints") Integer minNoChargePoints);
+      @Param("minNoChargePoints") Integer minNoChargePoints,
+      @Param("topLeftLatLng") Point topLeftLatLng,
+      @Param("bottomRightLatLng") Point bottomRightLatLng);
 
   @Query(
       value =
@@ -130,6 +133,32 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
       @Param("minKwChargeSpeed") Integer minKwChargeSpeed,
       @Param("maxKwChargeSpeed") Integer maxKwChargeSpeed,
       @Param("minNoChargePoints") Integer minNoChargePoints);
+
+
+  @Query(
+          value = """
+            SELECT DISTINCT c.* FROM {h-schema}chargers c
+            JOIN {h-schema}charger_connections cc ON c.id = cc.charger_id
+            WHERE
+            (ST_Within(c.location, ST_MakeEnvelope(:lon1, :lat1, :lon2, :lat2, 4326)) = TRUE)
+            AND ((:connectionTypeIds IS NULL OR :connectionTypeIds = '' OR FIND_IN_SET(cc.connection_typeid, :connectionTypeIds) > 0)
+            AND (COALESCE(:minKwChargeSpeed, 0) = 0 OR cc.powerkw >= :minKwChargeSpeed)
+            AND (cc.status_typeid NOT IN (30, 75, 100, 150, 200, 210))
+            AND (cc.status_typeid IS NOT NULL)
+            AND (:maxKwChargeSpeed IS NULL OR cc.powerkw <= :maxKwChargeSpeed))
+            AND c.number_of_points >= COALESCE(:minNoChargePoints, 1)
+            AND (:accessTypeIds IS NULL OR :accessTypeIds = '' OR FIND_IN_SET(c.usage_typeid, :accessTypeIds) > 0)
+            """,
+          nativeQuery = true)
+  List<Charger> findChargersInBoundingBox(
+          @Param("lat1") Double lat1, @Param("lon1") Double lon1,
+          @Param("lat2") Double lat2, @Param("lon2") Double lon2,
+          @Param("connectionTypeIds") String connectionTypeIds,
+          @Param("accessTypeIds") String accessTypeIds,
+          @Param("minKwChargeSpeed") Integer minKwChargeSpeed,
+          @Param("maxKwChargeSpeed") Integer maxKwChargeSpeed,
+          @Param("minNoChargePoints") Integer minNoChargePoints);
+
 
   @Query(
       value =

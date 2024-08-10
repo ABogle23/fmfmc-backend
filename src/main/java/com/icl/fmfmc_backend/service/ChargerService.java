@@ -85,7 +85,9 @@ public class ChargerService {
         accessTypeIds,
         query.getMinKwChargeSpeed(),
         query.getMaxKwChargeSpeed(),
-        query.getMinNoChargePoints());
+        query.getMinNoChargePoints(),
+        query.getTopLeftLatLng(),
+        query.getBottomRightLatLng());
   }
 
   private String getAccessTypeIdsAsString(ChargerQuery query) {
@@ -153,6 +155,8 @@ public class ChargerService {
 
     return nearestCharger;
   }
+
+
 
   //  private String getConnectionTypeIds(ChargerQuery query) {
   //    String connectionTypeIds = getConnectionTypeIdsAsString(query);
