@@ -201,15 +201,12 @@ public class ChargerServiceTest {
 
     chargerService.saveCharger(charger1);
 
-    Double highestPowerCompatibleKw = chargerService.getHighestPowerConnectionByTypeInCharger(charger1, route);
+    Double highestPowerCompatibleKw =
+        chargerService.getHighestPowerConnectionByTypeInCharger(charger1, route);
 
     assertNotNull(highestPowerCompatibleKw);
     assertEquals(200.0, highestPowerCompatibleKw, 0.001);
-
   }
-
-
-
 
   @Test
   @Transactional
@@ -329,12 +326,97 @@ public class ChargerServiceTest {
     assertEquals(2, chargersInPolygon.size());
   }
 
+  @Test
+  @Transactional
+  public void canGetAllChargersWithinBoundingBox() {
 
+    List<Charger> chargers = new ArrayList<>();
+    for (int i = 0; i < 5; i++) {
+      // all outside BB except first
+      chargers.add(TestDataFactory.createDefaultCharger((long) i, 2, 9.5 + i, 9.5 + i));
+    }
+    chargerService.saveChargersInBatch(chargers);
 
-/*************************************
-   TESTs for multiple param queries
-**************************************/
+    // Chargers inside the bounding box
+    Charger chargerInBoundingBox1 =
+        TestDataFactory.createDefaultCharger(5L, 2, 5.0, 5.0); // Within bounding box
+    Charger chargerInBoundingBox2 =
+        TestDataFactory.createDefaultCharger(6L, 2, 5.0, 5.0); // Within bounding box
+    chargerService.saveCharger(chargerInBoundingBox1);
+    chargerService.saveCharger(chargerInBoundingBox2);
 
+    // Create ChargerQuery using bounding box coordinates
+    ChargerQuery query =
+        ChargerQuery.builder().topLeftLatLng(0.0, 10.0).bottomRightLatLng(10.0, 0.0).build();
+
+    // Retrieve chargers within bounding box
+    List<Charger> chargersInBoundingBox = chargerService.getChargersByParams(query);
+
+    // Assert results
+    assertEquals(
+        3,
+        chargersInBoundingBox.size(),
+        "Expected 3 chargers to be retrieved from the bounding box");
+  }
+
+  /*************************************
+   * TESTs for multiple param queries
+   **************************************/
+
+  @Test
+  @Transactional
+  public void canGetAllChargersWithinBoundingBoxWithMultipleParams() {
+
+    List<Charger> chargers = new ArrayList<>();
+    for (int i = 0; i < 5; i++) {
+      // all outside BB
+      chargers.add(TestDataFactory.createDefaultCharger((long) i, 2, 20.0 + i, 20.0 + i));
+    }
+    chargerService.saveChargersInBatch(chargers);
+
+    // Chargers inside the bounding box
+    Charger chargerInQuery1 =
+        TestDataFactory.createDefaultCharger(5L, 2, 5.0, 5.0); // Within bounding box
+    chargerInQuery1.getConnections().get(0).setPowerKW(100L);
+    chargerInQuery1.setNumberOfPoints(5L);
+
+    Charger chargerInQuery2 =
+        TestDataFactory.createDefaultCharger(6L, 2, 5.0, 5.0); // Within bounding box
+    chargerInQuery2.getConnections().get(0).setPowerKW(100L);
+    chargerInQuery2.setNumberOfPoints(5L);
+
+    Charger chargerInBoundingBoxButNotQuery =
+        TestDataFactory.createDefaultCharger(7L, 2, 5.0, 5.0); // Within bounding box
+    chargerInBoundingBoxButNotQuery.getConnections().get(0).setPowerKW(5L);
+
+    Charger chargerInQueryButNotBoundingBox =
+        TestDataFactory.createDefaultCharger(8L, 2, 100.0, 100.0); // Within bounding box
+    chargerInQueryButNotBoundingBox.getConnections().get(0).setPowerKW(100L);
+    chargerInQueryButNotBoundingBox.setNumberOfPoints(5L);
+
+    chargerService.saveCharger(chargerInQuery1);
+    chargerService.saveCharger(chargerInQuery2);
+    chargerService.saveCharger(chargerInBoundingBoxButNotQuery);
+    chargerService.saveCharger(chargerInQueryButNotBoundingBox);
+
+    // Create ChargerQuery using bounding box coordinates
+    ChargerQuery query =
+        ChargerQuery.builder()
+            .topLeftLatLng(0.0, 10.0)
+            .bottomRightLatLng(10.0, 0.0)
+            .minKwChargeSpeed(75)
+            .minNoChargePoints(4)
+            .build();
+
+    // Retrieve chargers within bounding box
+    List<Charger> chargersInBoundingBox = chargerService.getChargersByParams(query);
+
+    // Assert results
+    assertEquals(
+        2,
+        chargersInBoundingBox.size(),
+        "Expected 2 chargers to be retrieved from the bounding box");
+  }
 
   @Test
   @Transactional
@@ -365,11 +447,14 @@ public class ChargerServiceTest {
   @Transactional
   public void canGetChargersByParamConnectionType() {
 
-    ChargerQuery query = ChargerQuery.builder().connectionTypeIds(List.of(ConnectionType.CCS, ConnectionType.TESLA)).build();
+    ChargerQuery query =
+        ChargerQuery.builder()
+            .connectionTypeIds(List.of(ConnectionType.CCS, ConnectionType.TESLA))
+            .build();
 
     List<Charger> chargers = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
-      chargers.add(TestDataFactory.createDefaultCharger((long) i, 2, 0.0+i, 0.0+i));
+      chargers.add(TestDataFactory.createDefaultCharger((long) i, 2, 0.0 + i, 0.0 + i));
     }
 
     chargers.get(3).getConnections().get(0).setConnectionTypeID(1036L); // not in query
@@ -378,8 +463,7 @@ public class ChargerServiceTest {
 
     chargerService.saveChargersInBatch(chargers);
 
-    List<Charger> chargersByParams =
-            chargerService.getChargersByParams(query);
+    List<Charger> chargersByParams = chargerService.getChargersByParams(query);
     assertEquals(2, chargersByParams.size());
 
     List<Point> chargerLocations = chargerService.getChargerLocationsByParams(query);
@@ -394,7 +478,7 @@ public class ChargerServiceTest {
 
     List<Charger> chargers = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
-      chargers.add(TestDataFactory.createDefaultCharger((long) i, 2, 0.0+i, 0.0+i));
+      chargers.add(TestDataFactory.createDefaultCharger((long) i, 2, 0.0 + i, 0.0 + i));
     }
 
     chargers.get(3).getConnections().get(0).setPowerKW(350L); // not in query
@@ -418,7 +502,7 @@ public class ChargerServiceTest {
 
     List<Charger> chargers = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
-      chargers.add(TestDataFactory.createDefaultCharger((long) i, 2, 0.0+i, 0.0+i));
+      chargers.add(TestDataFactory.createDefaultCharger((long) i, 2, 0.0 + i, 0.0 + i));
     }
 
     chargers.get(3).setNumberOfPoints(1L); // not in query
@@ -450,9 +534,9 @@ public class ChargerServiceTest {
     chargers.get(3).setLocation(geometryFactory.createPoint(new Coordinate(0.00005, 0.00005)));
     chargers.get(4).setLocation(geometryFactory.createPoint(new Coordinate(-0.00005, -0.00005)));
     chargers
-            .get(5)
-            .setLocation(
-                    geometryFactory.createPoint(new Coordinate(0.01, 0.01))); // approx 1.11km not in query
+        .get(5)
+        .setLocation(
+            geometryFactory.createPoint(new Coordinate(0.01, 0.01))); // approx 1.11km not in query
 
     chargerService.saveChargersInBatch(chargers);
 
@@ -462,7 +546,6 @@ public class ChargerServiceTest {
     List<Point> chargerLocations = chargerService.getChargerLocationsByParams(query);
     assertEquals(2, chargerLocations.size());
   }
-
 
   @Test
   @Transactional
@@ -475,7 +558,8 @@ public class ChargerServiceTest {
     Integer maxKwChargeSpeed = 200;
     Integer minNoChargePoints = 5;
 
-    ChargerQuery query = ChargerQuery.builder()
+    ChargerQuery query =
+        ChargerQuery.builder()
             .point(point)
             .radius(radius)
             .connectionTypeIds(connectionTypeIds)
@@ -501,9 +585,9 @@ public class ChargerServiceTest {
     chargers.get(4).getConnections().get(0).setConnectionTypeID(2L); // not in query
     chargers.get(4).setUsageTypeID(1L);
     chargers
-            .get(5)
-            .setLocation(
-                    geometryFactory.createPoint(new Coordinate(0.01, 0.01))); // approx 1.11km not in query
+        .get(5)
+        .setLocation(
+            geometryFactory.createPoint(new Coordinate(0.01, 0.01))); // approx 1.11km not in query
 
     chargerService.saveChargersInBatch(chargers);
 
@@ -525,7 +609,8 @@ public class ChargerServiceTest {
     Integer maxKwChargeSpeed = 200;
     Integer minNoChargePoints = 5;
 
-    ChargerQuery query = ChargerQuery.builder()
+    ChargerQuery query =
+        ChargerQuery.builder()
             .point(point)
             .radius(radius)
             .connectionTypeIds(connectionTypeIds)
@@ -545,15 +630,14 @@ public class ChargerServiceTest {
     chargers.get(3).getConnections().get(0).setPowerKW(100L);
     chargers.get(3).getConnections().get(0).setConnectionTypeID(33L);
     chargers.get(3).setUsageTypeID(1L);
-    chargers.get(4).setLocation(geometryFactory.createPoint(new Coordinate(-0.00001, -0.00001))); // closer
+    chargers
+        .get(4)
+        .setLocation(geometryFactory.createPoint(new Coordinate(-0.00001, -0.00001))); // closer
     chargers.get(4).setNumberOfPoints(7L);
     chargers.get(4).getConnections().get(0).setPowerKW(100L);
     chargers.get(4).getConnections().get(0).setConnectionTypeID(2L); // not in query
     chargers.get(4).setUsageTypeID(1L);
-    chargers
-            .get(5)
-            .setLocation(
-                    geometryFactory.createPoint(new Coordinate(0.01, 0.01)));
+    chargers.get(5).setLocation(geometryFactory.createPoint(new Coordinate(0.01, 0.01)));
 
     chargerService.saveChargersInBatch(chargers);
 
