@@ -2,6 +2,7 @@ package com.icl.fmfmc_backend.controller;
 
 import com.icl.fmfmc_backend.dto.api.ChargerRequest;
 import com.icl.fmfmc_backend.dto.api.RouteRequest;
+import com.icl.fmfmc_backend.dto.charger.ChargerCompactDTO;
 import com.icl.fmfmc_backend.dto.charger.ChargerQuery;
 import com.icl.fmfmc_backend.entity.charger.Charger;
 import com.icl.fmfmc_backend.service.ChargerService;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/charger")
@@ -74,7 +76,7 @@ public class ChargerController {
                       mediaType = "application/json",
                       schema = @Schema(implementation = ChargerRequest.class))))
   @PostMapping("/chargers")
-  public ResponseEntity<List<Charger>> getAllChargersWithinBoundingBox(
+  public ResponseEntity<List<?>> getAllChargersWithinBoundingBox(
       @Valid @RequestBody ChargerRequest chargerRequest) {
 
     ChargerQuery chargerQuery =
@@ -90,6 +92,14 @@ public class ChargerController {
             .build();
 
     List<Charger> result = chargerService.getChargersByParams(chargerQuery);
+
+    if (chargerRequest.getCompact()) {
+      List<ChargerCompactDTO> compactResult =
+          result.stream()
+              .map(charger -> new ChargerCompactDTO(charger.getId(), charger.getGeocodes()))
+              .collect(Collectors.toList());
+      return ResponseEntity.ok().body(compactResult);
+    }
 
     return ResponseEntity.ok().body(result);
   }

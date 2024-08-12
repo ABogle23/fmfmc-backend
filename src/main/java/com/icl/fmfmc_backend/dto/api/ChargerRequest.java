@@ -93,4 +93,8 @@ public class ChargerRequest {
   @JsonProperty("min_no_charge_points")
   private Integer minNoChargePoints;
 
+  @JsonSetter(nulls = Nulls.SKIP)
+  @JsonProperty("compact")
+  Boolean compact = false;
+
 }
