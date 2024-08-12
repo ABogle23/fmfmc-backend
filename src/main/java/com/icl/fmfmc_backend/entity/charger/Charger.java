@@ -23,6 +23,8 @@ public class Charger {
 
   private String uuid;
 
+  private String title;
+
   @JsonProperty("isRecentlyVerified")
   private boolean isRecentlyVerified;
   private LocalDateTime dateLastVerified;

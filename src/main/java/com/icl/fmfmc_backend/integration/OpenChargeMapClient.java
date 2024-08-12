@@ -102,6 +102,7 @@ public class OpenChargeMapClient {
     Charger charger = new Charger();
     charger.setId(dto.getId());
     charger.setUuid(dto.getUuid());
+    charger.setTitle(dto.getLocation().getTitle());
     charger.setRecentlyVerified(dto.isRecentlyVerified());
     charger.setDateLastVerified(dto.getDateLastVerified());
     charger.setDateLastStatusUpdate(dto.getDateLastStatusUpdate());
