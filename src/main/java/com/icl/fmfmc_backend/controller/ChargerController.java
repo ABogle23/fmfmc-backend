@@ -22,6 +22,9 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * REST controller for managing chargers.
+ */
 @RestController
 @RequestMapping("/api/charger")
 @RequiredArgsConstructor
@@ -31,7 +34,7 @@ public class ChargerController {
   private final FoodEstablishmentService foodEstablishmentService;
 
   /**
-   * This method is called when a GET request is made URL: localhost:8080/charger/v1/sayhello
+   * This method is called when a GET request is made to: /api/charger/sayhello
    * Purpose: Testing the API
    *
    * @return A String
@@ -43,8 +46,8 @@ public class ChargerController {
   }
 
   /**
-   * This method is called when a GET request is made URL: localhost:8080/charger/v1/ Purpose:
-   * Fetches all the chargers in the charger table
+   * This method is called when a GET request is made to: /api/charger/all
+   * Purpose: Fetches all the chargers in the charger table
    *
    * @return List of all Chargers in the charger table
    */
@@ -54,8 +57,8 @@ public class ChargerController {
   }
 
   /**
-   * This method is called when a GET request is made URL: localhost:8080/charger/v1/{id} Purpose:
-   * Fetches charger with the given id
+   * This method is called when a GET request is made to: /api/charger/{id}
+   * Purpose: Fetches charger with the given id
    *
    * @param id - charger id
    * @return Charger with the given id
@@ -65,6 +68,13 @@ public class ChargerController {
     return ResponseEntity.ok().body(chargerService.getChargerById(id));
   }
 
+  /**
+   * This method is called when a POST request is made to: /api/charger/chargers
+   * Purpose: Get chargers within a bounding box
+   *
+   * @param chargerRequest - Charger request object containing parameters
+   * @return List of chargers within the bounding box and additional parameters
+   */
   @Operation(
       summary = "Get chargers within a bounding box",
       description =

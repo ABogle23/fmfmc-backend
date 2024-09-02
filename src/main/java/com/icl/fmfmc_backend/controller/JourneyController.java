@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+/** REST controller for managing journeys. */
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -31,6 +32,14 @@ public class JourneyController {
 
   private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
 
+  /**
+   * Endpoint to get a journey complete with route, charging stations, and any suitable food
+   * establishments along the way.
+   *
+   * @param routeRequest the route request object containing journey parameters
+   * @return ResponseEntity containing the journey details
+   * @throws JourneyNotFoundException if the journey is not found
+   */
   @Operation(
       summary = "Get a Journey",
       description =

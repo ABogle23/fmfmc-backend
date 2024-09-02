@@ -12,18 +12,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/** REST controller for managing electric vehicles. */
 @RestController
 @RequestMapping("/api/vehicles")
 @CrossOrigin(origins = "http://localhost:63342")
 public class ElectricVehicleController {
-    @Autowired
-    private ElectricVehicleService vehicleService;
+  @Autowired private ElectricVehicleService vehicleService;
 
-    @LogExecutionTime(message = "Returning Vehicles in")
-    @GetMapping("/all")
-    public ResponseEntity<List<ElectricVehicleDto>> getAllVehicles() {
-        List<ElectricVehicleDto> vehicles = vehicleService.findAllVehiclesCompact();
-        return ResponseEntity.ok(vehicles);
-    }
-
+  /**
+   * Endpoint to get all electric vehicles.
+   *
+   * @return ResponseEntity containing a list of ElectricVehicleDto objects
+   */
+  @LogExecutionTime(message = "Returning Vehicles in")
+  @GetMapping("/all")
+  public ResponseEntity<List<ElectricVehicleDto>> getAllVehicles() {
+    List<ElectricVehicleDto> vehicles = vehicleService.findAllVehiclesCompact();
+    return ResponseEntity.ok(vehicles);
+  }
 }
