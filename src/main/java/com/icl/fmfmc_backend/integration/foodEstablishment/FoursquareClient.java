@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 // https://docs.foursquare.com/developer/reference/place-search
 
+/** Service class for interacting with the Foursquare Places API. */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -35,6 +36,13 @@ public class FoursquareClient implements FoodEstablishmentClient {
   private static final Logger logger = LoggerFactory.getLogger(FoursquareClient.class);
   private final FoursquareProperties foursquarePlacesProperties;
 
+  /**
+   * Retrieves a list of food establishments based on the provided request parameters.
+   *
+   * @param foodEstablishmentRequest the FoodEstablishmentRequest object containing the request
+   *     details
+   * @return a list of FoodEstablishment objects matching the request parameters
+   */
   @Override
   public List<FoodEstablishment> getFoodEstablishmentsByParam(
       FoodEstablishmentRequest foodEstablishmentRequest) {
@@ -98,10 +106,10 @@ public class FoursquareClient implements FoodEstablishmentClient {
   private FoodEstablishment convertToFoodEstablishment(
       FoursquareResponseDTO.FoursquarePlaceDTO dto) {
 
-//    Double rating = dto.getRating();
-//    if (dto.getRating() != null) {
-//      return null;
-//    }
+    //    Double rating = dto.getRating();
+    //    if (dto.getRating() != null) {
+    //      return null;
+    //    }
 
     Double rating = dto.getRating() != null ? (dto.getRating() / 10) : null;
 

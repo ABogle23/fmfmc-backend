@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** Service class for interacting with the Mapbox Directions API. */
 @RequiredArgsConstructor
 @Slf4j
 @Service
@@ -29,6 +30,12 @@ public class MapboxDirectionsClient implements DirectionsClient {
 
   private final WebClient.Builder webClientBuilder = WebClient.builder();
 
+  /**
+   * Retrieves directions from the Mapbox Directions API based on the provided request.
+   *
+   * @param directionsRequest the DirectionsRequest object containing the request details
+   * @return a DirectionsResponse object containing the directions
+   */
   @Override
   public DirectionsResponse getDirections(DirectionsRequest directionsRequest) {
     MapboxRequest requestDto = mapToMapBoxRequest(directionsRequest);
@@ -51,13 +58,14 @@ public class MapboxDirectionsClient implements DirectionsClient {
         .uri(fullUrl)
         .exchangeToMono(
             response -> CommonResponseHandler.handleResponse(response, MapboxResponse.class))
-//        .timeout(Duration.ofSeconds(timeoutSeconds))
-//        .retryWhen(Retry.fixedDelay(1, Duration.ofSeconds(5)))
+        //        .timeout(Duration.ofSeconds(timeoutSeconds))
+        //        .retryWhen(Retry.fixedDelay(1, Duration.ofSeconds(5)))
         .map(this::processDirectionsResponse)
         .doOnSuccess(resp -> logger.info("Successfully fetched and processed directions"))
         .doOnError(error -> logger.error("Error fetching directions: {}", error.getMessage()))
         .block();
   }
+
 
   private String buildUrl(String coordinatesString) {
     return UriComponentsBuilder.fromHttpUrl(mapboxProperties.getBaseUrl())

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** Service class for interacting with the OpenChargeMap API. */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -34,7 +35,11 @@ public class OpenChargeMapClient {
   private final ChargerService chargerService;
   private final int BATCH_SIZE = 100;
 
-  // TODO: clean up methods
+  /**
+   * Retrieves chargers from the OpenChargeMap API based on the provided parameters.
+   *
+   * @param parameters the query parameters for the API request
+   */
   public void getChargerFromOpenChargeMapApi(MultiValueMap<String, String> parameters) {
     int bufferSize = 64 * 1024 * 1024; // 64 MB
     int timeoutSeconds = 180;
@@ -68,10 +73,10 @@ public class OpenChargeMapClient {
                         .queryParam("distanceunit", openChargeMapProperties.getDistanceUnit())
                         .queryParam("verbose", false)
                         .queryParam("maxresults", 20000)
-                            .queryParams(parameters)
-//                        .queryParam("latitude", 51.471848)
-//                        .queryParam("longitude", -0.144701)
-//                        .queryParam("distance", 1)
+                        .queryParams(parameters)
+                        //                        .queryParam("latitude", 51.471848)
+                        //                        .queryParam("longitude", -0.144701)
+                        //                        .queryParam("distance", 1)
                         .build())
             .retrieve()
             .bodyToMono(new ParameterizedTypeReference<List<OpenChargeMapResponseDTO>>() {})

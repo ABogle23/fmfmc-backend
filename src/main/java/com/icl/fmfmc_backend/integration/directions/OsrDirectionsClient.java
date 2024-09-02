@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Service class for interacting with the OpenRouteService Directions API. */
 @RequiredArgsConstructor
 @Slf4j
 @Service
@@ -33,6 +34,12 @@ public class OsrDirectionsClient implements DirectionsClient {
 
   private final WebClient.Builder webClientBuilder = WebClient.builder();
 
+  /**
+   * Retrieves directions from the OpenRouteService Directions API based on the provided request.
+   *
+   * @param directionsRequest the DirectionsRequest object containing the request details
+   * @return a DirectionsResponse object containing the directions
+   */
   @Override
   public DirectionsResponse getDirections(DirectionsRequest directionsRequest) {
 
@@ -58,8 +65,8 @@ public class OsrDirectionsClient implements DirectionsClient {
             response ->
                 CommonResponseHandler.handleResponse(
                     response, OSRDirectionsServiceGeoJSONResponse.class))
-//        .timeout(Duration.ofSeconds(timeoutSeconds)) // Set the timeout
-//        .retryWhen(Retry.fixedDelay(1, Duration.ofSeconds(5))) // Set the retry policy
+        //        .timeout(Duration.ofSeconds(timeoutSeconds)) // Set the timeout
+        //        .retryWhen(Retry.fixedDelay(1, Duration.ofSeconds(5))) // Set the retry policy
         .map(this::processDirectionsResponse)
         .doOnSuccess(
             response -> {
