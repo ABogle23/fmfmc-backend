@@ -21,6 +21,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+/**
+ * Security configuration class for the application.
+ *
+ * <p>This class configures security settings such as CORS, CSRF, session management, and
+ * authentication mechanisms for the application.
+ */
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
@@ -29,26 +35,32 @@ public class SecurityConfig {
 
   private final FmfmcApiKeyProperties fmfmcApiKeyProperties;
 
-//  private final CorsConfigurationSource corsConfigurationSource;
+  //  private final CorsConfigurationSource corsConfigurationSource;
 
+  /**
+   * Configures the security filter chain.
+   *
+   * @param http the HttpSecurity object to configure
+   * @return the configured SecurityFilterChain
+   * @throws Exception if an error occurs during configuration
+   */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-//            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .cors(cors -> cors.configurationSource(request -> {
-              CorsConfiguration config = new CorsConfiguration();
-              config.setAllowedOrigins(Arrays.asList("http://localhost:63342"));
-              config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-              config.setAllowedHeaders(Arrays.asList("*"));
-              config.setAllowCredentials(true);
-              return config;
-            }))
-
-
-
-            .csrf(csrf -> csrf.disable())
-
-
+        //            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .cors(
+            cors ->
+                cors.configurationSource(
+                    request -> {
+                      CorsConfiguration config = new CorsConfiguration();
+                      config.setAllowedOrigins(Arrays.asList("http://localhost:63342"));
+                      config.setAllowedMethods(
+                          Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                      config.setAllowedHeaders(Arrays.asList("*"));
+                      config.setAllowCredentials(true);
+                      return config;
+                    }))
+        .csrf(csrf -> csrf.disable())
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
@@ -92,5 +104,4 @@ public class SecurityConfig {
     source.registerCorsConfiguration("/**", configuration);
     return source;
   }
-
 }
