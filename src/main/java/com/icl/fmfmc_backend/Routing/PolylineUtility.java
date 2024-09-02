@@ -14,13 +14,24 @@ public class PolylineUtility {
 
   private static final double PRECISION = 1E5;
 
+  /**
+   * Encodes a list of GeoCoordinates to a polyline string.
+   *
+   * @param geoCoordinatesList the list of GeoCoordinates to encode
+   * @return the encoded polyline string
+   */
   public static String encodeGeoCoordinatesToPolyline(List<GeoCoordinates> geoCoordinatesList) {
     List<List<Double>> coordinates = geoCoordinatesList.stream()
             .map(gc -> List.of(gc.getLongitude(), gc.getLatitude()))
             .collect(Collectors.toList());
     return encodePolyline(coordinates);
   }
-
+  /**
+   * Encodes a list of coordinates to a polyline string.
+   *
+   * @param coordinates the list of coordinates to encode
+   * @return the encoded polyline string
+   */
   public static String encodePolyline(List<List<Double>> coordinates) {
     StringBuilder encodedPath = new StringBuilder();
     int prevLat = 0, prevLng = 0;
@@ -42,19 +53,34 @@ public class PolylineUtility {
     return encodedPath.toString();
   }
 
-
+  /**
+   * Encodes a LineString to a polyline string.
+   *
+   * @param lineString the LineString to encode
+   * @return the encoded polyline string
+   */
   public static String encodeLineString(LineString lineString) {
     List<List<Double>> coordinates = Arrays.stream(lineString.getCoordinates())
             .map(coord -> List.of(coord.x, coord.y))
             .collect(Collectors.toList());
     return encodePolyline(coordinates);
   }
-
+  /**
+   * Encodes a Polygon to a polyline string.
+   *
+   * @param polygon the Polygon to encode
+   * @return the encoded polyline string
+   */
   public static String encodePolygon(Polygon polygon) {
     LineString exteriorRing = polygon.getExteriorRing();
     return encodeLineString(exteriorRing);
   }
-
+  /**
+   * Encodes an integer value to a polyline string.
+   *
+   * @param value the integer value to encode
+   * @return the encoded polyline string
+   */
   private static String encode(int value) {
     StringBuilder encoded = new StringBuilder();
     value = value < 0 ? ~(value << 1) : value << 1;
