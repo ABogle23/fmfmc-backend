@@ -38,6 +38,15 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
   //        chain.doFilter(request, response);
   //    }
 
+  /**
+   * Filters incoming requests and attempts to authenticate them using an API key.
+   *
+   * @param request the HttpServletRequest
+   * @param response the HttpServletResponse
+   * @param filterChain the FilterChain
+   * @throws ServletException if an error occurs during filtering
+   * @throws IOException if an I/O error occurs during filtering
+   */
   @Override
   protected void doFilterInternal(
       jakarta.servlet.http.HttpServletRequest request,

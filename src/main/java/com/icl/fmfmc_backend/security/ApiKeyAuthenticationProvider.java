@@ -13,6 +13,13 @@ public class ApiKeyAuthenticationProvider implements AuthenticationProvider {
 
   //    private final String VALID_API_KEY = fmfmcApiKeyProperties.getApiKey();
 
+  /**
+   * Authenticates the provided API key.
+   *
+   * @param authentication the authentication request object containing the API key
+   * @return a fully authenticated object including credentials
+   * @throws AuthenticationException if authentication fails
+   */
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
@@ -27,6 +34,12 @@ public class ApiKeyAuthenticationProvider implements AuthenticationProvider {
     throw new AuthenticationException("Authentication failed") {};
   }
 
+  /**
+   * Checks if this provider supports the given authentication type.
+   *
+   * @param authentication the authentication type
+   * @return true if the authentication type is supported, false otherwise
+   */
   @Override
   public boolean supports(Class<?> authentication) {
     return ApiKeyAuthenticationToken.class.isAssignableFrom(authentication);
