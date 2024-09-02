@@ -12,13 +12,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/** Repository interface for Charger entities. */
 @Repository
 public interface ChargerRepo extends JpaRepository<Charger, Long> {
+  /**
+   * Finds all chargers within a given polygon.
+   *
+   * @param polygon the polygon to search within
+   * @return a list of chargers within the polygon
+   */
   @Query(
       value = "SELECT * FROM {h-schema}chargers c WHERE ST_Within(c.location, :polygon) = true",
       nativeQuery = true)
   List<Charger> findAllWithinPolygon(@Param("polygon") Polygon polygon);
 
+  /**
+   * Finds chargers by connection type IDs.
+   *
+   * @param typeIds the list of connection type IDs
+   * @return a list of chargers with the specified connection type IDs
+   */
   @Query("SELECT c FROM Charger c JOIN c.connections cc WHERE cc.connectionTypeID IN :typeIds")
   //  @Query(
   //      value =
@@ -34,15 +47,35 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
   //    List<Charger> findByConnectionChargerSpeed(@Param("minKwChargeSpeed")Integer minKwSpeed,
   // @Param("maxKwChargeSpeed")Integer maxKwSpeed);
 
+  /**
+   * Finds chargers by connection charger speed.
+   *
+   * @param minKwSpeed the minimum kW charge speed
+   * @param maxKwSpeed the maximum kW charge speed
+   * @return a list of chargers with the specified charge speed range
+   */
   @Query(
       "SELECT c FROM Charger c JOIN c.connections cc WHERE cc.powerKW >= COALESCE(:minKwChargeSpeed, 0)"
           + " AND (:maxKwChargeSpeed IS NULL OR cc.powerKW <= :maxKwChargeSpeed)")
   List<Charger> findByConnectionChargerSpeed(
       @Param("minKwChargeSpeed") Integer minKwSpeed, @Param("maxKwChargeSpeed") Integer maxKwSpeed);
 
+  /**
+   * Finds chargers by minimum number of charge points.
+   *
+   * @param minNoChargePoints the minimum number of charge points
+   * @return a list of chargers with at least the specified number of charge points
+   */
   @Query("SELECT c FROM Charger c  WHERE c.numberOfPoints >= COALESCE(:minNoChargePoints, 1)")
   List<Charger> findByMinNoChargePoints(@Param("minNoChargePoints") Integer minNoChargePoints);
 
+  /**
+   * Finds chargers within a given radius from a point.
+   *
+   * @param point the center point
+   * @param radius the radius in meters
+   * @return a list of chargers within the specified radius
+   */
   @Query(
       value =
           "SELECT * FROM {h-schema}chargers c WHERE ST_Distance_Sphere(c.location, :point) <= :radius",
@@ -50,6 +83,21 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
   List<Charger> findChargersWithinRadius(
       @Param("point") Point point, @Param("radius") Double radius);
 
+  /**
+   * Finds chargers by various parameters.
+   *
+   * @param polygon the polygon to search within
+   * @param point the center point
+   * @param radius the radius in meters
+   * @param connectionTypeIds the connection type IDs
+   * @param accessTypeIds the access type IDs
+   * @param minKwChargeSpeed the minimum kW charge speed
+   * @param maxKwChargeSpeed the maximum kW charge speed
+   * @param minNoChargePoints the minimum number of charge points
+   * @param topLeftLatLng the top-left latitude and longitude
+   * @param bottomRightLatLng the bottom-right latitude and longitude
+   * @return a list of chargers matching the specified parameters
+   */
   @Query(
       value =
           """
@@ -80,6 +128,19 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
       @Param("topLeftLatLng") Point topLeftLatLng,
       @Param("bottomRightLatLng") Point bottomRightLatLng);
 
+  /**
+   * Finds charger locations by various parameters.
+   *
+   * @param polygon the polygon to search within
+   * @param point the center point
+   * @param radius the radius in meters
+   * @param connectionTypeIds the connection type IDs
+   * @param accessTypeIds the access type IDs
+   * @param minKwChargeSpeed the minimum kW charge speed
+   * @param maxKwChargeSpeed the maximum kW charge speed
+   * @param minNoChargePoints the minimum number of charge points
+   * @return a list of charger locations matching the specified parameters
+   */
   @Query(
       value =
           """
@@ -107,6 +168,18 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
       @Param("maxKwChargeSpeed") Integer maxKwChargeSpeed,
       @Param("minNoChargePoints") Integer minNoChargePoints);
 
+  /**
+   * Finds the nearest charger by various parameters.
+   *
+   * @param point the center point
+   * @param radius the radius in meters
+   * @param connectionTypeIds the connection type IDs
+   * @param accessTypeIds the access type IDs
+   * @param minKwChargeSpeed the minimum kW charge speed
+   * @param maxKwChargeSpeed the maximum kW charge speed
+   * @param minNoChargePoints the minimum number of charge points
+   * @return the nearest charger matching the specified parameters
+   */
   @Query(
       value =
           """
@@ -134,9 +207,23 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
       @Param("maxKwChargeSpeed") Integer maxKwChargeSpeed,
       @Param("minNoChargePoints") Integer minNoChargePoints);
 
-
+  /**
+   * Finds chargers within a bounding box.
+   *
+   * @param lat1 the latitude of the first corner of the bounding box
+   * @param lon1 the longitude of the first corner of the bounding box
+   * @param lat2 the latitude of the opposite corner of the bounding box
+   * @param lon2 the longitude of the opposite corner of the bounding box
+   * @param connectionTypeIds the connection type IDs
+   * @param accessTypeIds the access type IDs
+   * @param minKwChargeSpeed the minimum kW charge speed
+   * @param maxKwChargeSpeed the maximum kW charge speed
+   * @param minNoChargePoints the minimum number of charge points
+   * @return a list of chargers within the bounding box
+   */
   @Query(
-          value = """
+      value =
+          """
             SELECT DISTINCT c.* FROM {h-schema}chargers c
             JOIN {h-schema}charger_connections cc ON c.id = cc.charger_id
             WHERE
@@ -149,17 +236,25 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
             AND c.number_of_points >= COALESCE(:minNoChargePoints, 1)
             AND (:accessTypeIds IS NULL OR :accessTypeIds = '' OR FIND_IN_SET(c.usage_typeid, :accessTypeIds) > 0)
             """,
-          nativeQuery = true)
+      nativeQuery = true)
   List<Charger> findChargersInBoundingBox(
-          @Param("lat1") Double lat1, @Param("lon1") Double lon1,
-          @Param("lat2") Double lat2, @Param("lon2") Double lon2,
-          @Param("connectionTypeIds") String connectionTypeIds,
-          @Param("accessTypeIds") String accessTypeIds,
-          @Param("minKwChargeSpeed") Integer minKwChargeSpeed,
-          @Param("maxKwChargeSpeed") Integer maxKwChargeSpeed,
-          @Param("minNoChargePoints") Integer minNoChargePoints);
+      @Param("lat1") Double lat1,
+      @Param("lon1") Double lon1,
+      @Param("lat2") Double lat2,
+      @Param("lon2") Double lon2,
+      @Param("connectionTypeIds") String connectionTypeIds,
+      @Param("accessTypeIds") String accessTypeIds,
+      @Param("minKwChargeSpeed") Integer minKwChargeSpeed,
+      @Param("maxKwChargeSpeed") Integer maxKwChargeSpeed,
+      @Param("minNoChargePoints") Integer minNoChargePoints);
 
-
+  /**
+   * Finds the highest power connection by type in a charger.
+   *
+   * @param chargerId the ID of the charger
+   * @param connectionTypeIds the connection type IDs
+   * @return the highest power connection in kW
+   */
   @Query(
       value =
           """
@@ -175,6 +270,11 @@ public interface ChargerRepo extends JpaRepository<Charger, Long> {
   Double findHighestPowerConnectionByTypeInCharger(
       @Param("chargerId") Long chargerId, @Param("connectionTypeIds") String connectionTypeIds);
 
+  /**
+   * Updates the power kW of charger connections to 3 where it is null.
+   *
+   * @return the number of rows affected
+   */
   @Modifying
   @Transactional
   @Query(
