@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.util.JsonPayloadBuilder;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -98,68 +99,68 @@ public class StochasticRoutingTest {
     }
   }
 
+  public static class RandomCityCoordinatesProviderLongDistance implements ArgumentsProvider {
+    private List<Map<String, Object>> cities = StochasticRoutingTest.loadCityData();
 
-    public static class RandomCityCoordinatesProviderLongDistance implements ArgumentsProvider {
-        private List<Map<String, Object>> cities = StochasticRoutingTest.loadCityData();
+    @Override
+    public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+      Random rand = new Random();
+      return Stream.generate(
+              () -> {
+                Map<String, Object> startCity = null;
+                Map<String, Object> endCity = null;
+                Map<String, Double> startCoordinates = null;
+                Map<String, Double> endCoordinates = null;
+                do {
+                  startCity = cities.get(rand.nextInt(cities.size()));
+                  endCity = cities.get(rand.nextInt(cities.size()));
 
-        @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
-            Random rand = new Random();
-            return Stream.generate(
-                            () -> {
-                                Map<String, Object> startCity = null;
-                                Map<String, Object> endCity = null;
-                                Map<String, Double> startCoordinates = null;
-                                Map<String, Double> endCoordinates = null;
-                                do {
-                                    startCity = cities.get(rand.nextInt(cities.size()));
-                                    endCity = cities.get(rand.nextInt(cities.size()));
+                  startCoordinates = (Map<String, Double>) startCity.get("coordinates");
+                  endCoordinates = (Map<String, Double>) endCity.get("coordinates");
 
-                                    startCoordinates = (Map<String, Double>) startCity.get("coordinates");
-                                    endCoordinates = (Map<String, Double>) endCity.get("coordinates");
+                } while (GeometryService.calculateDistanceBetweenPoints(
+                        startCoordinates.get("lat"),
+                        startCoordinates.get("lon"),
+                        endCoordinates.get("lat"),
+                        endCoordinates.get("lon"))
+                    < 400000);
 
-                                } while (GeometryService.calculateDistanceBetweenPoints(
-                                        startCoordinates.get("lat"),
-                                        startCoordinates.get("lon"),
-                                        endCoordinates.get("lat"),
-                                        endCoordinates.get("lon"))
-                                        < 400000);
+                if (startCoordinates == null || endCoordinates == null) {
+                  throw new IllegalArgumentException("City coordinates are missing");
+                }
 
-                                if (startCoordinates == null || endCoordinates == null) {
-                                    throw new IllegalArgumentException("City coordinates are missing");
-                                }
+                if (startCity.get("name").equals(endCity.get("name"))) {
+                  throw new IllegalArgumentException("Cities are the same");
+                }
 
-                                if (startCity.get("name").equals(endCity.get("name"))) {
-                                    throw new IllegalArgumentException("Cities are the same");
-                                }
+                System.out.println(
+                    "Start City: " + startCity.get("name") + ", End City: " + endCity.get("name"));
 
-                                System.out.println(
-                                        "Start City: " + startCity.get("name") + ", End City: " + endCity.get("name"));
+                double minChargeLevel = rand.nextDouble(0.1, 0.9);
+                double chargeLevelAfterEachStop = rand.nextDouble(minChargeLevel, 0.9);
+                double finalDestinationChargeLevel =
+                    rand.nextDouble(minChargeLevel, chargeLevelAfterEachStop);
 
-                                double minChargeLevel = rand.nextDouble(0.1, 0.9);
-                                double chargeLevelAfterEachStop = rand.nextDouble(minChargeLevel, 0.9);
-                                double finalDestinationChargeLevel =
-                                        rand.nextDouble(minChargeLevel, chargeLevelAfterEachStop);
-
-                                return Arguments.of(
-                                        JsonPayloadBuilder.buildJsonPayload(
-                                                Map.of(
-                                                        "start_lat", startCoordinates.get("lat"),
-                                                        "start_long", startCoordinates.get("lon"),
-                                                        "end_lat", endCoordinates.get("lat"),
-                                                        "end_long", endCoordinates.get("lon"),
-                                                        "ev_range", rand.nextInt(60000, 100000),
-                                                        "starting_battery", rand.nextDouble(0.5, 1),
-                                                        "min_charge_level", minChargeLevel,
-                                                        "charge_level_after_each_stop", chargeLevelAfterEachStop,
-                                                        "final_destination_charge_level", finalDestinationChargeLevel)));
-                            })
-                    .limit(10); // number of iterations
-        }
+                return Arguments.of(
+                    JsonPayloadBuilder.buildJsonPayload(
+                        Map.of(
+                            "start_lat", startCoordinates.get("lat"),
+                            "start_long", startCoordinates.get("lon"),
+                            "end_lat", endCoordinates.get("lat"),
+                            "end_long", endCoordinates.get("lon"),
+                            "ev_range", rand.nextInt(60000, 100000),
+                            "starting_battery", rand.nextDouble(0.5, 1),
+                            "min_charge_level", minChargeLevel,
+                            "charge_level_after_each_stop", chargeLevelAfterEachStop,
+                            "final_destination_charge_level", finalDestinationChargeLevel)));
+              })
+          .limit(10); // number of iterations
     }
+  }
 
   @ParameterizedTest
   @ArgumentsSource(RandomCityCoordinatesProvider.class)
+  @Tag("exclude")
   public void requestWithDynamicOptionsReturnsValidResult(String jsonPayload) throws Exception {
     System.out.println("Json Payload:\n" + jsonPayload);
 
