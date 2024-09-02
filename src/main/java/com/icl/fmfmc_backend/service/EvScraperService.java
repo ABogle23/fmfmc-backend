@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.dto.ElectricVehicle;
+import com.icl.fmfmc_backend.entity.ElectricVehicle;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;

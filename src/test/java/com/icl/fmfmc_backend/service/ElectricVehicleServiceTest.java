@@ -2,7 +2,7 @@ package com.icl.fmfmc_backend.service;
 
 import com.icl.fmfmc_backend.config.TestContainerConfig;
 import com.icl.fmfmc_backend.dto.api.ElectricVehicleDto;
-import com.icl.fmfmc_backend.dto.ElectricVehicle;
+import com.icl.fmfmc_backend.entity.ElectricVehicle;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.entity.foodEstablishment;
+package com.icl.fmfmc_backend.dto.foodEstablishment;
 
 import com.icl.fmfmc_backend.entity.enums.FoodCategory;
 

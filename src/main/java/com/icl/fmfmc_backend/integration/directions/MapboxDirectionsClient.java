@@ -1,8 +1,8 @@
 package com.icl.fmfmc_backend.integration.directions;
 
 import com.icl.fmfmc_backend.config.integration.MapboxProperties;
-import com.icl.fmfmc_backend.dto.api.MapboxRequest;
-import com.icl.fmfmc_backend.dto.api.MapboxResponse;
+import com.icl.fmfmc_backend.dto.directions.MapboxRequest;
+import com.icl.fmfmc_backend.dto.directions.MapboxResponse;
 import com.icl.fmfmc_backend.dto.directions.DirectionsRequest;
 import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
 import com.icl.fmfmc_backend.exception.handler.CommonResponseHandler;

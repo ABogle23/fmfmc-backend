@@ -16,6 +16,8 @@ import com.icl.fmfmc_backend.exception.integration.DirectionsClientException;
 import com.icl.fmfmc_backend.exception.service.JourneyNotFoundException;
 import com.icl.fmfmc_backend.exception.service.NoChargerWithinRangeException;
 import com.icl.fmfmc_backend.exception.service.NoChargersOnRouteFoundException;
+import com.icl.fmfmc_backend.util.LogExecutionTime;
+import com.icl.fmfmc_backend.util.LogMessages;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
@@ -42,6 +44,8 @@ public class RoutingService {
   private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
   private final ChargerService chargerService;
 
+
+  @LogExecutionTime(message = LogMessages.GETTING_CHARGERS_ON_ROUTE)
   public List<Charger> getChargersOnRoute(Route route) throws NoChargersOnRouteFoundException {
     logger.info("Fetching route from routing service");
 
@@ -62,8 +66,13 @@ public class RoutingService {
 
     logger.info("Chargers within query: " + chargersWithinPolygon.size());
 
+//    for (Charger charger : chargersWithinPolygon) {
+//      System.out.println("Charger ID: " + charger.getId() + ", Charger Location: " + charger.getLocation());
+//    }
+
+    System.out.println("Chargers on route: " + chargersWithinPolygon.size());
     for (Charger charger : chargersWithinPolygon) {
-      System.out.println("Charger ID: " + charger.getId() + ", Charger Location: " + charger.getLocation());
+      System.out.println(charger.getLocation().getY() + "," + charger.getLocation().getX() + ",red,circle");
     }
 
     if (chargersWithinPolygon.isEmpty()) {
@@ -143,13 +152,14 @@ public class RoutingService {
           directionsResponse = directionsClient.getDirections(directionsRequest);
       } catch (DirectionsClientException e) { throw new JourneyNotFoundException("No valid journey could be found."); }
 
-    System.out.println(directionsResponse);
+//    System.out.println(directionsResponse);
 
     return directionsResponse;
   }
 
   // ROUTING RELATED FUNCTIONS
 
+  @LogExecutionTime(message = LogMessages.FINDING_SUITABLE_CHARGERS)
   public List<Charger> findSuitableChargers(Route route, List<Charger> potentialChargers) throws NoChargerWithinRangeException {
     Double maxTravelDistance =
         calculateMaxTravelDistance(

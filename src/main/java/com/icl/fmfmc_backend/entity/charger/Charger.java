@@ -16,7 +16,10 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "chargers")
+@Table(name = "chargers", indexes = {
+        @Index(name = "idx_number_of_points", columnList = "numberOfPoints"),
+        @Index(name = "idx_location", columnList = "location")
+})
 public class Charger {
 
   @Id private Long id;

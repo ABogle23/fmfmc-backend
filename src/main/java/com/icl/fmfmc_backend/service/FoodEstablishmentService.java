@@ -2,8 +2,10 @@ package com.icl.fmfmc_backend.service;
 
 import com.icl.fmfmc_backend.integration.foodEstablishment.FoodEstablishmentClient;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
-import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishmentRequest;
+import com.icl.fmfmc_backend.dto.foodEstablishment.FoodEstablishmentRequest;
 import com.icl.fmfmc_backend.repository.FoodEstablishmentRepo;
+import com.icl.fmfmc_backend.util.LogExecutionTime;
+import com.icl.fmfmc_backend.util.LogMessages;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -58,6 +60,7 @@ public class FoodEstablishmentService {
     foodEstablishmentRepo.deleteById(id);
   }
 
+  @LogExecutionTime(message = LogMessages.CALLING_FOOD_ESTABLISHMENT_CLIENT)
   public List<FoodEstablishment> getFoodEstablishmentsByParam(FoodEstablishmentRequest request) {
     List<FoodEstablishment> establishments =
         foodEstablishmentClient.getFoodEstablishmentsByParam(request);

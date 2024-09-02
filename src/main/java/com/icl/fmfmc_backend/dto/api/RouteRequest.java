@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.icl.fmfmc_backend.entity.enums.*;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import jakarta.validation.constraints.*;
@@ -20,6 +21,7 @@ public class RouteRequest {
 
   // location
 
+  @Schema(description = "Starting latitude", example = "51.5074")
   @Min(value = -90, message = "Latitude must be greater than or equal to -90")
   @Max(value = 90, message = "Latitude must be less than or equal to 90")
   @NotNull(message = "Start latitude is required")
@@ -181,7 +183,7 @@ public class RouteRequest {
   private Integer maxWalkingDistance = 500;
 
   @JsonSetter(nulls = Nulls.SKIP)
-  @JsonProperty("include_alternative_Eating_options")
+  @JsonProperty("include_alternative_eating_options")
   private Boolean includeAlternativeEatingOptions = false;
 
   // time constraints

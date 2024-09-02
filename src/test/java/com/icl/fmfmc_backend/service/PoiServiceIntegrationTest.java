@@ -107,10 +107,10 @@ public class PoiServiceIntegrationTest {
     }
 
     assertEquals(5, result.getT1().size());
-    assertEquals("144", result.getT1().get(0).getId());
-    assertEquals("96", result.getT1().get(1).getId());
-    assertEquals("121", result.getT1().get(2).getId());
-    assertEquals("36", result.getT1().get(3).getId());
+    assertEquals("96", result.getT1().get(0).getId());
+    assertEquals("144", result.getT1().get(1).getId());
+    assertEquals("36", result.getT1().get(2).getId());
+    assertEquals("121", result.getT1().get(3).getId());
     assertEquals("50", result.getT1().get(4).getId());
 
     for (FoodEstablishment foodEstablishment : result.getT1()) {
@@ -125,6 +125,9 @@ public class PoiServiceIntegrationTest {
     for (FoodEstablishment foodEstablishment : result.getT1()) {
       System.out.println("FoodEstablishment: " + foodEstablishment.getName());
     }
+
+    System.out.println("Charger: " + result.getT2().getLocation());
+
   }
 
   @Test

@@ -4,6 +4,7 @@ import com.icl.fmfmc_backend.Routing.PolylineUtility;
 import com.icl.fmfmc_backend.entity.charger.Charger;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.routing.Route;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Route result containing journey details")
 public class RouteResult {
 
   // TODO: create constructor that takes Route object as argument

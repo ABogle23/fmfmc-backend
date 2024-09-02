@@ -1,5 +1,6 @@
 package com.icl.fmfmc_backend.controller;
 
+import com.icl.fmfmc_backend.dto.api.ApiResponse;
 import com.icl.fmfmc_backend.dto.api.ChargerRequest;
 import com.icl.fmfmc_backend.dto.api.RouteRequest;
 import com.icl.fmfmc_backend.dto.charger.ChargerCompactDTO;
@@ -9,6 +10,7 @@ import com.icl.fmfmc_backend.service.ChargerService;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
@@ -74,7 +76,16 @@ public class ChargerController {
               content =
                   @Content(
                       mediaType = "application/json",
-                      schema = @Schema(implementation = ChargerRequest.class))))
+                      schema = @Schema(implementation = ChargerRequest.class))),
+      responses = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Successful response",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    array = @ArraySchema(schema = @Schema(implementation = Charger.class))))
+      })
   @PostMapping("/chargers")
   public ResponseEntity<List<?>> getAllChargersWithinBoundingBox(
       @Valid @RequestBody ChargerRequest chargerRequest) {

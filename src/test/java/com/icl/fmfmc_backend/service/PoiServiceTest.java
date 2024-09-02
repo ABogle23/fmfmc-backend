@@ -35,9 +35,7 @@ import reactor.util.function.Tuple2;
 public class PoiServiceTest {
 
   @Mock private ChargerService chargerService;
-
   @Mock private FoodEstablishmentService foodEstablishmentService;
-
   @InjectMocks private PoiService poiService;
 
   private final Route route =
@@ -84,11 +82,11 @@ public class PoiServiceTest {
     }
 
     assertEquals(5, result.getT1().size());
-    assertEquals("144", result.getT1().get(0).getId());
-    assertEquals("96", result.getT1().get(1).getId());
-    assertEquals("121", result.getT1().get(2).getId());
-    assertEquals("36", result.getT1().get(3).getId());
-    assertEquals("50", result.getT1().get(4).getId());
+    assertEquals("96", result.getT1().get(0).getId());
+    assertEquals("144", result.getT1().get(1).getId());
+    assertEquals("36", result.getT1().get(2).getId());
+    assertEquals("121", result.getT1().get(3).getId());
+    assertEquals("17", result.getT1().get(4).getId());
 
     for (FoodEstablishment foodEstablishment : result.getT1()) {
       Double chargerFoodEstablishmentDistance =

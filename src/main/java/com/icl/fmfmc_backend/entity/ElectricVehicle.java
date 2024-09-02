@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.dto;
+package com.icl.fmfmc_backend.entity;
 
 
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;

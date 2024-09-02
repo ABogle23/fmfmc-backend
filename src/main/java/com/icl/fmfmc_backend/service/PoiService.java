@@ -4,6 +4,9 @@ import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.Routing.PolylineUtility;
 import com.icl.fmfmc_backend.controller.JourneyController;
 import com.icl.fmfmc_backend.dto.charger.ChargerQuery;
+import com.icl.fmfmc_backend.dto.foodEstablishment.FoodEstablishmentBuilder;
+import com.icl.fmfmc_backend.dto.foodEstablishment.FoodEstablishmentRequest;
+import com.icl.fmfmc_backend.dto.foodEstablishment.FoursquareRequestBuilder;
 import com.icl.fmfmc_backend.entity.charger.Charger;
 import com.icl.fmfmc_backend.entity.foodEstablishment.*;
 import com.icl.fmfmc_backend.entity.routing.Route;
@@ -50,7 +53,6 @@ public class PoiService {
   private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
   private final ChargerService chargerService;
   private final FoodEstablishmentService foodEstablishmentService;
-//  private final GeometryService geometryService;
   private final FoodEstablishmentBuilder requestBuilder = new FoursquareRequestBuilder();
 
   @Setter private ClusteringStrategy clusteringStrategy;
@@ -65,13 +67,21 @@ public class PoiService {
     this.setClusteringStrategy(new OutlierAdjustedKMeansClusteringService());
 
     LineString lineString = route.getWorkingLineStringRoute();
+    System.out.println("Working LineString: " + lineString);
 
     // restrict search to part of route as per stoppingRange param
     Double searchStart = route.getStoppingRangeAsFraction()[0];
     Double searchEnd = route.getStoppingRangeAsFraction()[1];
+    System.out.println("Search Start: " + searchStart);
+    System.out.println("Search End: " + searchEnd);
+
     lineString = GeometryService.extractLineStringPortion(lineString, searchStart, searchEnd);
 
+    System.out.println("LineString: " + lineString);
+
     Double foodEstablishmentDeviationScope = route.getEatingOptionSearchDeviationAsFraction(); // km
+
+    System.out.println("Food Establishment Deviation Scope: " + foodEstablishmentDeviationScope);
 
     Polygon polygon =
         GeometryService.bufferLineString(lineString, 0.009 * foodEstablishmentDeviationScope);
@@ -89,10 +99,14 @@ public class PoiService {
 
     List<Point> clusteredChargers = clusteringStrategy.clusterChargers(chargerLocations, 4);
 
-    clusteredChargers = clusteringStrategy.consolidateCloseCentroids(clusteredChargers, 0.02); // 2.km
+    for (Point charger : clusteredChargers) {
+      System.out.println(charger.getY() + "," + charger.getX() + ",blue,marker");
+    }
+
+    clusteredChargers = clusteringStrategy.consolidateCloseCentroids(clusteredChargers, 0.03); // 3km
 
     for (Point charger : clusteredChargers) {
-      System.out.println(charger.getY() + "," + charger.getX() + ",yellow,circle");
+      System.out.println(charger.getY() + "," + charger.getX() + ",yellow,marker");
     }
 
     List<FoodEstablishment> foodEstablishmentsAroundClusters =
@@ -103,7 +117,9 @@ public class PoiService {
     for (FoodEstablishment foodEstablishment : foodEstablishmentsAroundClusters) {
       Double X = foodEstablishment.getLocation().getX();
       Double Y = foodEstablishment.getLocation().getY();
-      System.out.println("geometryFactory.createPoint(new Coordinate("+ X +", " + Y + ")),");
+      System.out.println(foodEstablishment.getLocation().getY() + "," + foodEstablishment.getLocation().getX() + ",green,circle");
+
+//      System.out.println("geometryFactory.createPoint(new Coordinate("+ X +", " + Y + ")),");
     }
 //    System.out.println("Food Establishments Ratings Test Data");
 //    for (FoodEstablishment foodEstablishment : foodEstablishmentsAroundClusters) {
@@ -124,7 +140,7 @@ public class PoiService {
     for (Point charger : chargerLocations) {
       Double X = charger.getX();
       Double Y = charger.getY();
-      System.out.println("geometryFactory.createPoint(new Coordinate("+ X +", " + Y + ")),");
+//      System.out.println("geometryFactory.createPoint(new Coordinate("+ X +", " + Y + ")),");
     }
     // FOR TESTING
 
@@ -321,7 +337,7 @@ public class PoiService {
     Double score = 0.0;
 
     score += establishment.getPopularity() != null ? establishment.getPopularity() : 0.5;
-    score += establishment.getRating() != null ? (establishment.getRating() / 10) : 0.5;
+    score += establishment.getRating() != null ? (establishment.getRating()) : 0.5;
     score +=
         (establishment.getPrice() != null && establishment.getPrice() != 4)
             ?  ((4.0 - establishment.getPrice()) / 20.0)

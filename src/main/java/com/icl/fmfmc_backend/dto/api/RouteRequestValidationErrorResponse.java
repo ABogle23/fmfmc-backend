@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 // used for returning error response in case of validation
 // errors on the Post object in /find-route endpoint@Data
 @RequiredArgsConstructor
+@Deprecated
 public class RouteRequestValidationErrorResponse {
 
   private final String field;

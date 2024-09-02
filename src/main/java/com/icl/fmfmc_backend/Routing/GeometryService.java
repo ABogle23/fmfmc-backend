@@ -5,9 +5,11 @@ import net.sf.geographiclib.Geodesic;
 import net.sf.geographiclib.GeodesicData;
 import org.locationtech.jts.algorithm.MinimumBoundingCircle;
 import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.util.PolygonExtracter;
 import org.locationtech.jts.operation.buffer.BufferOp;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.locationtech.jts.operation.distance.DistanceOp;
+import org.locationtech.jts.operation.union.CascadedPolygonUnion;
 import org.locationtech.jts.util.GeometricShapeFactory;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -19,16 +21,48 @@ public class GeometryService {
     private static final GeometryFactory geometryFactory = new GeometryFactory();
     private static final GeometricShapeFactory shapeFactory = new GeometricShapeFactory();
 
+    @Deprecated
     public static Polygon bufferLineStringSquare(LineString lineString, double distance) {
         BufferParameters bufferParameters = new BufferParameters();
         bufferParameters.setEndCapStyle(BufferParameters.CAP_FLAT);
         return (Polygon) BufferOp.bufferOp(lineString, distance, bufferParameters);
     }
     public static Polygon bufferLineString(LineString lineString, double distance) {
-        return (Polygon) lineString.buffer(distance);
+        Geometry buffered = lineString.buffer(distance);
+
+        if (buffered instanceof Polygon) {
+            return (Polygon) buffered;
+        } else if (buffered instanceof MultiPolygon) {
+            // Handle MultiPolygon case
+            MultiPolygon multiPolygon = (MultiPolygon) buffered;
+
+            System.out.println("Multipolygon: " + multiPolygon.toString());
+            // Example: Return the largest polygon or merge them
+            // Here, we just throw an exception for simplicity
+            return convertMultiPolygonToPolygon(multiPolygon);
+
+//            throw new IllegalArgumentException("Buffer operation resulted in a MultiPolygon");
+        } else {
+            throw new IllegalArgumentException("Buffer operation resulted in an unexpected geometry type");
+        }
+    }
+
+    public static Polygon convertMultiPolygonToPolygon(MultiPolygon multiPolygon) {
+
+        List<Polygon> polygons = PolygonExtracter.getPolygons(multiPolygon);
+
+        // Merge all polygons using CascadedPolygonUnion
+        Geometry mergedGeometry = CascadedPolygonUnion.union(polygons);
+
+        if (mergedGeometry instanceof Polygon) {
+            return (Polygon) mergedGeometry;
+        } else {
+            throw new IllegalArgumentException("Merged geometry is not a Polygon");
+        }
     }
 
     // buffer a polyline represented as a string
+    @Deprecated
     public Polygon bufferPolyline(String polyline, double width) {
         // convert the string to coordinates and then to a LineString
         LineString lineString = createLineStringFromText(polyline);
@@ -37,12 +71,14 @@ public class GeometryService {
     }
 
     // buffer a polyline represented as coordinates
+    @Deprecated
     public Polygon bufferPolyline(Coordinate[] coordinates, double widthInKm) {
         LineString lineString = geometryFactory.createLineString(coordinates);
         return (Polygon) lineString.buffer(widthInKm);
     }
 
     // parse a polyline string to a LineString
+    @Deprecated
     public LineString createLineStringFromText(String polyline) {
         String[] coords = polyline.split(";");
         Coordinate[] points = Arrays.stream(coords)

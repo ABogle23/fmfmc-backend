@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.entity.foodEstablishment;
+package com.icl.fmfmc_backend.dto.foodEstablishment;
 
 import lombok.Getter;
 import org.springframework.util.LinkedMultiValueMap;

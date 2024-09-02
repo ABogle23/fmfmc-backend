@@ -1,5 +1,8 @@
 package com.icl.fmfmc_backend.controller;
 
+import com.icl.fmfmc_backend.dto.foodEstablishment.FoodEstablishmentBuilder;
+import com.icl.fmfmc_backend.dto.foodEstablishment.FoodEstablishmentRequest;
+import com.icl.fmfmc_backend.dto.foodEstablishment.FoursquareRequestBuilder;
 import com.icl.fmfmc_backend.entity.foodEstablishment.*;
 import com.icl.fmfmc_backend.entity.enums.FoodCategory;
 import com.icl.fmfmc_backend.service.FoodEstablishmentService;

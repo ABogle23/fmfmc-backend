@@ -358,14 +358,10 @@ public class Route {
 
   public void expandStoppingRange() {
     switch (this.stoppingRange) {
-      case earliest -> this.stoppingRange = StoppingRange.early;
-      case early -> this.stoppingRange = StoppingRange.middle;
-      case middle -> this.stoppingRange = StoppingRange.later;
-      case later -> this.stoppingRange = StoppingRange.latest;
-      case latest -> this.stoppingRange = StoppingRange.extendedEarly;
-      case extendedEarly -> this.stoppingRange = StoppingRange.extendedMiddle;
-      case extendedMiddle -> this.stoppingRange = StoppingRange.extendedLater;
-      case extendedLater -> {
+      case earliest, early -> this.stoppingRange = StoppingRange.extendedEarly;
+      case middle -> this.stoppingRange = StoppingRange.extendedMiddle;
+      case later, latest -> this.stoppingRange = StoppingRange.extendedLater;
+      case extendedEarly, extendedLater, extendedMiddle -> {
         return;
       }
     }
@@ -420,9 +416,9 @@ public class Route {
       case minimal -> this.chargerSearchDeviation = DeviationScope.moderate;
       case moderate -> this.chargerSearchDeviation = DeviationScope.significant;
       case significant -> this.chargerSearchDeviation = DeviationScope.extreme;
-      case extreme -> {
-        return;
-      }
+//      case extreme -> {
+//        return;
+//      }
     }
   }
 

@@ -1,6 +1,7 @@
 package com.icl.fmfmc_backend.dto.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +11,9 @@ import java.time.temporal.ChronoUnit;
 @Data
 @NoArgsConstructor
 // @AllArgsConstructor
+@Schema(description = "API Response wrapper")
 public class ApiResponse<T> {
+  @Schema(description = "Details of journey", implementation = RouteResult.class)
   private T data;
   private boolean success;
   private String message;

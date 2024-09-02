@@ -1,7 +1,7 @@
 package com.icl.fmfmc_backend.repository;
 
 import com.icl.fmfmc_backend.dto.api.ElectricVehicleDto;
-import com.icl.fmfmc_backend.dto.ElectricVehicle;
+import com.icl.fmfmc_backend.entity.ElectricVehicle;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

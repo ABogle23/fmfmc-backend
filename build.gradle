@@ -39,7 +39,7 @@ dependencies {
 	implementation 'org.jsoup:jsoup:1.15.3'
 
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
-
+	implementation 'io.swagger.core.v3:swagger-annotations:2.2.22'
 
 
 	implementation 'org.locationtech.jts:jts-core:1.18.0'
@@ -48,6 +48,9 @@ dependencies {
 	implementation 'javax.servlet:javax.servlet-api:4.0.1'
 	implementation 'com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter:0.6.0'
 //	implementation 'com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter-cache:0.7.0'
+
+
+
 
 	testImplementation 'org.mockito:mockito-core:3.+'
 	testImplementation 'org.mockito:mockito-junit-jupiter:3.+'
@@ -72,4 +75,10 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+test {
+	useJUnitPlatform {
+		excludeTags 'exclude'
+	}
 }

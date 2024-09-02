@@ -6,6 +6,8 @@ import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
 import com.icl.fmfmc_backend.exception.integration.BadRequestException;
 import com.icl.fmfmc_backend.exception.integration.DirectionsClientException;
 import com.icl.fmfmc_backend.exception.integration.ServiceUnavailableException;
+import com.icl.fmfmc_backend.util.LogExecutionTime;
+import com.icl.fmfmc_backend.util.LogMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,7 @@ public class DirectionsClientManager {
   //    }
   //  }
 
+  @LogExecutionTime(message = LogMessages.GETTING_DIRECTIONS)
   public DirectionsResponse getDirections(DirectionsRequest directionsRequest)
       throws DirectionsClientException {
     if (shouldSwitchBackToOsr()) {

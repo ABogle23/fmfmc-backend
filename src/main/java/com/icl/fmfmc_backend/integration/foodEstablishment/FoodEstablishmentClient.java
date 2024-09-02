@@ -1,7 +1,7 @@
 package com.icl.fmfmc_backend.integration.foodEstablishment;
 
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
-import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishmentRequest;
+import com.icl.fmfmc_backend.dto.foodEstablishment.FoodEstablishmentRequest;
 
 import java.util.List;
 

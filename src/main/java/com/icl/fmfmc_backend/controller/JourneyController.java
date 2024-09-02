@@ -32,17 +32,26 @@ public class JourneyController {
   private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
 
   @Operation(
-          summary = "Get a Journey",
-          description = "Returns a journey complete with route, charging stations, and any suitable food establishments along the way.",
-          requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                  description = "Route request object containing journey parameters",
-                  required = true,
-                  content = @Content(
-                          mediaType = "application/json",
-                          schema = @Schema(implementation = RouteRequest.class)
-                  )
-          )
-  )
+      summary = "Get a Journey",
+      description =
+          "Returns a journey complete with route, charging stations, and any suitable food establishments along the way.",
+      requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              description = "Route request object containing journey parameters",
+              required = true,
+              content =
+                  @Content(
+                      mediaType = "application/json",
+                      schema = @Schema(implementation = RouteRequest.class))),
+      responses = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Successful response",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiResponse.class)))
+      })
   @LogExecutionTime(message = "Response time for /find-route endpoint ")
   @PostMapping("/find-route")
   public ResponseEntity<?> getJourney(@Valid @RequestBody RouteRequest routeRequest)

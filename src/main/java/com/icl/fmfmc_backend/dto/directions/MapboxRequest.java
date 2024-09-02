@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.dto.api;
+package com.icl.fmfmc_backend.dto.directions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

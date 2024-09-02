@@ -5,7 +5,7 @@ import com.icl.fmfmc_backend.dto.foodEstablishment.FoursquareResponseDTO;
 import com.icl.fmfmc_backend.entity.AddressInfo;
 import com.icl.fmfmc_backend.entity.foodEstablishment.Category;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
-import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishmentRequest;
+import com.icl.fmfmc_backend.dto.foodEstablishment.FoodEstablishmentRequest;
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import com.icl.fmfmc_backend.exception.handler.CommonResponseHandler;
 import lombok.RequiredArgsConstructor;
@@ -97,6 +97,14 @@ public class FoursquareClient implements FoodEstablishmentClient {
 
   private FoodEstablishment convertToFoodEstablishment(
       FoursquareResponseDTO.FoursquarePlaceDTO dto) {
+
+//    Double rating = dto.getRating();
+//    if (dto.getRating() != null) {
+//      return null;
+//    }
+
+    Double rating = dto.getRating() != null ? (dto.getRating() / 10) : null;
+
     FoodEstablishment establishment = new FoodEstablishment();
     establishment.setId(dto.getFsqId());
     establishment.setName(dto.getName());
@@ -116,7 +124,7 @@ public class FoursquareClient implements FoodEstablishmentClient {
     establishment.setClosedStatus(dto.getClosedBucket());
     establishment.setPopularity(dto.getPopularity());
     establishment.setPrice(dto.getPrice());
-    establishment.setRating(dto.getRating());
+    establishment.setRating(rating);
     establishment.setCreatedAt(LocalDateTime.now());
     establishment.setLocation(
         new GeometryFactory()

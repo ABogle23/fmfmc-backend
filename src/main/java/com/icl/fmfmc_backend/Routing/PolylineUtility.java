@@ -66,6 +66,7 @@ public class PolylineUtility {
     return encoded.toString();
   }
 
+  @Deprecated
   public static String polygonStringToFoursquareFormat(Polygon polygon) {
 
     int step = 75;

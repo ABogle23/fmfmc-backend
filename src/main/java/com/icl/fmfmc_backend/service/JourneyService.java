@@ -12,6 +12,8 @@ import com.icl.fmfmc_backend.entity.charger.Charger;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.routing.Route;
 import com.icl.fmfmc_backend.entity.enums.FallbackStrategy;
+import com.icl.fmfmc_backend.util.LogExecutionTime;
+import com.icl.fmfmc_backend.util.LogMessages;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.LineString;
@@ -29,13 +31,13 @@ import java.util.List;
 @Service
 public class JourneyService {
 
-  private final OsrDirectionsClient osrDirectionsClient;
   private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
   private static final Logger fileLogger =
       LoggerFactory.getLogger("com.icl.fmfmc_backend.service.JourneyService");
   private final PoiService poiService;
   private final RoutingService routingService;
 
+  @LogExecutionTime(message = LogMessages.GET_JOURNEY)
   public RouteResult getJourney(RouteRequest routeRequest, JourneyContext context)
       throws JourneyNotFoundException {
     logger.info("Getting journey");
