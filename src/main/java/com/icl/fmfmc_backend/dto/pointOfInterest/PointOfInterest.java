@@ -8,6 +8,7 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 @Data
 public class PointOfInterest {
   private List<FoodCategory> eatingOptions;

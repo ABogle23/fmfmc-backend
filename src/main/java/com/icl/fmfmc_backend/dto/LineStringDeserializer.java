@@ -13,22 +13,31 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Custom deserializer for converting JSON arrays into LineString objects. */
 public class LineStringDeserializer extends JsonDeserializer<LineString> {
 
-    @Override
-    public LineString deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        JsonNode node = p.getCodec().readTree(p);
-        List<Coordinate> coordinates = new ArrayList<>();
-        if (node.isArray()) {
-            for (JsonNode coordNode : node) {
-                if (coordNode.isArray() && coordNode.size() >= 2) {
-                    double lon = coordNode.get(0).asDouble();
-                    double lat = coordNode.get(1).asDouble();
-                    coordinates.add(new Coordinate(lon, lat));
-                }
-            }
+  /**
+   * Deserializes JSON content into a LineString object.
+   *
+   * @param jsonParser the JsonParser used to parse the JSON content
+   * @param context the DeserializationContext
+   * @return a LineString object created from the JSON content
+   * @throws IOException if an I/O error occurs during deserialization
+   */
+  @Override
+  public LineString deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException {
+    JsonNode node = jsonParser.getCodec().readTree(jsonParser);
+    List<Coordinate> coordinates = new ArrayList<>();
+    if (node.isArray()) {
+      for (JsonNode coordNode : node) {
+        if (coordNode.isArray() && coordNode.size() >= 2) {
+          double lon = coordNode.get(0).asDouble();
+          double lat = coordNode.get(1).asDouble();
+          coordinates.add(new Coordinate(lon, lat));
         }
-        GeometryFactory factory = new GeometryFactory();
-        return factory.createLineString(coordinates.toArray(new Coordinate[0]));
+      }
     }
+    GeometryFactory factory = new GeometryFactory();
+    return factory.createLineString(coordinates.toArray(new Coordinate[0]));
+  }
 }

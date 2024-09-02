@@ -9,6 +9,7 @@ import org.locationtech.jts.geom.LineString;
 
 import java.io.IOException;
 
+@Deprecated
 public class JtsLineStringSerializer extends JsonSerializer<LineString> {
 
     @Override
