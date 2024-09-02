@@ -22,6 +22,9 @@ public class ChargerUpdateScheduler {
   private final OpenChargeMapClient openChargeMapClient;
   private final Logger logger = LoggerFactory.getLogger(ChargerUpdateScheduler.class);
 
+  /**
+   * Scheduled task to update chargers every day at 01:00 in the Europe/London timezone.
+   */
   @Scheduled(cron = "0 0 1 * * ?", zone = "Europe/London") // update every day at 01:00
   public void updateChargers() {
     logger.info("Charger update started");

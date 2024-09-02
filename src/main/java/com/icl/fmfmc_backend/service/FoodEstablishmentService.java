@@ -60,6 +60,12 @@ public class FoodEstablishmentService {
     foodEstablishmentRepo.deleteById(id);
   }
 
+  /**
+   * Retrieves food establishments based on various parameters.
+   *
+   * @param request the request object containing search parameters
+   * @return a list of food establishments matching the parameters
+   */
   @LogExecutionTime(message = LogMessages.CALLING_FOOD_ESTABLISHMENT_CLIENT)
   public List<FoodEstablishment> getFoodEstablishmentsByParam(FoodEstablishmentRequest request) {
     List<FoodEstablishment> establishments =

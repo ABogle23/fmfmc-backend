@@ -57,6 +57,15 @@ public class PoiService {
 
   @Setter private ClusteringStrategy clusteringStrategy;
 
+  /**
+   * Retrieves food establishments along a route and finds an adjacent charger.
+   *
+   * @param route the route object containing the journey details
+   * @return a tuple containing a list of food establishments and an adjacent charger
+   * @throws NoFoodEstablishmentsFoundException if no food establishments are returned from the API
+   * @throws NoFoodEstablishmentsInRangeOfChargerException if no food establishments are within range of a charger
+   * @throws PoiServiceException if an error occurs while retrieving POIs
+   */
   @LogExecutionTime(message = LogMessages.RETRIEVING_FOOD_ESTABLISHMENTS)
   public Tuple2<List<FoodEstablishment>, Charger> getFoodEstablishmentOnRoute(Route route)
       throws NoFoodEstablishmentsFoundException,

@@ -23,6 +23,7 @@ public class EvScraperService {
   private final ElectricVehicleService electricVehicleService;
   private static final Pattern NUMERIC_PATTERN = Pattern.compile("\\d+"); // extract numbers
 
+  /** Scrapes electric vehicle data from a predefined website and saves it to the database. */
   public void scrapeEvData() {
     try {
       String baseUrl = "https://ev-database.org";

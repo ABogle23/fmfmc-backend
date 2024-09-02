@@ -23,10 +23,21 @@ public class ElectricVehicleService {
     return electricVehicleRepo.findAll();
   }
 
+  /**
+   * Retrieves all electric vehicles in a compact form.
+   *
+   * @return a list of ElectricVehicleDto objects
+   */
   public List<ElectricVehicleDto> findAllVehiclesCompact() {
     return electricVehicleRepo.findAllVehiclesCompact();
   }
 
+  /**
+   * Retrieves an electric vehicle by its ID.
+   *
+   * @param id the ID of the electric vehicle
+   * @return the electric vehicle if found, otherwise null
+   */
   public ElectricVehicle findElectricVehicleById(Long id) {
     Optional<ElectricVehicle> optionalElectricVehicle = electricVehicleRepo.findById(id);
     if (optionalElectricVehicle.isPresent()) {
@@ -51,6 +62,13 @@ public class ElectricVehicleService {
   //        return savedEv;
   //    }
 
+  /**
+   * Saves an electric vehicle entity.
+   *
+   * @param ev the electric vehicle entity to save
+   * @return an Optional containing the saved electric vehicle entity if successful, otherwise an
+   *     empty Optional
+   */
   @Transactional
   public Optional<ElectricVehicle> saveElectricVehicle(ElectricVehicle ev) {
     log.info("Attempting to save ElectricVehicle: {}", ev.getModel());

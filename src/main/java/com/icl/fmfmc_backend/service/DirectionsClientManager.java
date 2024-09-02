@@ -52,6 +52,13 @@ public class DirectionsClientManager {
   //    }
   //  }
 
+  /**
+   * Gets directions based on the provided DirectionsRequest.
+   *
+   * @param directionsRequest the directions request
+   * @return the directions response
+   * @throws DirectionsClientException if an error occurs while fetching directions
+   */
   @LogExecutionTime(message = LogMessages.GETTING_DIRECTIONS)
   public DirectionsResponse getDirections(DirectionsRequest directionsRequest)
       throws DirectionsClientException {
@@ -69,12 +76,14 @@ public class DirectionsClientManager {
       return activeClient.getDirections(directionsRequest);
     } catch (BadRequestException e) {
       logger.error(
-          "DirectionsClientException occurred while fetching directions from active client: {}", e.getMessage());
+          "DirectionsClientException occurred while fetching directions from active client: {}",
+          e.getMessage());
       throw new DirectionsClientException(
           "Error occurred while fetching directions from active client: " + e.getMessage());
     } catch (Exception e) {
       logger.error(
-              "RuntimeException occurred while fetching directions from active client: {}", e.getMessage());
+          "RuntimeException occurred while fetching directions from active client: {}",
+          e.getMessage());
       throw new RuntimeException();
     }
   }
@@ -91,6 +100,11 @@ public class DirectionsClientManager {
     }
   }
 
+  /**
+   * Sets the active DirectionsClient based on the provided client name.
+   *
+   * @param client the client name ("osr" or "mapbox")
+   */
   public void setClient(String client) {
     if (client.equals("osr")) {
       activeClient = osrClient;
@@ -120,5 +134,4 @@ public class DirectionsClientManager {
       return "unknown";
     }
   }
-
 }

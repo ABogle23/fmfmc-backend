@@ -24,6 +24,9 @@ import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.Polygon;
 
+/**
+ * Service class for managing Charger entities.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -70,6 +73,12 @@ public class ChargerService {
     return chargerRepo.findChargersWithinRadius(point, radius);
   }
 
+  /**
+   * Retrieves chargers based on various parameters.
+   *
+   * @param query the query object containing search parameters
+   * @return a list of chargers matching the parameters
+   */
   @LogExecutionTime(message = LogMessages.SQL_QUERY)
   public List<Charger> getChargersByParams(ChargerQuery query) {
 
@@ -110,6 +119,12 @@ public class ChargerService {
     return connectionTypeIds;
   }
 
+  /**
+   * Retrieves charger locations based on various parameters.
+   *
+   * @param query the query object containing search parameters
+   * @return a list of charger locations matching the parameters
+   */
   @LogExecutionTime(message = LogMessages.SQL_QUERY)
   public List<Point> getChargerLocationsByParams(ChargerQuery query) {
 
@@ -136,6 +151,12 @@ public class ChargerService {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Retrieves the nearest charger based on various parameters.
+   *
+   * @param query the query object containing search parameters
+   * @return the nearest charger matching the parameters
+   */
   @LogExecutionTime(message = LogMessages.SQL_QUERY)
   public Charger getNearestChargerByParams(ChargerQuery query) {
 
@@ -156,13 +177,18 @@ public class ChargerService {
     return nearestCharger;
   }
 
-
-
   //  private String getConnectionTypeIds(ChargerQuery query) {
   //    String connectionTypeIds = getConnectionTypeIdsAsString(query);
   //    return connectionTypeIds;
   //  }
 
+  /**
+   * Retrieves the highest power connection by type in a charger.
+   *
+   * @param charger the charger entity
+   * @param route the route entity containing connection types
+   * @return the highest power connection speed in kW
+   */
   public Double getHighestPowerConnectionByTypeInCharger(Charger charger, Route route) {
 
     List<Integer> mappedConnectionTypeIds =

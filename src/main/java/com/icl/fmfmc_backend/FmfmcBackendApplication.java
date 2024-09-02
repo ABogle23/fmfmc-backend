@@ -27,6 +27,10 @@ public class FmfmcBackendApplication {
   //		evScraperService.scrapeEvData();
   //	}
 
+  /**
+   * Listen for user commands.
+   *
+   */
   @Bean
   @Profile("!test")
   public CommandLineRunner commandLineRunner() {

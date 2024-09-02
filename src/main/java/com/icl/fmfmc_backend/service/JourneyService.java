@@ -37,6 +37,14 @@ public class JourneyService {
   private final PoiService poiService;
   private final RoutingService routingService;
 
+  /**
+   * Retrieves a journey based on the given route request and context.
+   *
+   * @param routeRequest the route request object containing start and end coordinates
+   * @param context the journey context object containing additional parameters
+   * @return the route result object containing the journey details
+   * @throws JourneyNotFoundException if no valid journey could be found
+   */
   @LogExecutionTime(message = LogMessages.GET_JOURNEY)
   public RouteResult getJourney(RouteRequest routeRequest, JourneyContext context)
       throws JourneyNotFoundException {
@@ -62,28 +70,32 @@ public class JourneyService {
       try {
         poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
       } catch (PoiServiceException pe) {
-        logger.error("Error occurred while fetching food establishments from PoiService: {}", pe.getMessage());
+        logger.error(
+            "Error occurred while fetching food establishments from PoiService: {}",
+            pe.getMessage());
       } catch (NoFoodEstablishmentsFoundException
-               | NoFoodEstablishmentsInRangeOfChargerException e1) {
+          | NoFoodEstablishmentsInRangeOfChargerException e1) {
         expandFoodEstablishmentSearch(route, context);
         logger.warn(
             "{}, increasing search range to {}km, retrying...",
             e1.getMessage(),
             route.getEatingOptionSearchDeviationAsFraction());
-                        try {
-                            poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
-                        } catch (NoFoodEstablishmentsFoundException |
-                                 NoFoodEstablishmentsInRangeOfChargerException | PoiServiceException e3) {
-//                            skipEatingOptionService(route, context);
-                            logger.error("No food establishments found within range of charger, route will be returned without eating stop");
-                        }
+        try {
+          poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
+        } catch (NoFoodEstablishmentsFoundException
+            | NoFoodEstablishmentsInRangeOfChargerException
+            | PoiServiceException e3) {
+          //                            skipEatingOptionService(route, context);
+          logger.error(
+              "No food establishments found within range of charger, route will be returned without eating stop");
+        }
       }
 
       if (poiServiceTestResults != null) {
         route.setFoodEstablishments(poiServiceTestResults.getT1());
         route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
         for (FoodEstablishment fe : route.getFoodEstablishments()) {
-            fe.setAdjacentChargerId(route.getFoodAdjacentCharger().getId());
+          fe.setAdjacentChargerId(route.getFoodAdjacentCharger().getId());
         }
         LineString routeSnappedToFoodAdjacentCharger =
             routingService.snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
