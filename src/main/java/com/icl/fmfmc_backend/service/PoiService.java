@@ -73,7 +73,7 @@ public class PoiService {
           PoiServiceException {
     logger.info("Getting food establishment");
 
-    this.setClusteringStrategy(new OutlierAdjustedKMeansClusteringService());
+    this.setClusteringStrategy(new KMeansPlusPlusClusteringService());
 
     LineString lineString = route.getWorkingLineStringRoute();
     System.out.println("Working LineString: " + lineString);
