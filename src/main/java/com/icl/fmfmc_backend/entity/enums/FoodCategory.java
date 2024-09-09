@@ -9,6 +9,7 @@ public enum FoodCategory implements FmfmcEnum {
 
   // Sub-categories under Restaurant
   ASIAN_RESTAURANT("Asian Restaurant","asian_restaurant", RESTAURANT),
+  GASTROPUB("Gastropub","gastropub", RESTAURANT),
   ITALIAN_RESTAURANT("Italian Restaurant","italian_restaurant", RESTAURANT),
   FAST_FOOD("Fast Food","fastFood", RESTAURANT),
   SEAFOOD_RESTAURANT("Seafood Restaurant","seafood_restaurant", RESTAURANT),
@@ -16,23 +17,25 @@ public enum FoodCategory implements FmfmcEnum {
   GLUTEN_FREE_RESTAURANT("Gluten Free Restaurant","gluten_free_restaurant", RESTAURANT),
   BARBECUE("Barbecue","barbecue", RESTAURANT),
   BURGER_JOINT("Burger Joint","burger_joint", RESTAURANT),
-  PIZZA_RESTAURANT("Pizza Restaurant","pizza_restaurant", RESTAURANT),
   MEXICAN_RESTAURANT("Mexican Restaurant","mexican_restaurant", RESTAURANT),
   FINE_DINING("Fine Dining","fine_dining", RESTAURANT),
   CASUAL_DINING("Casual Dining","casual_dining", RESTAURANT),
   BUFFET("Buffet","buffet", RESTAURANT),
   BISTRO("Bistro","bistro", RESTAURANT),
   STEAKHOUSE("Steak house","steakhouse", RESTAURANT),
-  SUSHI_BAR("Sushi Bar","sushi_bar", RESTAURANT),
-  RAMEN_SHOP("Ramen Shop","ramen_shop", RESTAURANT),
   TAPAS_BAR("Tapas Bar","tapas_bar", RESTAURANT),
   DINER("Diner","diner", RESTAURANT),
   GREEK_RESTAURANT("Greek Restaurant","greek_restaurant", RESTAURANT),
+  SUSHI_BAR("Sushi Bar","sushi_bar", ASIAN_RESTAURANT),
+  RAMEN_SHOP("Ramen Shop","ramen_shop", ASIAN_RESTAURANT),
+  PIZZA_RESTAURANT("Pizza Restaurant","pizza_restaurant", ITALIAN_RESTAURANT),
+  INDIAN_RESTAURANT("Indian Restaurant","indian_restaurant", ASIAN_RESTAURANT),
+  GUJARATI_RESTAURANT("Gujarati Restaurant","gujarati_restaurant", INDIAN_RESTAURANT),
 
   // Sub-categories under Cafe
-  INTERNET_CAFE("Internet Cafe","internet_cafe", BAR),
-  COFFEE_SHOP("coffee Shop","coffee_shop", BAR),
-  TEA_HOUSE("Tea House","tea_house", BAR),
+  INTERNET_CAFE("Internet Cafe","internet_cafe", CAFE),
+  COFFEE_SHOP("coffee Shop","coffee_shop", CAFE),
+  TEA_HOUSE("Tea House","tea_house", CAFE),
 
   // Sub-categories under Bar
   IRISH_PUB("Irish Pub","irish_pub", BAR),

@@ -25,6 +25,11 @@ public class FoodCategoryToFoursquareCategoryIDMapper {
     categoryToFoursquareIdMap.put(FoodCategory.ASIAN_RESTAURANT, "13072");
     categoryToFoursquareIdMap.put(FoodCategory.ITALIAN_RESTAURANT, "13236");
     categoryToFoursquareIdMap.put(FoodCategory.GREEK_RESTAURANT, "13177");
+    categoryToFoursquareIdMap.put(FoodCategory.SUSHI_BAR, "13276");
+    categoryToFoursquareIdMap.put(FoodCategory.RAMEN_SHOP, "13272");
+    categoryToFoursquareIdMap.put(FoodCategory.INDIAN_RESTAURANT, "13199");
+    categoryToFoursquareIdMap.put(FoodCategory.GUJARATI_RESTAURANT, "13208");
+    categoryToFoursquareIdMap.put(FoodCategory.GASTROPUB, "13057");
 
 
   }
