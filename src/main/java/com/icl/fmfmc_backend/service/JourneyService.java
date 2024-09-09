@@ -150,8 +150,9 @@ public class JourneyService {
           resetRouteSearch(route);
           relaxChargerSearch(route, context);
           try {
+            chargersOnRoute = routingService.getChargersOnRoute(route);
             suitableChargers = routingService.findSuitableChargers(route, chargersOnRoute);
-          } catch (NoChargerWithinRangeException exc) {
+          } catch (NoChargerWithinRangeException | NoChargersOnRouteFoundException exc) {
             logger.error("No valid journey could be found despite relaxing request constraints.");
             throw new JourneyNotFoundException(
                 "No valid journey could be found despite relaxing request constraints.");
