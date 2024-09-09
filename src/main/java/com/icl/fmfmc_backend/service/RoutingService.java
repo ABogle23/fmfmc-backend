@@ -705,13 +705,4 @@ public class RoutingService {
     }
   }
 
-  @Deprecated
-  private static String getPolylineAsString(
-      OSRDirectionsServiceGeoJSONResponse osrDirectionsServiceGeoJSONResponse) {
-    List<GeoCoordinates> routeCoordinates =
-        osrDirectionsServiceGeoJSONResponse.getFeatures().get(0).getGeometry().getCoordinates();
-    String polyline = PolylineUtility.encodeGeoCoordinatesToPolyline(routeCoordinates);
-    System.out.println("Encoded Polyline: " + polyline.substring(0, 100) + "...");
-    return polyline;
-  }
 }
