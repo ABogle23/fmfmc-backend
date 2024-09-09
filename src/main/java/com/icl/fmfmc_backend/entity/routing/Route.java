@@ -449,8 +449,8 @@ public class Route {
   }
 
   public void expandChargeSpeedRange() {
-    if (minKwChargeSpeed != null && minKwChargeSpeed > 7) {
-      minKwChargeSpeed = 7;
+    if (minKwChargeSpeed != null && minKwChargeSpeed > 10) {
+      minKwChargeSpeed = 10;
     }
     if (maxKwChargeSpeed != null && maxKwChargeSpeed < 350) {
       maxKwChargeSpeed = 350;
