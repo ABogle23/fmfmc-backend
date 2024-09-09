@@ -1,8 +1,6 @@
 package com.icl.fmfmc_backend.controller;
 
-import com.icl.fmfmc_backend.dto.api.ApiResponse;
 import com.icl.fmfmc_backend.dto.api.ChargerRequest;
-import com.icl.fmfmc_backend.dto.api.RouteRequest;
 import com.icl.fmfmc_backend.dto.charger.ChargerCompactDTO;
 import com.icl.fmfmc_backend.dto.charger.ChargerQuery;
 import com.icl.fmfmc_backend.entity.charger.Charger;
@@ -97,7 +95,7 @@ public class ChargerController {
                     array = @ArraySchema(schema = @Schema(implementation = Charger.class))))
       })
   @PostMapping("/chargers")
-  public ResponseEntity<List<?>> getAllChargersWithinBoundingBox(
+  public ResponseEntity<List<?>> getChargersByParams(
       @Valid @RequestBody ChargerRequest chargerRequest) {
 
     ChargerQuery chargerQuery =
