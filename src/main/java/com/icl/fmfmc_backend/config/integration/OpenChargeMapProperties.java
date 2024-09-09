@@ -12,19 +12,19 @@ public class OpenChargeMapProperties {
   @Value("${openchargemap.api.base-url}")
   private String baseUrl;
 
-  @Value("${openchargemap.api.client}")
+  @Value("fmfmc-backend")
   private String client;
 
-  @Value("${openchargemap.api.countrycode}")
+  @Value("GB")
   private String countryCode;
 
-  @Value("${openchargemap.api.camelcase}")
+  @Value("true")
   private boolean camelCase;
 
-  @Value("${openchargemap.api.compact}")
+  @Value("true")
   private boolean compact;
 
-  @Value("${openchargemap.api.distanceunit}")
+  @Value("km")
   private String distanceUnit;
 
   public String getApiKey() {
