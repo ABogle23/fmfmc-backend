@@ -11,57 +11,47 @@ import java.util.stream.Collectors;
 @Service
 public class KMeansClusteringService extends AbstractClusteringService {
 
-  private static final GeometryFactory geometryFactory = new GeometryFactory();
-
   public List<Point> clusterChargers(List<Point> chargers, int k) {
+
+    // set default number of clusters to 4 if below 0
+    if (k <= 0) {
+      k = 4;
+    }
+
+    // prevents clustering if there are fewer unique chargers than clusters
+    Set<Point> uniquePoints = new HashSet<>(chargers);
+    if (uniquePoints.size() < k) {
+      k = uniquePoints.size();
+      System.out.println("Number of clusters set to " + k);
+    }
+
+    // prevents clustering if there are fewer chargers than clusters
+    if (k >= uniquePoints.size()) {
+      System.out.println("Number of clusters set to " + k);
+      return new ArrayList<>(uniquePoints);
+    }
+
     // randomly create centroids
-    List<Point> centroids = initializeCentroidsPlusPlus(chargers, k);
+    List<Point> centroids = initializeCentroids(chargers, k);
     List<Point> oldCentroids = null;
+    Integer MAX_ITERATIONS = 50;
 
     // converge centroids
-    while (!centroids.equals(oldCentroids)) {
+    while (!hasConverged(centroids, oldCentroids) && MAX_ITERATIONS-- > 0) {
       oldCentroids = new ArrayList<>(centroids);
 
       // assign charger locations to clusters
       List<List<Point>> clusters = assignToClusters(chargers, centroids);
 
-      // recal centroids
+      // recalc centroids
       centroids = recalculateCentroids(clusters);
       System.out.println("calculating centroids");
     }
 
-    List<List<Point>> finalClusters = assignToClusters(chargers, centroids);
-    for (int i = 0; i < finalClusters.size(); i++) {
-      System.out.println(
-          "Centroid " + (i + 1) + " has " + finalClusters.get(i).size() + " chargers.");
-    }
-
     return centroids;
   }
 
-  private static List<Point> initializeCentroids(List<Point> points, int k) {
-    Random random = new Random();
-    List<Point> centroids = new ArrayList<>();
-    for (int i = 0; i < k; i++) {
-      Point centroid = points.get(random.nextInt(points.size()));
-      centroids.add(centroid);
-    }
-    return centroids;
-  }
 
-  private static List<Point> recalculateCentroids(List<List<Point>> clusters) {
-    List<Point> centroids = new ArrayList<>();
-    for (List<Point> cluster : clusters) {
-      double sumX = 0, sumY = 0;
-      for (Point point : cluster) {
-        sumX += point.getX();
-        sumY += point.getY();
-      }
-      centroids.add(
-          geometryFactory.createPoint(
-              new Coordinate(sumX / cluster.size(), sumY / cluster.size())));
-    }
-    return centroids;
-  }
+
 
   }

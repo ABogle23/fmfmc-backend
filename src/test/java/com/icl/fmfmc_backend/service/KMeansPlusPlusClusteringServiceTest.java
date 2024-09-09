@@ -10,14 +10,14 @@ import org.locationtech.jts.geom.Point;
 
 import java.util.*;
 
-public class OutlierAdjustedKMeansClusteringServiceTest {
+public class KMeansPlusPlusClusteringServiceTest {
 
-  private ClusteringStrategy service = new OutlierAdjustedKMeansClusteringService();
+  private ClusteringStrategy service = new KMeansPlusPlusClusteringService();
   private GeometryFactory geometryFactory;
 
   @BeforeEach
   void setUp() {
-    service = new OutlierAdjustedKMeansClusteringService();
+    service = new KMeansPlusPlusClusteringService();
     geometryFactory = new GeometryFactory();
   }
 
@@ -358,7 +358,6 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
     List<Point> result = service.clusterChargers(chargers, 3);
     System.out.println("Cluster similarity test:" + result);
 
-    // Ensure there are 3 clusters
     assertEquals(3, result.size());
 
     double distance1 = result.get(0).distance(result.get(1));
@@ -475,7 +474,7 @@ public class OutlierAdjustedKMeansClusteringServiceTest {
   }
 
   @Test
-  void clusterChargersReturnsCentroidsWhenKIsOne() {
+  void clusterChargersReturnsCentroidWhenKIsOne() {
     List<Point> chargers =
         Arrays.asList(
             geometryFactory.createPoint(new Coordinate(1, 1)),

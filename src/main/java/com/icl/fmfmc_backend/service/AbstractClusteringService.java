@@ -22,25 +22,25 @@ public abstract class AbstractClusteringService implements ClusteringStrategy {
   public List<Point> consolidateCloseCentroids(List<Point> centroids, Double threshold) {
     // threshold is the maximum distance between two centroids in degrees, 0.01 = 1.11 km
     List<Point> consolidatedCentroids = new ArrayList<>(centroids);
-    Boolean changed = true;
-    while (changed) {
-      changed = false;
+    Boolean isConsolidated = true;
+    while (isConsolidated) {
+      isConsolidated = false;
       for (int i = 0; i < consolidatedCentroids.size(); i++) {
         for (int j = i + 1; j < consolidatedCentroids.size(); j++) {
-          Point ci = consolidatedCentroids.get(i);
-          Point cj = consolidatedCentroids.get(j);
-          if (ci.distance(cj) < threshold) {
+          Point pointI = consolidatedCentroids.get(i);
+          Point pointJ = consolidatedCentroids.get(j);
+          if (pointI.distance(pointJ) < threshold) {
             // avg of two centroids
-            Double newX = (ci.getX() + cj.getX()) / 2;
-            Double newY = (ci.getY() + cj.getY()) / 2;
+            Double newX = (pointI.getX() + pointJ.getX()) / 2;
+            Double newY = (pointI.getY() + pointJ.getY()) / 2;
             consolidatedCentroids.set(
                 i, geometryFactory.createPoint(new Coordinate(newX, newY))); // update centroid
             consolidatedCentroids.remove(j); // drop old centroid
-            changed = true;
+            isConsolidated = true;
             break;
           }
         }
-        if (changed) {
+        if (isConsolidated) {
           break;
         }
       }
@@ -48,32 +48,53 @@ public abstract class AbstractClusteringService implements ClusteringStrategy {
     return consolidatedCentroids;
   }
 
-  protected static List<Point> initializeCentroidsPlusPlus(List<Point> points, int k) {
+  protected List<Point> initializeCentroids(List<Point> points, int k) {
+    Random random = new Random();
+    List<Point> centroids = new ArrayList<>();
+    for (int i = 0; i < k; i++) {
+      Point centroid = points.get(random.nextInt(points.size()));
+      centroids.add(centroid);
+    }
+    return centroids;
+  }
+
+  // https://stats.stackexchange.com/questions/272114/using-kmeans-computing-weighted-probability-for-kmeans-initialization
+  protected List<Point> initializeCentroidsPlusPlus(List<Point> points, int k) {
     List<Point> centroids = new ArrayList<>();
     Random random = new Random();
-    // pick first centroid at random
+
+    // TODO: could try point assigned completely random instead of random provided points then find
+    // nearest
+    // pick first centroid at random from provided points
     centroids.add(points.get(random.nextInt(points.size())));
 
+    // pick remaining centroids based on distance from existing centroids
     for (int i = 1; i < k; i++) {
       double[] distances = new double[points.size()];
       for (int j = 0; j < points.size(); j++) {
         Point p = points.get(j);
         double minDist = Double.MAX_VALUE;
         for (Point centroid : centroids) {
+          // find closest distance to existing centroids
           double dist = p.distance(centroid);
           if (dist < minDist) {
             minDist = dist;
           }
         }
-        distances[j] = minDist;
+        // convert dist from degrees to meters
+        double normalisedMinDist = minDist * 111111.0;
+        // square distances
+        distances[j] = (normalisedMinDist * normalisedMinDist);
+        //        System.out.println("Distance: " + distances[j]);
       }
       // pick new centroid weighted by distance
       double total = Arrays.stream(distances).sum();
-      double r = total * random.nextDouble();
+      double ran = total * random.nextDouble();
       double sum = 0;
       for (int j = 0; j < distances.length; j++) {
         sum += distances[j];
-        if (sum >= r) {
+        if (sum >= ran) {
+          // add point when cumulative distance exceeds random value
           centroids.add(points.get(j));
           break;
         }
@@ -82,12 +103,15 @@ public abstract class AbstractClusteringService implements ClusteringStrategy {
     return centroids;
   }
 
-  protected static List<List<Point>> assignToClusters(List<Point> points, List<Point> centroids) {
+  protected List<List<Point>> assignToClusters(List<Point> points, List<Point> centroids) {
+
+    // initialise list for each cluster
     List<List<Point>> clusters = new ArrayList<>();
     for (int i = 0; i < centroids.size(); i++) {
       clusters.add(new ArrayList<>());
     }
 
+    // assign each point to the nearest cluster
     for (Point point : points) {
       int minIndex = -1;
       double minDistance = Double.MAX_VALUE;
@@ -98,9 +122,37 @@ public abstract class AbstractClusteringService implements ClusteringStrategy {
           minIndex = i;
         }
       }
-      clusters.get(minIndex).add(point);
+      clusters.get(minIndex).add(point); // add point to cluster
     }
 
     return clusters;
+  }
+
+  protected boolean hasConverged(List<Point> centroids, List<Point> oldCentroids) {
+    if (oldCentroids == null) {
+      return false;
+    }
+    for (int i = 0; i < centroids.size(); i++) {
+      if (centroids.get(i).distance(oldCentroids.get(i)) > 0.0009) { // 100m
+        return false;
+      }
+    }
+    return true;
+  }
+
+  protected List<Point> recalculateCentroids(List<List<Point>> clusters) {
+    List<Point> centroids = new ArrayList<>();
+    for (List<Point> cluster : clusters) {
+      double sumX = 0;
+      double sumY = 0;
+      for (Point point : cluster) {
+        sumX += point.getX();
+        sumY += point.getY();
+      }
+      centroids.add(
+          geometryFactory.createPoint(
+              new Coordinate(sumX / cluster.size(), sumY / cluster.size())));
+    }
+    return centroids;
   }
 }
