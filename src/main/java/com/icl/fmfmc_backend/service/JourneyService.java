@@ -1,16 +1,15 @@
 package com.icl.fmfmc_backend.service;
 
+import com.icl.fmfmc_backend.entity.routing.Journey;
 import com.icl.fmfmc_backend.exception.service.*;
-import com.icl.fmfmc_backend.integration.directions.OsrDirectionsClient;
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.controller.JourneyController;
 import com.icl.fmfmc_backend.dto.api.JourneyContext;
-import com.icl.fmfmc_backend.dto.api.RouteRequest;
-import com.icl.fmfmc_backend.dto.api.RouteResult;
+import com.icl.fmfmc_backend.dto.api.JourneyRequest;
+import com.icl.fmfmc_backend.dto.api.JourneyResult;
 import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
 import com.icl.fmfmc_backend.entity.charger.Charger;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
-import com.icl.fmfmc_backend.entity.routing.Route;
 import com.icl.fmfmc_backend.entity.enums.FallbackStrategy;
 import com.icl.fmfmc_backend.util.LogExecutionTime;
 import com.icl.fmfmc_backend.util.LogMessages;
@@ -40,48 +39,48 @@ public class JourneyService {
   /**
    * Retrieves a journey based on the given route request and context.
    *
-   * @param routeRequest the route request object containing start and end coordinates
+   * @param journeyRequest the route request object containing start and end coordinates
    * @param context the journey context object containing additional parameters
    * @return the route result object containing the journey details
    * @throws JourneyNotFoundException if no valid journey could be found
    */
   @LogExecutionTime(message = LogMessages.GET_JOURNEY)
-  public RouteResult getJourney(RouteRequest routeRequest, JourneyContext context)
+  public JourneyResult getJourney(JourneyRequest journeyRequest, JourneyContext context)
       throws JourneyNotFoundException {
     logger.info("Getting journey");
-    fileLogger.info("RouteRequest object: {}", routeRequest.toString());
+    fileLogger.info("JourneyRequest object: {}", journeyRequest.toString());
 
     // get initial route
 
-    Double[] startCoordinates = {routeRequest.getStartLong(), routeRequest.getStartLat()};
-    Double[] endCoordinates = {routeRequest.getEndLong(), routeRequest.getEndLat()};
+    Double[] startCoordinates = {journeyRequest.getStartLong(), journeyRequest.getStartLat()};
+    Double[] endCoordinates = {journeyRequest.getEndLong(), journeyRequest.getEndLat()};
     List<Double[]> startAndEndCoordinates = List.of(startCoordinates, endCoordinates);
     DirectionsResponse directionsResponse = routingService.getDirections(startAndEndCoordinates);
 
     // Build Route Object
-    Route route = new Route(directionsResponse, routeRequest);
-    fileLogger.info("Route object: {}", route.toString());
+    Journey journey = new Journey(directionsResponse, journeyRequest);
+    fileLogger.info("Route object: {}", journey.toString());
     fileLogger.info("DirectionsResponse object: {}", directionsResponse.toString());
 
     /* -----Find ideal FoodEstablishment via PoiService----- */
 
-    if (route.getStopForEating()) {
+    if (journey.getStopForEating()) {
       Tuple2<List<FoodEstablishment>, Charger> poiServiceTestResults = null;
       try {
-        poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
+        poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(journey);
       } catch (PoiServiceException pe) {
         logger.error(
             "Error occurred while fetching food establishments from PoiService: {}",
             pe.getMessage());
       } catch (NoFoodEstablishmentsFoundException
           | NoFoodEstablishmentsInRangeOfChargerException e1) {
-        expandFoodEstablishmentSearch(route, context);
+        expandFoodEstablishmentSearch(journey, context);
         logger.warn(
             "{}, increasing search range to {}km, retrying...",
             e1.getMessage(),
-            route.getEatingOptionSearchDeviationAsFraction());
+            journey.getEatingOptionSearchDeviationAsFraction());
         try {
-          poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(route);
+          poiServiceTestResults = poiService.getFoodEstablishmentOnRoute(journey);
         } catch (NoFoodEstablishmentsFoundException
             | NoFoodEstablishmentsInRangeOfChargerException
             | PoiServiceException e3) {
@@ -92,20 +91,20 @@ public class JourneyService {
       }
 
       if (poiServiceTestResults != null) {
-        route.setFoodEstablishments(poiServiceTestResults.getT1());
-        route.setFoodAdjacentCharger(poiServiceTestResults.getT2());
-        for (FoodEstablishment fe : route.getFoodEstablishments()) {
-          fe.setAdjacentChargerId(route.getFoodAdjacentCharger().getId());
+        journey.setFoodEstablishments(poiServiceTestResults.getT1());
+        journey.setFoodAdjacentCharger(poiServiceTestResults.getT2());
+        for (FoodEstablishment fe : journey.getFoodEstablishments()) {
+          fe.setAdjacentChargerId(journey.getFoodAdjacentCharger().getId());
         }
         LineString routeSnappedToFoodAdjacentCharger =
-            routingService.snapRouteToStops(route, List.of(route.getFoodAdjacentCharger()));
-        route.setWorkingLineStringRoute(routeSnappedToFoodAdjacentCharger);
+            routingService.snapRouteToStops(journey, List.of(journey.getFoodAdjacentCharger()));
+        journey.setWorkingLineStringRoute(routeSnappedToFoodAdjacentCharger);
         Polygon bufferedLineString =
             GeometryService.bufferLineString(
                 routeSnappedToFoodAdjacentCharger, 0.009); // 500m is 0.0045
-        route.setBufferedLineString(bufferedLineString);
+        journey.setBufferedLineString(bufferedLineString);
       } else {
-        skipEatingOptionService(route, context);
+        skipEatingOptionService(journey, context);
         logger.error("Route will be returned without eating stop");
       }
     } else {
@@ -120,13 +119,13 @@ public class JourneyService {
     // get chargers on route
     List<Charger> chargersOnRoute = null;
     try {
-      chargersOnRoute = routingService.getChargersOnRoute(route);
+      chargersOnRoute = routingService.getChargersOnRoute(journey);
     } catch (NoChargersOnRouteFoundException e) {
       logger.warn("No chargers found on route, relaxing charger search criteria and retrying...");
-      relaxChargerSearch(route, context);
+      relaxChargerSearch(journey, context);
       chargerSearchRelaxed = true;
       try {
-        chargersOnRoute = routingService.getChargersOnRoute(route);
+        chargersOnRoute = routingService.getChargersOnRoute(journey);
       } catch (NoChargersOnRouteFoundException ex) {
         logger.error("No valid journey could be found.");
         throw new JourneyNotFoundException("No valid journey could be found.");
@@ -136,22 +135,22 @@ public class JourneyService {
     // filter chargers to those reachable on route based on battery level
     List<Charger> suitableChargers = null;
     try {
-      suitableChargers = routingService.findSuitableChargers(route, chargersOnRoute);
+      suitableChargers = routingService.findSuitableChargers(journey, chargersOnRoute);
     } catch (NoChargerWithinRangeException e) {
       logger.warn("No chargers found within range, relaxing charging constraints and retrying...");
-      resetRouteSearch(route);
-      relaxChargingConstraints(route, context);
+      resetRouteSearch(journey);
+      relaxChargingConstraints(journey, context);
       try {
-        suitableChargers = routingService.findSuitableChargers(route, chargersOnRoute);
+        suitableChargers = routingService.findSuitableChargers(journey, chargersOnRoute);
       } catch (NoChargerWithinRangeException ex) {
         if (!chargerSearchRelaxed) {
           logger.warn(
               "No chargers found within range, relaxing charger search criteria and retrying...");
-          resetRouteSearch(route);
-          relaxChargerSearch(route, context);
+          resetRouteSearch(journey);
+          relaxChargerSearch(journey, context);
           try {
-            chargersOnRoute = routingService.getChargersOnRoute(route);
-            suitableChargers = routingService.findSuitableChargers(route, chargersOnRoute);
+            chargersOnRoute = routingService.getChargersOnRoute(journey);
+            suitableChargers = routingService.findSuitableChargers(journey, chargersOnRoute);
           } catch (NoChargerWithinRangeException | NoChargersOnRouteFoundException exc) {
             logger.error("No valid journey could be found despite relaxing request constraints.");
             throw new JourneyNotFoundException(
@@ -165,44 +164,44 @@ public class JourneyService {
       }
     }
 
-    route.setChargersOnRoute(suitableChargers);
+    journey.setChargersOnRoute(suitableChargers);
 
     // snap route to optimal Chargers and FoodEstablishments
-    LineString routeSnappedToStops = routingService.snapRouteToStops(route, suitableChargers);
-    route.setFinalSnappedToStopsRoute(routeSnappedToStops);
+    LineString routeSnappedToStops = routingService.snapRouteToStops(journey, suitableChargers);
+    journey.setFinalSnappedToStopsRoute(routeSnappedToStops);
 
     // set time schedule in segments object
-    route.setTimes();
-    route.setStartAndEndBatteryLevels();
+    journey.setTimes();
+    journey.setStartAndEndBatteryLevels();
 
     /* -----Build Result----- */
 
     List<FoodEstablishment> foodEstablishmentsWithinPolygon = Collections.emptyList();
-    RouteResult routeResult = new RouteResult(route, routeRequest);
-    fileLogger.info("RouteResult object: {}", routeResult.toString());
+    JourneyResult journeyResult = new JourneyResult(journey, journeyRequest);
+    fileLogger.info("JourneyResult object: {}", journeyResult.toString());
 
-    return routeResult;
+    return journeyResult;
   }
 
-  private static void resetRouteSearch(Route route) {
-    route.resetBatteryLevel();
-    route.clearChargersOnRoute();
-    route.resetSegmentDetails();
+  private static void resetRouteSearch(Journey journey) {
+    journey.resetBatteryLevel();
+    journey.clearChargersOnRoute();
+    journey.resetSegmentDetails();
   }
 
-  private void skipEatingOptionService(Route route, JourneyContext context) {
-    route.setStopForEating(false);
+  private void skipEatingOptionService(Journey journey, JourneyContext context) {
+    journey.setStopForEating(false);
     context.addFallbackStrategies(List.of(FallbackStrategy.SKIPPED_EATING_OPTION_SEARCH));
   }
 
-  private void relaxChargingConstraints(Route route, JourneyContext context) {
-    route.relaxChargingRange();
+  private void relaxChargingConstraints(Journey journey, JourneyContext context) {
+    journey.relaxChargingRange();
     context.addFallbackStrategies(List.of(FallbackStrategy.RELAXED_CHARGING_CONSTRAINTS));
   }
 
-  private void relaxChargerSearch(Route route, JourneyContext context) {
-    route.expandChargerSearchDeviation();
-    route.expandChargeSpeedRange();
+  private void relaxChargerSearch(Journey journey, JourneyContext context) {
+    journey.expandChargerSearchDeviation();
+    journey.expandChargeSpeedRange();
     context.addFallbackStrategies(
         List.of(
             FallbackStrategy.EXPANDED_CHARGER_SEARCH_AREA,
@@ -210,12 +209,12 @@ public class JourneyService {
   }
 
   /* Assisting Functions */
-  private void expandFoodEstablishmentSearch(Route route, JourneyContext context) {
+  private void expandFoodEstablishmentSearch(Journey journey, JourneyContext context) {
     // TODO: make context specific
-    route.expandEatingOptionSearchDeviation();
-    route.expandStoppingRange();
-    route.expandFoodCategorySearch();
-    route.expandPriceRange();
+    journey.expandEatingOptionSearchDeviation();
+    journey.expandStoppingRange();
+    journey.expandFoodCategorySearch();
+    journey.expandPriceRange();
 
     context.addFallbackStrategies(
         List.of(

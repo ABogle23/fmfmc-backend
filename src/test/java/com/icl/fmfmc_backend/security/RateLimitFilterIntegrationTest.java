@@ -5,7 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icl.fmfmc_backend.config.FilterConfig;
-import com.icl.fmfmc_backend.dto.api.RouteRequest;
+import com.icl.fmfmc_backend.dto.api.JourneyRequest;
 import com.icl.fmfmc_backend.service.ChargerUpdateScheduler;
 import com.icl.fmfmc_backend.service.EvScraperService;
 import com.icl.fmfmc_backend.service.JourneyService;
@@ -70,7 +70,7 @@ public class RateLimitFilterIntegrationTest {
 
   @Test
   public void rateLimitExceededShouldReturn429() throws Exception {
-    RouteRequest validRequest = new RouteRequest();
+    JourneyRequest validRequest = new JourneyRequest();
     validRequest.setStartLat(34.0522);
     validRequest.setStartLong(-118.2437);
     validRequest.setEndLat(34.0522);

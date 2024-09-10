@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 // @NoArgsConstructor
 @Data
-public class RouteRequest {
+public class JourneyRequest {
 
   // location
 

@@ -4,7 +4,7 @@ import com.icl.fmfmc_backend.config.TestContainerConfig;
 import com.icl.fmfmc_backend.dto.charger.ChargerQuery;
 import com.icl.fmfmc_backend.entity.charger.Charger;
 import com.icl.fmfmc_backend.entity.charger.Connection;
-import com.icl.fmfmc_backend.entity.routing.Route;
+import com.icl.fmfmc_backend.entity.routing.Journey;
 import com.icl.fmfmc_backend.entity.enums.AccessType;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import com.icl.fmfmc_backend.util.TestDataFactory;
@@ -185,8 +185,8 @@ public class ChargerServiceTest {
 
     Charger charger1 = TestDataFactory.createDefaultCharger(1L, 3, 0.0, 0.0);
 
-    Route route = TestDataFactory.createDefaultRoute();
-    route.setConnectionTypes(List.of(ConnectionType.CCS)); // 33L
+    Journey journey = TestDataFactory.createDefaultRoute();
+    journey.setConnectionTypes(List.of(ConnectionType.CCS)); // 33L
 
     for (Connection connection : charger1.getConnections()) {
       connection.setConnectionTypeID(33L);
@@ -202,7 +202,7 @@ public class ChargerServiceTest {
     chargerService.saveCharger(charger1);
 
     Double highestPowerCompatibleKw =
-        chargerService.getHighestPowerConnectionByTypeInCharger(charger1, route);
+        chargerService.getHighestPowerConnectionByTypeInCharger(charger1, journey);
 
     assertNotNull(highestPowerCompatibleKw);
     assertEquals(200.0, highestPowerCompatibleKw, 0.001);

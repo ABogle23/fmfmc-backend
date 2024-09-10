@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +32,7 @@ public class JourneyController {
    * Endpoint to get a journey complete with route, charging stations, and any suitable food
    * establishments along the way.
    *
-   * @param routeRequest the route request object containing journey parameters
+   * @param journeyRequest the route request object containing journey parameters
    * @return ResponseEntity containing the journey details
    * @throws JourneyNotFoundException if the journey is not found
    */
@@ -49,7 +48,7 @@ public class JourneyController {
               content =
                   @Content(
                       mediaType = "application/json",
-                      schema = @Schema(implementation = RouteRequest.class))),
+                      schema = @Schema(implementation = JourneyRequest.class))),
       responses = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200",
@@ -69,18 +68,18 @@ public class JourneyController {
       })
   @LogExecutionTime(message = "Response time for /find-route endpoint ")
   @PostMapping("/find-route")
-  public ResponseEntity<?> getJourney(@Valid @RequestBody RouteRequest routeRequest)
+  public ResponseEntity<?> getJourney(@Valid @RequestBody JourneyRequest journeyRequest)
       throws JourneyNotFoundException {
-    logger.info("Received route request: {}", routeRequest);
+    logger.info("Received route request: {}", journeyRequest);
     logger.info("Journey is valid");
     JourneyContext context = new JourneyContext();
-    RouteResult routeResult = null;
+    JourneyResult journeyResult = null;
 
-    routeResult = journeyService.getJourney(routeRequest, context);
+    journeyResult = journeyService.getJourney(journeyRequest, context);
 
-    ApiResponse<RouteResult> response =
+    ApiResponse<JourneyResult> response =
         new ApiResponse<>(
-            routeResult,
+                journeyResult,
             true,
             "Route successfully calculated.",
             context.getFallbackUsed() ? true : null,

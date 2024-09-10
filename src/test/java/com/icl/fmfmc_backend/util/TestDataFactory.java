@@ -1,12 +1,12 @@
 package com.icl.fmfmc_backend.util;
 
-import com.icl.fmfmc_backend.dto.api.RouteRequest;
+import com.icl.fmfmc_backend.dto.api.JourneyRequest;
 import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
 import com.icl.fmfmc_backend.entity.charger.Charger;
 import com.icl.fmfmc_backend.entity.charger.Connection;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
-import com.icl.fmfmc_backend.entity.routing.Route;
+import com.icl.fmfmc_backend.entity.routing.Journey;
 import com.icl.fmfmc_backend.entity.enums.DeviationScope;
 import com.icl.fmfmc_backend.entity.enums.StoppingRange;
 import org.locationtech.jts.geom.Coordinate;
@@ -22,8 +22,8 @@ import java.util.List;
 public class TestDataFactory {
   private static final GeometryFactory geometryFactory = new GeometryFactory();
 
-  public static RouteRequest createDefaultRouteRequest() {
-    RouteRequest request = new RouteRequest();
+  public static JourneyRequest createDefaultJourneyRequest() {
+    JourneyRequest request = new JourneyRequest();
     request.setStartLat(51.110251);
     request.setStartLong(-2.109733);
     request.setEndLat(51.108095);
@@ -52,9 +52,9 @@ public class TestDataFactory {
     return request;
   }
 
-  public static RouteRequest createCustomRouteRequest(
+  public static JourneyRequest createCustomJourneyRequest(
       double startLat, double startLong, double endLat, double endLong) {
-    RouteRequest request = new RouteRequest();
+    JourneyRequest request = new JourneyRequest();
     request.setStartLat(startLat);
     request.setStartLong(startLong);
     request.setEndLat(endLat);
@@ -111,10 +111,10 @@ public class TestDataFactory {
 
 
 
-  public static Route createDefaultRoute() {
-    Route route = new Route(createDefaultDirectionsResponse(), createDefaultRouteRequest());
+  public static Journey createDefaultRoute() {
+    Journey journey = new Journey(createDefaultDirectionsResponse(), createDefaultJourneyRequest());
 
-    return route;
+    return journey;
   }
 
   public static FoodEstablishment createDefaultFoodEstablishment(

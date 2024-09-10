@@ -1,12 +1,12 @@
 package com.icl.fmfmc_backend.service;
 
 import com.icl.fmfmc_backend.dto.api.JourneyContext;
-import com.icl.fmfmc_backend.dto.api.RouteRequest;
-import com.icl.fmfmc_backend.dto.api.RouteResult;
+import com.icl.fmfmc_backend.dto.api.JourneyRequest;
+import com.icl.fmfmc_backend.dto.api.JourneyResult;
 import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
 import com.icl.fmfmc_backend.entity.charger.Charger;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
-import com.icl.fmfmc_backend.entity.routing.Route;
+import com.icl.fmfmc_backend.entity.routing.Journey;
 import com.icl.fmfmc_backend.entity.enums.DeviationScope;
 import com.icl.fmfmc_backend.entity.enums.FallbackStrategy;
 import com.icl.fmfmc_backend.exception.service.*;
@@ -40,9 +40,9 @@ public class JourneyServiceTest {
   @InjectMocks private JourneyService journeyService;
 
   DirectionsResponse directionsResponse = TestDataFactory.createDefaultDirectionsResponse();
-  RouteRequest routeRequest = TestDataFactory.createDefaultRouteRequest();
+  JourneyRequest journeyRequest = TestDataFactory.createDefaultJourneyRequest();
 
-  private final Route route = new Route(directionsResponse, routeRequest);
+  private final Journey journey = new Journey(directionsResponse, journeyRequest);
 
   private final List<Charger> chargers = TestDataFactory.createChargersForBatteryTest();
 
@@ -52,14 +52,14 @@ public class JourneyServiceTest {
   private final JourneyContext journeyContext = new JourneyContext();
 
   public void setRequestRelatedParams() {
-    routeRequest.setStopForEating(true);
-    route.setStopForEating(true);
-    route.setChargerSearchDeviation(DeviationScope.moderate);
-    route.setEatingOptionSearchDeviation(DeviationScope.moderate);
+    journeyRequest.setStopForEating(true);
+    journey.setStopForEating(true);
+    journey.setChargerSearchDeviation(DeviationScope.moderate);
+    journey.setEatingOptionSearchDeviation(DeviationScope.moderate);
   }
 
   @Test
-  public void getJourneyReturnsRouteResultWhenJourneyFound()
+  public void getJourneyReturnsJourneyResultWhenJourneyFound()
       throws JourneyNotFoundException,
           NoFoodEstablishmentsFoundException,
           NoFoodEstablishmentsInRangeOfChargerException,
@@ -72,7 +72,7 @@ public class JourneyServiceTest {
     FoodEstablishment optimalFe =
         TestDataFactory.createDefaultFoodEstablishment("1", "Food1", -1.5354433, 51.214881);
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.2, 0.9, 0.2);
     //    TestHelperFunctions.setFoodAdjacentCharger(chargers, route, 117934L);
     Charger adjacentCharger = TestHelperFunctions.findChargerById(chargers, 117934L);
     System.out.println("adjacentCharger: " + adjacentCharger);
@@ -92,14 +92,14 @@ public class JourneyServiceTest {
     Mockito.when(routingService.snapRouteToStops(any(), any()))
         .thenReturn(TestDataFactory.createDefaultDirectionsResponse().getLineString());
 
-    RouteResult result = null;
+    JourneyResult result = null;
     try {
-      result = journeyService.getJourney(routeRequest, journeyContext);
+      result = journeyService.getJourney(journeyRequest, journeyContext);
     } catch (JourneyNotFoundException e3) {
       fail("JourneyNotFoundException should not have been thrown");
     }
 
-    System.out.println("route.getFoodAdjacentCharger(): " + route.getFoodAdjacentCharger());
+    System.out.println("route.getFoodAdjacentCharger(): " + journey.getFoodAdjacentCharger());
 
     assertNotNull(result);
     assertEquals(optimalFe.getId(), result.getFoodEstablishments().get(0).getId());
@@ -109,7 +109,7 @@ public class JourneyServiceTest {
   }
 
   @Test
-  public void getJourneyReturnsRouteResultWithFoodEstablishmentAfterFallback()
+  public void getJourneyReturnsJourneyResultWithFoodEstablishmentAfterFallback()
       throws JourneyNotFoundException,
           NoFoodEstablishmentsFoundException,
           NoFoodEstablishmentsInRangeOfChargerException,
@@ -122,7 +122,7 @@ public class JourneyServiceTest {
     FoodEstablishment optimalFe =
         TestDataFactory.createDefaultFoodEstablishment("1", "Food1", -1.5354433, 51.214881);
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.2, 0.9, 0.2);
     //    TestHelperFunctions.setFoodAdjacentCharger(chargers, route, 117934L);
     Charger adjacentCharger = TestHelperFunctions.findChargerById(chargers, 117934L);
     System.out.println("adjacentCharger: " + adjacentCharger);
@@ -143,14 +143,14 @@ public class JourneyServiceTest {
     Mockito.when(routingService.snapRouteToStops(any(), any()))
         .thenReturn(TestDataFactory.createDefaultDirectionsResponse().getLineString());
 
-    RouteResult result = null;
+    JourneyResult result = null;
     try {
-      result = journeyService.getJourney(routeRequest, journeyContext);
+      result = journeyService.getJourney(journeyRequest, journeyContext);
     } catch (JourneyNotFoundException e3) {
       fail("JourneyNotFoundException should not have been thrown");
     }
 
-    System.out.println("route.getFoodAdjacentCharger(): " + route.getFoodAdjacentCharger());
+    System.out.println("route.getFoodAdjacentCharger(): " + journey.getFoodAdjacentCharger());
 
     assertNotNull(result);
     assertEquals(optimalFe.getId(), result.getFoodEstablishments().get(0).getId());
@@ -168,7 +168,7 @@ public class JourneyServiceTest {
 
     setRequestRelatedParams();
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.2, 0.9, 0.2);
     //    TestHelperFunctions.setFoodAdjacentCharger(chargers, route, 117934L);
     Charger charger = TestHelperFunctions.findChargerById(chargers, 117934L);
 
@@ -199,9 +199,9 @@ public class JourneyServiceTest {
     Mockito.when(routingService.snapRouteToStops(any(), any()))
         .thenReturn(TestDataFactory.createDefaultDirectionsResponse().getLineString());
 
-    RouteResult result = null;
+    JourneyResult result = null;
     try {
-      result = journeyService.getJourney(routeRequest, journeyContext);
+      result = journeyService.getJourney(journeyRequest, journeyContext);
     } catch (JourneyNotFoundException e3) {
       fail("JourneyNotFoundException should not have been thrown");
     }
@@ -222,7 +222,7 @@ public class JourneyServiceTest {
           NoChargersOnRouteFoundException,
           NoChargerWithinRangeException {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.2, 0.9, 0.2);
     Charger charger = TestHelperFunctions.findChargerById(chargers, 117934L);
 
     Mockito.when(routingService.getDirections(any()))
@@ -236,7 +236,7 @@ public class JourneyServiceTest {
         .thenReturn(Arrays.asList(charger));
     Mockito.when(routingService.snapRouteToStops(any(), any()))
         .thenReturn(TestDataFactory.createDefaultDirectionsResponse().getLineString());
-    RouteResult result = journeyService.getJourney(routeRequest, journeyContext);
+    JourneyResult result = journeyService.getJourney(journeyRequest, journeyContext);
 
     assertNotNull(result);
     assertEquals(charger.getId(), result.getChargers().get(0).getId());
@@ -254,7 +254,7 @@ public class JourneyServiceTest {
           NoChargersOnRouteFoundException,
           NoChargerWithinRangeException {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.2, 0.9, 0.2);
     Charger charger = TestHelperFunctions.findChargerById(chargers, 117934L);
 
     Mockito.when(routingService.getDirections(any()))
@@ -267,7 +267,7 @@ public class JourneyServiceTest {
     JourneyNotFoundException thrown =
         assertThrows(
             JourneyNotFoundException.class,
-            () -> journeyService.getJourney(routeRequest, journeyContext),
+            () -> journeyService.getJourney(journeyRequest, journeyContext),
             "Expected getJourney to throw, it didn't");
 
     assertFallbackStrategies(
@@ -283,7 +283,7 @@ public class JourneyServiceTest {
           NoChargersOnRouteFoundException,
           NoChargerWithinRangeException {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.2, 0.9, 0.2);
     Charger charger = TestHelperFunctions.findChargerById(chargers, 117934L);
 
     Mockito.when(routingService.getDirections(any()))
@@ -299,7 +299,7 @@ public class JourneyServiceTest {
 
     Mockito.when(routingService.snapRouteToStops(any(), any()))
         .thenReturn(TestDataFactory.createDefaultDirectionsResponse().getLineString());
-    RouteResult result = journeyService.getJourney(routeRequest, journeyContext);
+    JourneyResult result = journeyService.getJourney(journeyRequest, journeyContext);
 
     assertNotNull(result);
     assertEquals(charger.getId(), result.getChargers().get(0).getId());
@@ -314,7 +314,7 @@ public class JourneyServiceTest {
               NoChargersOnRouteFoundException,
               NoChargerWithinRangeException {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.2, 0.9, 0.2);
     Charger charger = TestHelperFunctions.findChargerById(chargers, 117934L);
 
     Mockito.when(routingService.getDirections(any()))
@@ -331,7 +331,7 @@ public class JourneyServiceTest {
 
     Mockito.when(routingService.snapRouteToStops(any(), any()))
         .thenReturn(TestDataFactory.createDefaultDirectionsResponse().getLineString());
-    RouteResult result = journeyService.getJourney(routeRequest, journeyContext);
+    JourneyResult result = journeyService.getJourney(journeyRequest, journeyContext);
 
     assertNotNull(result);
     assertEquals(charger.getId(), result.getChargers().get(0).getId());
@@ -351,7 +351,7 @@ public class JourneyServiceTest {
               NoChargersOnRouteFoundException,
               NoChargerWithinRangeException {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.2, 0.9, 0.2);
     Charger charger = TestHelperFunctions.findChargerById(chargers, 117934L);
 
     Mockito.when(routingService.getDirections(any()))
@@ -367,7 +367,7 @@ public class JourneyServiceTest {
 
     Mockito.when(routingService.snapRouteToStops(any(), any()))
         .thenReturn(TestDataFactory.createDefaultDirectionsResponse().getLineString());
-    RouteResult result = journeyService.getJourney(routeRequest, journeyContext);
+    JourneyResult result = journeyService.getJourney(journeyRequest, journeyContext);
 
     assertNotNull(result);
     assertEquals(charger.getId(), result.getChargers().get(0).getId());
@@ -386,7 +386,7 @@ public class JourneyServiceTest {
           NoChargersOnRouteFoundException,
           NoChargerWithinRangeException {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.2, 0.9, 0.2);
     Charger charger = TestHelperFunctions.findChargerById(chargers, 117934L);
 
     Mockito.when(routingService.getDirections(any()))
@@ -403,7 +403,7 @@ public class JourneyServiceTest {
     JourneyNotFoundException thrown =
         assertThrows(
             JourneyNotFoundException.class,
-            () -> journeyService.getJourney(routeRequest, journeyContext),
+            () -> journeyService.getJourney(journeyRequest, journeyContext),
             "Expected getJourney to throw, it didn't");
     assertFallbackStrategies(
         journeyContext,

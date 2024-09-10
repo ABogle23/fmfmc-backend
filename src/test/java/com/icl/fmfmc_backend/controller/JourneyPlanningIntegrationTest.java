@@ -2,7 +2,7 @@ package com.icl.fmfmc_backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icl.fmfmc_backend.config.TestContainerConfig;
-import com.icl.fmfmc_backend.dto.api.RouteRequest;
+import com.icl.fmfmc_backend.dto.api.JourneyRequest;
 import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.integration.directions.DirectionsClient;
@@ -128,14 +128,14 @@ public class JourneyPlanningIntegrationTest {
     Mockito.when(foodEstablishmentClient.getFoodEstablishmentsByParam(any()))
         .thenReturn(foodEstablishments);
 
-    RouteRequest validRouteRequest = objectMapper.readValue(jsonPayload, RouteRequest.class);
+    JourneyRequest validJourneyRequest = objectMapper.readValue(jsonPayload, JourneyRequest.class);
     System.out.println("Json Payload:\n" + jsonPayload);
 
     mockMvc
         .perform(
             post("/api/find-route")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validRouteRequest)))
+                .content(objectMapper.writeValueAsString(validJourneyRequest)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.data.chargers.length()").value(1))
@@ -157,10 +157,10 @@ public class JourneyPlanningIntegrationTest {
     Mockito.when(foodEstablishmentClient.getFoodEstablishmentsByParam(any()))
         .thenReturn(foodEstablishments);
 
-    RouteRequest validRouteRequest = objectMapper.readValue(jsonPayload, RouteRequest.class);
-    System.out.println("validRouteRequest:\n" + validRouteRequest);
+    JourneyRequest validJourneyRequest = objectMapper.readValue(jsonPayload, JourneyRequest.class);
+    System.out.println("validRouteRequest:\n" + validJourneyRequest);
     System.out.println("Json Payload:\n" + jsonPayload);
-    String converted = objectMapper.writeValueAsString(validRouteRequest);
+    String converted = objectMapper.writeValueAsString(validJourneyRequest);
     System.out.println("Converted Back:\n" + converted);
 
     Integer expChargersCount = 0;
@@ -170,7 +170,7 @@ public class JourneyPlanningIntegrationTest {
         .perform(
             post("/api/find-route")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validRouteRequest)))
+                .content(objectMapper.writeValueAsString(validJourneyRequest)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.data.chargers.length()").value(expChargersCount))
@@ -228,14 +228,14 @@ public class JourneyPlanningIntegrationTest {
     Mockito.when(foodEstablishmentClient.getFoodEstablishmentsByParam(any()))
         .thenReturn(foodEstablishments);
 
-    RouteRequest validRouteRequest = objectMapper.readValue(jsonPayload, RouteRequest.class);
+    JourneyRequest validJourneyRequest = objectMapper.readValue(jsonPayload, JourneyRequest.class);
     System.out.println("Json Payload:\n" + jsonPayload);
 
     mockMvc
         .perform(
             post("/api/find-route")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validRouteRequest)))
+                .content(objectMapper.writeValueAsString(validJourneyRequest)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.data.chargers.length()").value(1))

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 // @NoArgsConstructor
 @Data
+@Schema(description = "Charger request object containing charger search parameters")
 public class ChargerRequest {
 
   // BoundingBox

@@ -1,5 +1,6 @@
 package com.icl.fmfmc_backend.entity.charger;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Schema(description = "Connection object containing individual charger connection information")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

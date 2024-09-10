@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.dto.pointOfInterest;
 
-import com.icl.fmfmc_backend.dto.api.RouteRequest;
+import com.icl.fmfmc_backend.dto.api.JourneyRequest;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.enums.FoodCategory;
 import lombok.Data;
@@ -18,10 +18,10 @@ public class PointOfInterest {
   private List<FoodEstablishment> foodEstablishments = new ArrayList<>();
 
 
-    public PointOfInterest(RouteRequest routeRequest) {
-        this.eatingOptions = routeRequest.getEatingOptions();
-        this.minPrice = routeRequest.getMinPrice();
-        this.maxPrice = routeRequest.getMaxPrice();
-        this.maxWalkingDistance = routeRequest.getMaxWalkingDistance();
+    public PointOfInterest(JourneyRequest journeyRequest) {
+        this.eatingOptions = journeyRequest.getEatingOptions();
+        this.minPrice = journeyRequest.getMinPrice();
+        this.maxPrice = journeyRequest.getMaxPrice();
+        this.maxWalkingDistance = journeyRequest.getMaxWalkingDistance();
     }
 }

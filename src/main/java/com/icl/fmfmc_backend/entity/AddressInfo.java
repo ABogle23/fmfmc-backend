@@ -1,6 +1,7 @@
 package com.icl.fmfmc_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
+@Schema(description = "Address Info object containing address information")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

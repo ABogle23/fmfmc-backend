@@ -2,8 +2,8 @@ package com.icl.fmfmc_backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icl.fmfmc_backend.dto.api.JourneyContext;
-import com.icl.fmfmc_backend.dto.api.RouteRequest;
-import com.icl.fmfmc_backend.dto.api.RouteResult;
+import com.icl.fmfmc_backend.dto.api.JourneyRequest;
+import com.icl.fmfmc_backend.dto.api.JourneyResult;
 import com.icl.fmfmc_backend.exception.service.JourneyNotFoundException;
 import com.icl.fmfmc_backend.service.ChargerUpdateScheduler;
 import com.icl.fmfmc_backend.service.EvScraperService;
@@ -58,15 +58,15 @@ public class JourneyControllerIntegrationTest {
 
   @Test
   public void minValidRequestParamsReturnsSuccess() throws Exception {
-    RouteRequest validRequest = new RouteRequest();
+    JourneyRequest validRequest = new JourneyRequest();
     validRequest.setStartLat(34.0522);
     validRequest.setStartLong(-118.2437);
     validRequest.setEndLat(34.0522);
     validRequest.setEndLong(-118.2437);
 
-    RouteResult expectedRouteResult = new RouteResult();
-    when(journeyService.getJourney(any(RouteRequest.class), any(JourneyContext.class)))
-        .thenReturn(expectedRouteResult);
+    JourneyResult expectedJourneyResult = new JourneyResult();
+    when(journeyService.getJourney(any(JourneyRequest.class), any(JourneyContext.class)))
+        .thenReturn(expectedJourneyResult);
 
     mockMvc
         .perform(
@@ -112,11 +112,11 @@ public class JourneyControllerIntegrationTest {
         }
         """;
 
-    RouteRequest validRouteRequest = objectMapper.readValue(jsonPayload, RouteRequest.class);
+    JourneyRequest validJourneyRequest = objectMapper.readValue(jsonPayload, JourneyRequest.class);
 
-    RouteResult expectedRouteResult = new RouteResult();
-    when(journeyService.getJourney(any(RouteRequest.class), any(JourneyContext.class)))
-        .thenReturn(expectedRouteResult);
+    JourneyResult expectedJourneyResult = new JourneyResult();
+    when(journeyService.getJourney(any(JourneyRequest.class), any(JourneyContext.class)))
+        .thenReturn(expectedJourneyResult);
 
     System.out.println("Json Payload:\n" + jsonPayload);
 
@@ -124,7 +124,7 @@ public class JourneyControllerIntegrationTest {
         .perform(
             post("/api/find-route")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validRouteRequest)))
+                .content(objectMapper.writeValueAsString(validJourneyRequest)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
         .andDo(print());
@@ -136,7 +136,7 @@ public class JourneyControllerIntegrationTest {
 
   @Test
   public void validationFailureReturnsBadRequest() throws Exception {
-    RouteRequest invalidRequest = new RouteRequest();
+    JourneyRequest invalidRequest = new JourneyRequest();
 
     mockMvc
         .perform(
@@ -150,13 +150,13 @@ public class JourneyControllerIntegrationTest {
 
   @Test
   public void journeyNotFoundExceptionReturnsNotFound() throws Exception {
-    RouteRequest validRequest = new RouteRequest();
+    JourneyRequest validRequest = new JourneyRequest();
     validRequest.setStartLat(34.0522);
     validRequest.setStartLong(-118.2437);
     validRequest.setEndLat(34.0522);
     validRequest.setEndLong(-118.2437);
 
-    when(journeyService.getJourney(any(RouteRequest.class), any(JourneyContext.class)))
+    when(journeyService.getJourney(any(JourneyRequest.class), any(JourneyContext.class)))
         .thenThrow(new JourneyNotFoundException("No valid journey found."));
 
     mockMvc
@@ -182,9 +182,9 @@ public class JourneyControllerIntegrationTest {
             }
             """;
 
-    RouteResult expectedRouteResult = new RouteResult();
-    when(journeyService.getJourney(any(RouteRequest.class), any(JourneyContext.class)))
-        .thenReturn(expectedRouteResult);
+    JourneyResult expectedJourneyResult = new JourneyResult();
+    when(journeyService.getJourney(any(JourneyRequest.class), any(JourneyContext.class)))
+        .thenReturn(expectedJourneyResult);
 
     mockMvc
         .perform(
@@ -206,7 +206,7 @@ public class JourneyControllerIntegrationTest {
   public static final Double DEFAULT_END_LAT = 34.0522;
   public static final Double DEFAULT_END_LONG = -118.2437;
 
-  public static String createRouteRequestJson(
+  public static String createJourneyRequestJson(
       Double startLat,
       Double startLong,
       Double endLat,
@@ -233,7 +233,7 @@ public class JourneyControllerIntegrationTest {
     return jsonBuilder.toString();
   }
 
-  public static String createRouteRequestJsonWithDefaults(Map<String, Object> additionalParams) {
+  public static String createJourneyRequestJsonWithDefaults(Map<String, Object> additionalParams) {
     StringBuilder jsonBuilder = new StringBuilder();
     jsonBuilder.append(
         String.format(
@@ -255,133 +255,133 @@ public class JourneyControllerIntegrationTest {
     return jsonBuilder.toString();
   }
 
-  private static Stream<Arguments> routeRequestProvider() {
+  private static Stream<Arguments> journeyRequestProvider() {
     return Stream.of(
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("starting_battery", 0.8)), true),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("starting_battery", -0.1)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("starting_battery", 1.1)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("ev_range", 2000)), true),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("ev_range", 0)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("battery_capacity", 2000)), true),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("battery_capacity", 0)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("min_charge_level", 0.8)), true),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("min_charge_level", -0.1)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("min_charge_level", 1.1)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("starting_battery", 0.8)), true),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("starting_battery", -0.1)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("starting_battery", 1.1)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("ev_range", 2000)), true),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("ev_range", 0)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("battery_capacity", 2000)), true),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("battery_capacity", 0)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("min_charge_level", 0.8)), true),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("min_charge_level", -0.1)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("min_charge_level", 1.1)), false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("charge_level_after_each_stop", 0.8)), true),
+            createJourneyRequestJsonWithDefaults(Map.of("charge_level_after_each_stop", 0.8)), true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("charge_level_after_each_stop", -0.1)),
+            createJourneyRequestJsonWithDefaults(Map.of("charge_level_after_each_stop", -0.1)),
             false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("charge_level_after_each_stop", 1.1)), false),
+            createJourneyRequestJsonWithDefaults(Map.of("charge_level_after_each_stop", 1.1)), false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("final_destination_charge_level", 0.8)),
+            createJourneyRequestJsonWithDefaults(Map.of("final_destination_charge_level", 0.8)),
             true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("final_destination_charge_level", -0.1)),
+            createJourneyRequestJsonWithDefaults(Map.of("final_destination_charge_level", -0.1)),
             false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("final_destination_charge_level", 0.95)),
+            createJourneyRequestJsonWithDefaults(Map.of("final_destination_charge_level", 0.95)),
             false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(
+            createJourneyRequestJsonWithDefaults(
                 Map.of("final_destination_charge_level", 0.6, "charge_level_after_each_stop", 0.8)),
             true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(
+            createJourneyRequestJsonWithDefaults(
                 Map.of(
                     "final_destination_charge_level", 0.95, "charge_level_after_each_stop", 0.8)),
             false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("connection_types", "[\"type1\",\"type2\"]")),
+            createJourneyRequestJsonWithDefaults(Map.of("connection_types", "[\"type1\",\"type2\"]")),
             true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(
+            createJourneyRequestJsonWithDefaults(
                 Map.of("connection_types", "[\"INVALID\",\"type2\"]")),
             false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(
+            createJourneyRequestJsonWithDefaults(
                 Map.of("access_types", "[\"public\",\"restricted\"]")),
             true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("access_types", "[\"INVALID\",\"public\"]")),
+            createJourneyRequestJsonWithDefaults(Map.of("access_types", "[\"INVALID\",\"public\"]")),
             false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("min_kw_charge_speed", -1)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("min_kw_charge_speed", 250)), true),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("min_kw_charge_speed", -1)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("min_kw_charge_speed", 250)), true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("min_kw_charge_speed", 1000)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("max_kw_charge_speed", 0)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("max_kw_charge_speed", 250)), true),
+            createJourneyRequestJsonWithDefaults(Map.of("min_kw_charge_speed", 1000)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("max_kw_charge_speed", 0)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("max_kw_charge_speed", 250)), true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("max_kw_charge_speed", 1000)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("min_no_charge_points", 0)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("min_no_charge_points", 2)), true),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("stop_for_eating", true)), true),
+            createJourneyRequestJsonWithDefaults(Map.of("max_kw_charge_speed", 1000)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("min_no_charge_points", 0)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("min_no_charge_points", 2)), true),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("stop_for_eating", true)), true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("stop_for_eating", "invalid")), false),
+            createJourneyRequestJsonWithDefaults(Map.of("stop_for_eating", "invalid")), false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(
+            createJourneyRequestJsonWithDefaults(
                 Map.of("eating_options", "[\"greek_restaurant\",\"cafe\"]")),
             true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("eating_options", "[\"INVALID\",\"cafe\"]")),
+            createJourneyRequestJsonWithDefaults(Map.of("eating_options", "[\"INVALID\",\"cafe\"]")),
             false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("min_price", 0)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("min_price", 2)), true),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("min_price", 5)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("max_price", 0)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("max_price", 2)), true),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("max_price", 5)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("max_walking_distance", 0)), false),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("max_walking_distance", 250)), true),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("min_price", 0)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("min_price", 2)), true),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("min_price", 5)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("max_price", 0)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("max_price", 2)), true),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("max_price", 5)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("max_walking_distance", 0)), false),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("max_walking_distance", 250)), true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("max_walking_distance", 100000)), false),
+            createJourneyRequestJsonWithDefaults(Map.of("max_walking_distance", 100000)), false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("include_alternative_Eating_options", true)),
+            createJourneyRequestJsonWithDefaults(Map.of("include_alternative_Eating_options", true)),
             true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(
+            createJourneyRequestJsonWithDefaults(
                 Map.of("include_alternative_Eating_options", "invalid")),
             false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("depart_time", "\"14:46:00\"")), true),
+            createJourneyRequestJsonWithDefaults(Map.of("depart_time", "\"14:46:00\"")), true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("depart_time", "46:243:32.5000")), false),
+            createJourneyRequestJsonWithDefaults(Map.of("depart_time", "46:243:32.5000")), false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("break_duration", "\"14:46:00\"")), true),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("break_duration", "1")), false),
+            createJourneyRequestJsonWithDefaults(Map.of("break_duration", "\"14:46:00\"")), true),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("break_duration", "1")), false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("break_duration", "\"01:00:00.5\"")), true),
-        Arguments.of(createRouteRequestJsonWithDefaults(Map.of("break_duration", "1")), false),
+            createJourneyRequestJsonWithDefaults(Map.of("break_duration", "\"01:00:00.5\"")), true),
+        Arguments.of(createJourneyRequestJsonWithDefaults(Map.of("break_duration", "1")), false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("stopping_range", "\"middle\"")), true),
+            createJourneyRequestJsonWithDefaults(Map.of("stopping_range", "\"middle\"")), true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("stopping_range", "INVALID")), false),
+            createJourneyRequestJsonWithDefaults(Map.of("stopping_range", "INVALID")), false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("charger_search_deviation", "\"minimal\"")),
+            createJourneyRequestJsonWithDefaults(Map.of("charger_search_deviation", "\"minimal\"")),
             true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(Map.of("charger_search_deviation", "INVALID")),
+            createJourneyRequestJsonWithDefaults(Map.of("charger_search_deviation", "INVALID")),
             false),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(
+            createJourneyRequestJsonWithDefaults(
                 Map.of("eating_option_search_deviation", "\"minimal\"")),
             true),
         Arguments.of(
-            createRouteRequestJsonWithDefaults(
+            createJourneyRequestJsonWithDefaults(
                 Map.of("eating_option_search_deviation", "\"INVALID\"")),
             false));
   }
 
   @ParameterizedTest
-  @MethodSource("routeRequestProvider")
-  public void testRouteRequestSerialization(String jsonPayload, boolean isSuccessExpected)
+  @MethodSource("journeyRequestProvider")
+  public void testJourneyRequestSerialization(String jsonPayload, boolean isSuccessExpected)
       throws Exception {
 
     if (isSuccessExpected) {
-      RouteRequest routeRequest = objectMapper.readValue(jsonPayload, RouteRequest.class);
-      when(journeyService.getJourney(any(RouteRequest.class), any(JourneyContext.class)))
-          .thenReturn(new RouteResult());
+      JourneyRequest journeyRequest = objectMapper.readValue(jsonPayload, JourneyRequest.class);
+      when(journeyService.getJourney(any(JourneyRequest.class), any(JourneyContext.class)))
+          .thenReturn(new JourneyResult());
 
       mockMvc
           .perform(
@@ -390,7 +390,7 @@ public class JourneyControllerIntegrationTest {
           .andExpect(jsonPath("$.success").value(true));
 
       verify(journeyService, times(1))
-          .getJourney(any(RouteRequest.class), any(JourneyContext.class));
+          .getJourney(any(JourneyRequest.class), any(JourneyContext.class));
     } else {
       mockMvc
           .perform(
@@ -399,7 +399,7 @@ public class JourneyControllerIntegrationTest {
           .andExpect(jsonPath("$.message").value("Validation Failed"));
 
       verify(journeyService, never())
-          .getJourney(any(RouteRequest.class), any(JourneyContext.class));
+          .getJourney(any(JourneyRequest.class), any(JourneyContext.class));
     }
   }
 }

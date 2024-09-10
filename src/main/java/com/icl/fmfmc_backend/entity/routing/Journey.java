@@ -1,7 +1,7 @@
 package com.icl.fmfmc_backend.entity.routing;
 
 import com.icl.fmfmc_backend.Routing.GeometryService;
-import com.icl.fmfmc_backend.dto.api.RouteRequest;
+import com.icl.fmfmc_backend.dto.api.JourneyRequest;
 import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
 import com.icl.fmfmc_backend.dto.directions.OSRDirectionsServiceGeoJSONResponse;
 import com.icl.fmfmc_backend.entity.charger.Charger;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class Route {
+public class Journey {
 
   private static final GeometryService geometryService = new GeometryService();
 
@@ -145,55 +145,55 @@ public class Route {
   // TODO: consider weather conditions in range calculation
 
   // Standard Constructor
-  private Route(RouteRequest routeRequest) {
+  private Journey(JourneyRequest journeyRequest) {
 
-    this.startCoordinates = new Double[] {routeRequest.getStartLong(), routeRequest.getStartLat()};
-    this.endCoordinates = new Double[] {routeRequest.getEndLong(), routeRequest.getEndLat()};
+    this.startCoordinates = new Double[] {journeyRequest.getStartLong(), journeyRequest.getStartLat()};
+    this.endCoordinates = new Double[] {journeyRequest.getEndLong(), journeyRequest.getEndLat()};
 
-    this.StartBattery = routeRequest.getStartingBattery();
-    this.currentBattery = routeRequest.getStartingBattery() * routeRequest.getEvRange();
-    this.evRange = routeRequest.getEvRange();
-    this.minChargeLevelPct = routeRequest.getMinChargeLevel();
-    this.minChargeLevel = routeRequest.getMinChargeLevel() * routeRequest.getEvRange();
-    this.chargeLevelAfterEachStopPct = routeRequest.getChargeLevelAfterEachStop();
+    this.StartBattery = journeyRequest.getStartingBattery();
+    this.currentBattery = journeyRequest.getStartingBattery() * journeyRequest.getEvRange();
+    this.evRange = journeyRequest.getEvRange();
+    this.minChargeLevelPct = journeyRequest.getMinChargeLevel();
+    this.minChargeLevel = journeyRequest.getMinChargeLevel() * journeyRequest.getEvRange();
+    this.chargeLevelAfterEachStopPct = journeyRequest.getChargeLevelAfterEachStop();
     this.chargeLevelAfterEachStop =
-        routeRequest.getChargeLevelAfterEachStop() * routeRequest.getEvRange();
-    this.finalDestinationChargeLevelPct = routeRequest.getFinalDestinationChargeLevel();
+        journeyRequest.getChargeLevelAfterEachStop() * journeyRequest.getEvRange();
+    this.finalDestinationChargeLevelPct = journeyRequest.getFinalDestinationChargeLevel();
     this.finalDestinationChargeLevel =
-        routeRequest.getFinalDestinationChargeLevel() * routeRequest.getEvRange();
+        journeyRequest.getFinalDestinationChargeLevel() * journeyRequest.getEvRange();
 
-    if (routeRequest.getBatteryCapacity() != null) {
-      this.batteryCapacity = routeRequest.getBatteryCapacity();
+    if (journeyRequest.getBatteryCapacity() != null) {
+      this.batteryCapacity = journeyRequest.getBatteryCapacity();
     } else {
-      this.batteryCapacity = (routeRequest.getEvRange() * 200) / 1000000; // guesstimate
+      this.batteryCapacity = (journeyRequest.getEvRange() * 200) / 1000000; // guesstimate
     }
     System.out.println("Battery capacity: " + this.batteryCapacity);
 
-    this.accessTypes = routeRequest.getAccessTypes();
-    this.connectionTypes = routeRequest.getConnectionTypes();
-    this.minKwChargeSpeed = routeRequest.getMinKwChargeSpeed();
-    this.maxKwChargeSpeed = routeRequest.getMaxKwChargeSpeed();
-    this.minNoChargePoints = routeRequest.getMinNoChargePoints();
+    this.accessTypes = journeyRequest.getAccessTypes();
+    this.connectionTypes = journeyRequest.getConnectionTypes();
+    this.minKwChargeSpeed = journeyRequest.getMinKwChargeSpeed();
+    this.maxKwChargeSpeed = journeyRequest.getMaxKwChargeSpeed();
+    this.minNoChargePoints = journeyRequest.getMinNoChargePoints();
 
-    this.stopForEating = routeRequest.getStopForEating();
-    this.eatingOptions = routeRequest.getEatingOptions();
-    this.minPrice = routeRequest.getMinPrice();
-    this.maxPrice = routeRequest.getMaxPrice();
-    this.maxWalkingDistance = routeRequest.getMaxWalkingDistance();
-    this.includeAlternativeEatingOptions = routeRequest.getIncludeAlternativeEatingOptions();
-    this.stoppingRange = routeRequest.getStoppingRange();
+    this.stopForEating = journeyRequest.getStopForEating();
+    this.eatingOptions = journeyRequest.getEatingOptions();
+    this.minPrice = journeyRequest.getMinPrice();
+    this.maxPrice = journeyRequest.getMaxPrice();
+    this.maxWalkingDistance = journeyRequest.getMaxWalkingDistance();
+    this.includeAlternativeEatingOptions = journeyRequest.getIncludeAlternativeEatingOptions();
+    this.stoppingRange = journeyRequest.getStoppingRange();
 
-    this.departTime = routeRequest.getDepartTime();
-    this.stoppingTime = routeRequest.getBreakDuration();
+    this.departTime = journeyRequest.getDepartTime();
+    this.stoppingTime = journeyRequest.getBreakDuration();
 
-    this.chargerSearchDeviation = routeRequest.getChargerSearchDeviation();
-    this.eatingOptionSearchDeviation = routeRequest.getEatingOptionSearchDeviation();
+    this.chargerSearchDeviation = journeyRequest.getChargerSearchDeviation();
+    this.eatingOptionSearchDeviation = journeyRequest.getEatingOptionSearchDeviation();
   }
 
   // Secondary Constructor using DirectionsResponse and RouteRequest
 
-  public Route(DirectionsResponse directionsResponse, RouteRequest routeRequest) {
-    this(routeRequest);
+  public Journey(DirectionsResponse directionsResponse, JourneyRequest journeyRequest) {
+    this(journeyRequest);
     this.originalLineStringRoute = directionsResponse.getLineString();
     this.workingLineStringRoute = originalLineStringRoute;
     this.bufferedLineString =
@@ -205,8 +205,8 @@ public class Route {
   // Secondary Constructor coupled to OSRDirectionsServiceGeoJSONResponse
 
   @Deprecated
-  public Route(OSRDirectionsServiceGeoJSONResponse routeResponse, RouteRequest routeRequest) {
-    this(routeRequest);
+  public Journey(OSRDirectionsServiceGeoJSONResponse routeResponse, JourneyRequest journeyRequest) {
+    this(journeyRequest);
     this.originalLineStringRoute =
         geometryService.createLineString(
             routeResponse.getFeatures().get(0).getGeometry().getCoordinates());

@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import com.icl.fmfmc_backend.Routing.GeometryService;
 import com.icl.fmfmc_backend.entity.charger.Charger;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
-import com.icl.fmfmc_backend.entity.routing.Route;
+import com.icl.fmfmc_backend.entity.routing.Journey;
 import com.icl.fmfmc_backend.entity.enums.DeviationScope;
 import com.icl.fmfmc_backend.exception.integration.ServiceUnavailableException;
 import com.icl.fmfmc_backend.exception.service.NoFoodEstablishmentsFoundException;
@@ -38,10 +38,10 @@ public class PoiServiceTest {
   @Mock private FoodEstablishmentService foodEstablishmentService;
   @InjectMocks private PoiService poiService;
 
-  private final Route route =
-      new Route(
+  private final Journey journey =
+      new Journey(
           TestDataFactory.createDefaultDirectionsResponse(),
-          TestDataFactory.createDefaultRouteRequest());
+          TestDataFactory.createDefaultJourneyRequest());
 
   private final List<Point> chargersLocations = TestDataFactory.createPointsForChargersPoiTest();
 
@@ -50,15 +50,15 @@ public class PoiServiceTest {
 
   @BeforeEach
   public void setRequestRelatedParams() {
-    route.setStopForEating(true);
-    route.setChargerSearchDeviation(DeviationScope.moderate);
-    route.setEatingOptionSearchDeviation(DeviationScope.moderate);
+    journey.setStopForEating(true);
+    journey.setChargerSearchDeviation(DeviationScope.moderate);
+    journey.setEatingOptionSearchDeviation(DeviationScope.moderate);
   }
 
   @Test
   public void getFoodEstablishmentOnRouteReturnsFiveOptimalChoices() {
 
-    route.setIncludeAlternativeEatingOptions(true);
+    journey.setIncludeAlternativeEatingOptions(true);
 
     Mockito.when(chargerService.getChargerLocationsByParams(any()))
         .thenReturn(TestDataFactory.createPointsForChargersPoiTest());
@@ -72,7 +72,7 @@ public class PoiServiceTest {
 
     Tuple2<List<FoodEstablishment>, Charger> result = null;
     try {
-      result = poiService.getFoodEstablishmentOnRoute(route);
+      result = poiService.getFoodEstablishmentOnRoute(journey);
     } catch (NoFoodEstablishmentsFoundException e) {
       fail("NoFoodEstablishmentsFoundException should not have been thrown");
     } catch (NoFoodEstablishmentsInRangeOfChargerException e) {
@@ -93,7 +93,7 @@ public class PoiServiceTest {
           GeometryService.calculateDistanceBetweenPoints(
               foodEstablishment.getLocation(), result.getT2().getLocation());
 
-      assertTrue(chargerFoodEstablishmentDistance < route.getMaxWalkingDistance());
+      assertTrue(chargerFoodEstablishmentDistance < journey.getMaxWalkingDistance());
       System.out.println("ChargerFoodEstablishmentDistance: " + chargerFoodEstablishmentDistance);
     }
 
@@ -118,7 +118,7 @@ public class PoiServiceTest {
     NoFoodEstablishmentsInRangeOfChargerException thrown =
         assertThrows(
             NoFoodEstablishmentsInRangeOfChargerException.class,
-            () -> poiService.getFoodEstablishmentOnRoute(route),
+            () -> poiService.getFoodEstablishmentOnRoute(journey),
             "Expected findSuitableChargers to throw, it didn't");
   }
 
@@ -145,7 +145,7 @@ public class PoiServiceTest {
 
     Tuple2<List<FoodEstablishment>, Charger> result = null;
     try {
-      result = poiService.getFoodEstablishmentOnRoute(route);
+      result = poiService.getFoodEstablishmentOnRoute(journey);
     } catch (NoFoodEstablishmentsFoundException e) {
       fail("NoFoodEstablishmentsFoundException should not have been thrown");
     } catch (NoFoodEstablishmentsInRangeOfChargerException e) {
@@ -172,7 +172,7 @@ public class PoiServiceTest {
     NoFoodEstablishmentsFoundException thrown =
         assertThrows(
             NoFoodEstablishmentsFoundException.class,
-            () -> poiService.getFoodEstablishmentOnRoute(route),
+            () -> poiService.getFoodEstablishmentOnRoute(journey),
             "Expected NoFoodEstablishmentsFoundException to throw, it didn't");
   }
 
@@ -190,7 +190,7 @@ public class PoiServiceTest {
     PoiServiceException thrown =
         assertThrows(
             PoiServiceException.class,
-            () -> poiService.getFoodEstablishmentOnRoute(route),
+            () -> poiService.getFoodEstablishmentOnRoute(journey),
             "Expected findSuitableChargers to throw, it didn't");
   }
 }

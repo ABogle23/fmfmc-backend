@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.icl.fmfmc_backend.entity.AddressInfo;
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import org.locationtech.jts.geom.Point;
@@ -11,6 +12,7 @@ import org.locationtech.jts.geom.Point;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Schema(description = "Charger object containing charger information")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

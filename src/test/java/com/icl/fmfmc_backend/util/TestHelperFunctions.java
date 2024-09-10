@@ -1,7 +1,7 @@
 package com.icl.fmfmc_backend.util;
 
 import com.icl.fmfmc_backend.entity.charger.Charger;
-import com.icl.fmfmc_backend.entity.routing.Route;
+import com.icl.fmfmc_backend.entity.routing.Journey;
 
 import java.util.List;
 import java.util.Objects;
@@ -54,45 +54,45 @@ public class TestHelperFunctions {
     }
 
     public static void setBatteryAndCharging(
-            Route route,
+            Journey journey,
             Double currentBattery,
             Double evRange,
             Double minChargeLevel,
             Double chargerLevelAfterEachStop,
             Double finalDestinationChargeLevel) {
-      route.setCurrentBattery(currentBattery * evRange);
-      route.setEvRange(evRange);
-      route.setMinChargeLevelPct(minChargeLevel);
-      route.setMinChargeLevel(route.getEvRange() * route.getMinChargeLevelPct());
-      route.setChargeLevelAfterEachStopPct(chargerLevelAfterEachStop);
-      route.setChargeLevelAfterEachStop(route.getEvRange() * route.getChargeLevelAfterEachStopPct());
-      route.setFinalDestinationChargeLevelPct(finalDestinationChargeLevel);
-      route.setFinalDestinationChargeLevel(
-          route.getEvRange() * route.getFinalDestinationChargeLevelPct());
+      journey.setCurrentBattery(currentBattery * evRange);
+      journey.setEvRange(evRange);
+      journey.setMinChargeLevelPct(minChargeLevel);
+      journey.setMinChargeLevel(journey.getEvRange() * journey.getMinChargeLevelPct());
+      journey.setChargeLevelAfterEachStopPct(chargerLevelAfterEachStop);
+      journey.setChargeLevelAfterEachStop(journey.getEvRange() * journey.getChargeLevelAfterEachStopPct());
+      journey.setFinalDestinationChargeLevelPct(finalDestinationChargeLevel);
+      journey.setFinalDestinationChargeLevel(
+          journey.getEvRange() * journey.getFinalDestinationChargeLevelPct());
     }
 
-    private static void setBatteryAndChargingToRelaxed(Route route) {
+    private static void setBatteryAndChargingToRelaxed(Journey journey) {
       Double minChargeLevel = 0.1;
       Double chargerLevelAfterEachStop = 1.0;
       Double finalDestinationChargeLevel = 0.2;
-      route.setMinChargeLevelPct(minChargeLevel);
-      route.setMinChargeLevel(route.getEvRange() * route.getMinChargeLevelPct());
-      route.setChargeLevelAfterEachStopPct(chargerLevelAfterEachStop);
-      route.setChargeLevelAfterEachStop(route.getEvRange() * route.getChargeLevelAfterEachStopPct());
-      route.setFinalDestinationChargeLevelPct(finalDestinationChargeLevel);
-      route.setFinalDestinationChargeLevel(
-          route.getEvRange() * route.getFinalDestinationChargeLevelPct());
+      journey.setMinChargeLevelPct(minChargeLevel);
+      journey.setMinChargeLevel(journey.getEvRange() * journey.getMinChargeLevelPct());
+      journey.setChargeLevelAfterEachStopPct(chargerLevelAfterEachStop);
+      journey.setChargeLevelAfterEachStop(journey.getEvRange() * journey.getChargeLevelAfterEachStopPct());
+      journey.setFinalDestinationChargeLevelPct(finalDestinationChargeLevel);
+      journey.setFinalDestinationChargeLevel(
+          journey.getEvRange() * journey.getFinalDestinationChargeLevelPct());
     }
 
-    public static void setFoodAdjacentCharger(List<Charger> chargers, Route route, Long chargerId) {
+    public static void setFoodAdjacentCharger(List<Charger> chargers, Journey journey, Long chargerId) {
 
-        route.setStopForEating(true);
+        journey.setStopForEating(true);
 
         Optional<Charger> foodAdjacentCharger = chargers.stream()
                 .filter(charger -> Objects.equals(charger.getId(), chargerId))
                 .findFirst();
 
-        foodAdjacentCharger.ifPresent(charger -> route.setFoodAdjacentCharger(charger));
+        foodAdjacentCharger.ifPresent(charger -> journey.setFoodAdjacentCharger(charger));
     }
 
     public static Charger findChargerById(List<Charger> chargers, Long chargerId) {

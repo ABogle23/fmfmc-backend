@@ -2,7 +2,7 @@ package com.icl.fmfmc_backend.service;
 
 import com.icl.fmfmc_backend.dto.charger.ChargerQuery;
 import com.icl.fmfmc_backend.entity.charger.Charger;
-import com.icl.fmfmc_backend.entity.routing.Route;
+import com.icl.fmfmc_backend.entity.routing.Journey;
 import com.icl.fmfmc_backend.entity.enums.AccessTypeToOcmMapper;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import com.icl.fmfmc_backend.entity.enums.ConnectionTypeToOcmMapper;
@@ -186,13 +186,13 @@ public class ChargerService {
    * Retrieves the highest power connection by type in a charger.
    *
    * @param charger the charger entity
-   * @param route the route entity containing connection types
+   * @param journey the route entity containing connection types
    * @return the highest power connection speed in kW
    */
-  public Double getHighestPowerConnectionByTypeInCharger(Charger charger, Route route) {
+  public Double getHighestPowerConnectionByTypeInCharger(Charger charger, Journey journey) {
 
     List<Integer> mappedConnectionTypeIds =
-        connectionTypeToOcmMapper.mapConnectionTypeToDbIds(route.getConnectionTypes());
+        connectionTypeToOcmMapper.mapConnectionTypeToDbIds(journey.getConnectionTypes());
     String connectionTypeIds =
         String.join(
             ",",

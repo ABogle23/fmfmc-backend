@@ -1,10 +1,10 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.dto.api.RouteRequest;
+import com.icl.fmfmc_backend.dto.api.JourneyRequest;
 import com.icl.fmfmc_backend.dto.directions.DirectionsRequest;
 import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
 import com.icl.fmfmc_backend.entity.charger.Charger;
-import com.icl.fmfmc_backend.entity.routing.Route;
+import com.icl.fmfmc_backend.entity.routing.Journey;
 import com.icl.fmfmc_backend.exception.integration.DirectionsClientException;
 import com.icl.fmfmc_backend.exception.service.JourneyNotFoundException;
 import com.icl.fmfmc_backend.exception.service.NoChargerWithinRangeException;
@@ -35,11 +35,11 @@ public class RouteServiceTest {
 
   @InjectMocks private RoutingService routingService;
 
-  private final RouteRequest routeRequest = TestDataFactory.createDefaultRouteRequest();
+  private final JourneyRequest journeyRequest = TestDataFactory.createDefaultJourneyRequest();
   private final DirectionsResponse directionsResponse =
       TestDataFactory.createDefaultDirectionsResponse();
 
-  private final Route route = new Route(directionsResponse, routeRequest);
+  private final Journey journey = new Journey(directionsResponse, journeyRequest);
 
   private final List<Charger> chargers = TestDataFactory.createChargersForBatteryTest();
 
@@ -54,42 +54,42 @@ public class RouteServiceTest {
 
     List<Charger> inadequateChargers = TestDataFactory.createChargersForCurrentBatterySetTest();
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.3, 0.9, 0.5);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.3, 0.9, 0.5);
     List<Charger> suitableChargers = null;
 
     try {
-      suitableChargers = routingService.findSuitableChargers(route, inadequateChargers);
+      suitableChargers = routingService.findSuitableChargers(journey, inadequateChargers);
       TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
 
     TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 168555L, 258995L);
-    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
-    assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
-    TestHelperFunctions.assertEqualsWithTolerance(75572, route.getCurrentBattery(), 100);
+    assertTrue(journey.getCurrentBattery() > journey.getMinChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getFinalDestinationChargeLevel());
+    TestHelperFunctions.assertEqualsWithTolerance(75572, journey.getCurrentBattery(), 100);
   }
 
   @Test
   @DisplayName("Range > route length thus requiring no charger")
   public void shouldNotFindACharger() {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 200000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 200000.0, 0.2, 0.9, 0.2);
 
     List<Charger> suitableChargers = null;
 
     try {
-      suitableChargers = routingService.findSuitableChargers(route, chargers);
+      suitableChargers = routingService.findSuitableChargers(journey, chargers);
       TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       throw new RuntimeException(e);
     }
 
     TestHelperFunctions.assertSuitableChargers(suitableChargers, 0);
-    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
-    assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getMinChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getFinalDestinationChargeLevel());
     TestHelperFunctions.assertEqualsWithTolerance(
-        0.9 * 200000.0 - route.getRouteLength(), route.getCurrentBattery(), 100);
+        0.9 * 200000.0 - journey.getRouteLength(), journey.getCurrentBattery(), 100);
   }
 
   @Test
@@ -99,18 +99,18 @@ public class RouteServiceTest {
     List<Charger> suitableChargers = null;
 
     try {
-      suitableChargers = routingService.findSuitableChargers(route, chargers);
+      suitableChargers = routingService.findSuitableChargers(journey, chargers);
       TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
 
     TestHelperFunctions.assertSuitableChargers(suitableChargers, 1, 41030L);
-    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
-    assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
-    Double expectedFinalBattery = 90000.0 - (route.getRouteLength() - 55586.0);
+    assertTrue(journey.getCurrentBattery() > journey.getMinChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getFinalDestinationChargeLevel());
+    Double expectedFinalBattery = 90000.0 - (journey.getRouteLength() - 55586.0);
     TestHelperFunctions.assertEqualsWithTolerance(
-        expectedFinalBattery, route.getCurrentBattery(), 100);
+        expectedFinalBattery, journey.getCurrentBattery(), 100);
   }
 
   @Test
@@ -128,29 +128,29 @@ public class RouteServiceTest {
     List<Charger> suitableChargers = null;
 
     try {
-      suitableChargers = routingService.findSuitableChargers(route, chargersWithHigherKwAtSameDist);
+      suitableChargers = routingService.findSuitableChargers(journey, chargersWithHigherKwAtSameDist);
       TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
 
     TestHelperFunctions.assertSuitableChargers(suitableChargers, 1, 9999L);
-    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
-    assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
-    Double expectedFinalBattery = 90000.0 - (route.getRouteLength() - 55586.0);
+    assertTrue(journey.getCurrentBattery() > journey.getMinChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getFinalDestinationChargeLevel());
+    Double expectedFinalBattery = 90000.0 - (journey.getRouteLength() - 55586.0);
     TestHelperFunctions.assertEqualsWithTolerance(
-            expectedFinalBattery, route.getCurrentBattery(), 100);
+            expectedFinalBattery, journey.getCurrentBattery(), 100);
   }
 
   @Test
   @DisplayName("Should find multiple suitable charger on route successfully")
   public void shouldFindMultipleChargersOnRouteSuccessfully() {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 35000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 35000.0, 0.2, 0.9, 0.2);
     List<Charger> suitableChargers = null;
 
     try {
-      suitableChargers = routingService.findSuitableChargers(route, chargers);
+      suitableChargers = routingService.findSuitableChargers(journey, chargers);
       TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
@@ -158,12 +158,12 @@ public class RouteServiceTest {
 
     TestHelperFunctions.assertSuitableChargers(
         suitableChargers, 4, 109188L, 72601L, 41030L, 285685L);
-    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
-    assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getMinChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getFinalDestinationChargeLevel());
     Double expectedFinalBattery =
-        (route.getChargeLevelAfterEachStop()) - (route.getRouteLength() - 78644.0);
+        (journey.getChargeLevelAfterEachStop()) - (journey.getRouteLength() - 78644.0);
     TestHelperFunctions.assertEqualsWithTolerance(
-        expectedFinalBattery, route.getCurrentBattery(), 100);
+        expectedFinalBattery, journey.getCurrentBattery(), 100);
   }
 
   @Test
@@ -171,23 +171,23 @@ public class RouteServiceTest {
       "Should find two suitable chargers on route considering final destination charge level")
   public void shouldFindTwoChargersOnRouteConsideringFinalDestinationChargeLevel() {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.7);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.2, 0.9, 0.7);
     List<Charger> suitableChargers = null;
 
     try {
-      suitableChargers = routingService.findSuitableChargers(route, chargers);
+      suitableChargers = routingService.findSuitableChargers(journey, chargers);
       TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
 
     TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 41030L, 90205L);
-    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
-    assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getMinChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getFinalDestinationChargeLevel());
     Double expectedFinalBattery =
-        (route.getChargeLevelAfterEachStop()) - (route.getRouteLength() - 73646);
+        (journey.getChargeLevelAfterEachStop()) - (journey.getRouteLength() - 73646);
     TestHelperFunctions.assertEqualsWithTolerance(
-        expectedFinalBattery, route.getCurrentBattery(), 100);
+        expectedFinalBattery, journey.getCurrentBattery(), 100);
   }
 
   @Test
@@ -195,27 +195,27 @@ public class RouteServiceTest {
       "Should find two suitable chargers on route and partially fulfill final destination charge level")
   public void shouldFindTwoChargersOnRoutePartiallyFulfillFinalDestinationChargeLevel() {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.2, 0.9, 0.9);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.2, 0.9, 0.9);
     Double PartialFinalDestinationChargeLevelTolerance = 10000.0;
     List<Charger> suitableChargers = null;
 
     try {
-      suitableChargers = routingService.findSuitableChargers(route, chargers);
+      suitableChargers = routingService.findSuitableChargers(journey, chargers);
       TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
 
     TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 41030L, 75045L);
-    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
-    assertFalse(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getMinChargeLevel());
+    assertFalse(journey.getCurrentBattery() > journey.getFinalDestinationChargeLevel());
     assertTrue(
-        (route.getCurrentBattery() + PartialFinalDestinationChargeLevelTolerance)
-            > route.getFinalDestinationChargeLevel());
+        (journey.getCurrentBattery() + PartialFinalDestinationChargeLevelTolerance)
+            > journey.getFinalDestinationChargeLevel());
     Double expectedFinalBattery =
-        (route.getChargeLevelAfterEachStop()) - (route.getRouteLength() - 84383);
+        (journey.getChargeLevelAfterEachStop()) - (journey.getRouteLength() - 84383);
     TestHelperFunctions.assertEqualsWithTolerance(
-        expectedFinalBattery, route.getCurrentBattery(), 100);
+        expectedFinalBattery, journey.getCurrentBattery(), 100);
   }
 
   @Test
@@ -223,11 +223,11 @@ public class RouteServiceTest {
       "Should find multiple suitable charger on route considering final destination charge level")
   public void shouldFindMultipleChargersOnRouteConsideringFinalDestinationChargeLevel() {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 35000.0, 0.2, 0.9, 0.7);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 35000.0, 0.2, 0.9, 0.7);
     List<Charger> suitableChargers = null;
 
     try {
-      suitableChargers = routingService.findSuitableChargers(route, chargers);
+      suitableChargers = routingService.findSuitableChargers(journey, chargers);
       TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
@@ -235,12 +235,12 @@ public class RouteServiceTest {
 
     TestHelperFunctions.assertSuitableChargers(
         suitableChargers, 5, 109188L, 72601L, 41030L, 285685L, 75045L);
-    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
-    assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getMinChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getFinalDestinationChargeLevel());
     Double expectedFinalBattery =
-        (route.getChargeLevelAfterEachStop()) - (route.getRouteLength() - 84383);
+        (journey.getChargeLevelAfterEachStop()) - (journey.getRouteLength() - 84383);
     TestHelperFunctions.assertEqualsWithTolerance(
-        expectedFinalBattery, route.getCurrentBattery(), 100);
+        expectedFinalBattery, journey.getCurrentBattery(), 100);
   }
 
   @Test
@@ -248,12 +248,12 @@ public class RouteServiceTest {
       "Should find multiple suitable charger on route Partially fulfilling final destination charge level")
   public void shouldFindMultipleChargersOnRoutePartiallyFulfillingFinalDestinationChargeLevel() {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 35000.0, 0.2, 0.9, 0.8);
-    Double PartialFinalDestinationChargeLevelTolerance = route.getEvRange() * 0.1;
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 35000.0, 0.2, 0.9, 0.8);
+    Double PartialFinalDestinationChargeLevelTolerance = journey.getEvRange() * 0.1;
     List<Charger> suitableChargers = null;
 
     try {
-      suitableChargers = routingService.findSuitableChargers(route, chargers);
+      suitableChargers = routingService.findSuitableChargers(journey, chargers);
       TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
@@ -261,28 +261,28 @@ public class RouteServiceTest {
 
     TestHelperFunctions.assertSuitableChargers(
         suitableChargers, 5, 109188L, 72601L, 41030L, 285685L, 75045L);
-    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
-    assertFalse(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getMinChargeLevel());
+    assertFalse(journey.getCurrentBattery() > journey.getFinalDestinationChargeLevel());
     assertTrue(
-        (route.getCurrentBattery() * PartialFinalDestinationChargeLevelTolerance)
-            > route.getFinalDestinationChargeLevel());
+        (journey.getCurrentBattery() * PartialFinalDestinationChargeLevelTolerance)
+            > journey.getFinalDestinationChargeLevel());
     Double expectedFinalBattery =
-        (route.getChargeLevelAfterEachStop()) - (route.getRouteLength() - 84383);
+        (journey.getChargeLevelAfterEachStop()) - (journey.getRouteLength() - 84383);
     TestHelperFunctions.assertEqualsWithTolerance(
-        expectedFinalBattery, route.getCurrentBattery(), 100);
+        expectedFinalBattery, journey.getCurrentBattery(), 100);
   }
 
   @Test
   @DisplayName("Should throw NoChargerWithinRangeException for unsuitable route")
   public void shouldThrowExceptionForUnsuitableRoute() {
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 15000.0, 0.2, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 15000.0, 0.2, 0.9, 0.2);
     List<Charger> suitableChargers = null;
 
     NoChargerWithinRangeException thrown =
         assertThrows(
             NoChargerWithinRangeException.class,
-            () -> routingService.findSuitableChargers(route, chargers),
+            () -> routingService.findSuitableChargers(journey, chargers),
             "Expected findSuitableChargers to throw, it didn't");
     //    assertTrue(thrown.getMessage().contains("specific part of the expected message"));
 
@@ -295,13 +295,13 @@ public class RouteServiceTest {
 
     List<Charger> inadequateChargers = TestDataFactory.createChargersForCurrentBatterySetTest();
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.65, 0.9, 0.2);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.65, 0.9, 0.2);
     List<Charger> suitableChargers = null;
 
     NoChargerWithinRangeException thrown =
         assertThrows(
             NoChargerWithinRangeException.class,
-            () -> routingService.findSuitableChargers(route, inadequateChargers),
+            () -> routingService.findSuitableChargers(journey, inadequateChargers),
             "Expected findSuitableChargers to throw, it didn't");
     //    assertTrue(thrown.getMessage().contains("specific part of the expected message"));
 
@@ -314,23 +314,23 @@ public class RouteServiceTest {
 
     List<Charger> inadequateChargers = TestDataFactory.createChargersForCurrentBatterySetTest();
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.4, 0.9, 0.5);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.4, 0.9, 0.5);
     List<Charger> suitableChargers = null;
 
     try {
-      suitableChargers = routingService.findSuitableChargers(route, inadequateChargers);
+      suitableChargers = routingService.findSuitableChargers(journey, inadequateChargers);
       TestHelperFunctions.printSuitableChargers(suitableChargers);
     } catch (NoChargerWithinRangeException e) {
       fail("NoChargerWithinRangeException should not have been thrown");
     }
 
     TestHelperFunctions.assertSuitableChargers(suitableChargers, 2, 168555L, 258995L);
-    assertTrue(route.getCurrentBattery() > route.getMinChargeLevel());
-    assertTrue(route.getCurrentBattery() > route.getFinalDestinationChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getMinChargeLevel());
+    assertTrue(journey.getCurrentBattery() > journey.getFinalDestinationChargeLevel());
     Double expectedFinalBattery =
-        (route.getChargeLevelAfterEachStop()) - (route.getRouteLength() - 76560);
+        (journey.getChargeLevelAfterEachStop()) - (journey.getRouteLength() - 76560);
     TestHelperFunctions.assertEqualsWithTolerance(
-        expectedFinalBattery, route.getCurrentBattery(), 100);
+        expectedFinalBattery, journey.getCurrentBattery(), 100);
   }
 
   @Test
@@ -342,13 +342,13 @@ public class RouteServiceTest {
         new java.util.ArrayList<>(TestDataFactory.createChargersForCurrentBatterySetTest());
     inadequateChargers.add(chargers.get(4));
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.60, 0.9, 0.5);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.60, 0.9, 0.5);
     List<Charger> suitableChargers = null;
 
     NoChargerWithinRangeException thrown =
         assertThrows(
             NoChargerWithinRangeException.class,
-            () -> routingService.findSuitableChargers(route, inadequateChargers),
+            () -> routingService.findSuitableChargers(journey, inadequateChargers),
             "Expected findSuitableChargers to throw, it didn't");
     //    assertTrue(thrown.getMessage().contains("specific part of the expected message"));
 
@@ -362,13 +362,13 @@ public class RouteServiceTest {
     List<Charger> inadequateChargers =
         new java.util.ArrayList<>(TestDataFactory.createChargersForCurrentBatterySetTest());
 
-    TestHelperFunctions.setBatteryAndCharging(route, 0.9, 100000.0, 0.60, 0.9, 0.5);
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.60, 0.9, 0.5);
     List<Charger> suitableChargers = null;
 
     NoChargerWithinRangeException thrown =
         assertThrows(
             NoChargerWithinRangeException.class,
-            () -> routingService.findSuitableChargers(route, inadequateChargers),
+            () -> routingService.findSuitableChargers(journey, inadequateChargers),
             "Expected findSuitableChargers to throw, it didn't");
     //    assertTrue(thrown.getMessage().contains("specific part of the expected message"));
 
@@ -388,7 +388,7 @@ public class RouteServiceTest {
     when(directionsClientManager.getDirections(any(DirectionsRequest.class)))
         .thenReturn(directionsResponse);
 
-    LineString result = routingService.snapRouteToStops(route, chargers);
+    LineString result = routingService.snapRouteToStops(journey, chargers);
 
     assertNotNull(result);
     verify(directionsClientManager, times(1)).getDirections(any(DirectionsRequest.class));
@@ -405,7 +405,7 @@ public class RouteServiceTest {
         .thenThrow(new DirectionsClientException("No directions found"));
 
     assertThrows(
-        JourneyNotFoundException.class, () -> routingService.snapRouteToStops(route, chargers));
+        JourneyNotFoundException.class, () -> routingService.snapRouteToStops(journey, chargers));
     verify(directionsClientManager, times(1)).getDirections(any(DirectionsRequest.class));
   }
 

@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit;
 // @AllArgsConstructor
 @Schema(description = "API Response wrapper")
 public class ApiResponse<T> {
-  @Schema(description = "Details of journey", implementation = RouteResult.class)
+  @Schema(description = "Details of journey", implementation = JourneyResult.class)
   private T data;
   private boolean success;
   private String message;
