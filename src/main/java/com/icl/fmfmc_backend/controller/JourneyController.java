@@ -1,12 +1,9 @@
 package com.icl.fmfmc_backend.controller;
 
-import com.icl.fmfmc_backend.dto.api.ApiResponse;
-import com.icl.fmfmc_backend.dto.api.JourneyContext;
+import com.icl.fmfmc_backend.dto.api.*;
 import com.icl.fmfmc_backend.exception.service.JourneyNotFoundException;
 import com.icl.fmfmc_backend.service.JourneyService;
 
-import com.icl.fmfmc_backend.dto.api.RouteRequest;
-import com.icl.fmfmc_backend.dto.api.RouteResult;
 import com.icl.fmfmc_backend.util.LogExecutionTime;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,6 +37,7 @@ public class JourneyController {
    * @return ResponseEntity containing the journey details
    * @throws JourneyNotFoundException if the journey is not found
    */
+  @DocsResponseCodes
   @Operation(
       summary = "Get a Journey",
       description =
@@ -59,7 +57,15 @@ public class JourneyController {
             content =
                 @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = ApiResponse.class)))
+                    schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description =
+                "Bad Request - The request could not be understood and therefore could not be processed",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
       })
   @LogExecutionTime(message = "Response time for /find-route endpoint ")
   @PostMapping("/find-route")

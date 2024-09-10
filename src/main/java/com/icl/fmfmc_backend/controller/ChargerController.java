@@ -1,5 +1,6 @@
 package com.icl.fmfmc_backend.controller;
 
+import com.icl.fmfmc_backend.dto.api.ApiErrorResponse;
 import com.icl.fmfmc_backend.dto.api.ChargerRequest;
 import com.icl.fmfmc_backend.dto.charger.ChargerCompactDTO;
 import com.icl.fmfmc_backend.dto.charger.ChargerQuery;
@@ -20,9 +21,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * REST controller for managing chargers.
- */
+/** REST controller for managing chargers. */
 @RestController
 @RequestMapping("/api/charger")
 @RequiredArgsConstructor
@@ -31,12 +30,6 @@ public class ChargerController {
   private final ChargerService chargerService;
   private final FoodEstablishmentService foodEstablishmentService;
 
-  /**
-   * This method is called when a GET request is made to: /api/charger/sayhello
-   * Purpose: Testing the API
-   *
-   * @return A String
-   */
   @Hidden
   @GetMapping("/sayhello")
   public String sayHelloWorld() {
@@ -44,31 +37,33 @@ public class ChargerController {
   }
 
   /**
-   * This method is called when a GET request is made to: /api/charger/all
-   * Purpose: Fetches all the chargers in the charger table
+   * This method is called when a GET request is made to: /api/charger/all Purpose: Fetches all the
+   * chargers in the charger table
    *
    * @return List of all Chargers in the charger table
    */
+  @DocsResponseCodes
   @GetMapping("/all")
   public ResponseEntity<List<Charger>> getAllChargers() {
     return ResponseEntity.ok().body(chargerService.getAllChargers());
   }
 
   /**
-   * This method is called when a GET request is made to: /api/charger/{id}
-   * Purpose: Fetches charger with the given id
+   * This method is called when a GET request is made to: /api/charger/{id} Purpose: Fetches charger
+   * with the given id
    *
    * @param id - charger id
    * @return Charger with the given id
    */
+  @DocsResponseCodes
   @GetMapping("/{id}")
   public ResponseEntity<Charger> getChargerById(@PathVariable Long id) {
     return ResponseEntity.ok().body(chargerService.getChargerById(id));
   }
 
   /**
-   * This method is called when a POST request is made to: /api/charger/chargers
-   * Purpose: Get chargers within a bounding box
+   * This method is called when a POST request is made to: /api/charger/chargers Purpose: Get
+   * chargers within a bounding box
    *
    * @param chargerRequest - Charger request object containing parameters
    * @return List of chargers within the bounding box and additional parameters
@@ -92,8 +87,17 @@ public class ChargerController {
             content =
                 @Content(
                     mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = Charger.class))))
+                    array = @ArraySchema(schema = @Schema(implementation = Charger.class)))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description =
+                "Bad Request - The request could not be understood and therefore could not be processed",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
       })
+  @DocsResponseCodes
   @PostMapping("/chargers")
   public ResponseEntity<List<?>> getChargersByParams(
       @Valid @RequestBody ChargerRequest chargerRequest) {
