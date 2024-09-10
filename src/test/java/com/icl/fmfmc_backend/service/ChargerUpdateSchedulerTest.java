@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.integration.OpenChargeMapClient;
+import com.icl.fmfmc_backend.integration.charger.OpenChargeMapClient;
 import com.icl.fmfmc_backend.entity.charger.Charger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

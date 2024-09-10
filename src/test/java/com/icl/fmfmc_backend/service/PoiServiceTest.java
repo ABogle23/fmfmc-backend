@@ -3,7 +3,7 @@ package com.icl.fmfmc_backend.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
-import com.icl.fmfmc_backend.Routing.GeometryService;
+import com.icl.fmfmc_backend.geometry_service.GeometryService;
 import com.icl.fmfmc_backend.entity.charger.Charger;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;
 import com.icl.fmfmc_backend.entity.routing.Journey;

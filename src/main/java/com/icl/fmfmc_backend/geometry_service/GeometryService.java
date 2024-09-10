@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.Routing;
+package com.icl.fmfmc_backend.geometry_service;
 
 import com.icl.fmfmc_backend.entity.GeoCoordinates;
 import net.sf.geographiclib.Geodesic;

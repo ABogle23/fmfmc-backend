@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.integration.OpenChargeMapClient;
+import com.icl.fmfmc_backend.integration.charger.OpenChargeMapClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;

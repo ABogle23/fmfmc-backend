@@ -3,7 +3,7 @@ package com.icl.fmfmc_backend.config.integration;
 import com.icl.fmfmc_backend.integration.directions.DirectionsClient;
 import com.icl.fmfmc_backend.integration.directions.MapboxDirectionsClient;
 import com.icl.fmfmc_backend.integration.directions.OsrDirectionsClient;
-import com.icl.fmfmc_backend.Routing.GeometryService;
+import com.icl.fmfmc_backend.geometry_service.GeometryService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;

@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.service;
 
-import com.icl.fmfmc_backend.Routing.GeometryService;
+import com.icl.fmfmc_backend.geometry_service.GeometryService;
 import com.icl.fmfmc_backend.config.TestContainerConfig;
 import com.icl.fmfmc_backend.entity.charger.Charger;
 import com.icl.fmfmc_backend.entity.foodEstablishment.FoodEstablishment;

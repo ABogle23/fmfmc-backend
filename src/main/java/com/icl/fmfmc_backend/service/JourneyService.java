@@ -2,7 +2,7 @@ package com.icl.fmfmc_backend.service;
 
 import com.icl.fmfmc_backend.entity.routing.Journey;
 import com.icl.fmfmc_backend.exception.service.*;
-import com.icl.fmfmc_backend.Routing.GeometryService;
+import com.icl.fmfmc_backend.geometry_service.GeometryService;
 import com.icl.fmfmc_backend.controller.JourneyController;
 import com.icl.fmfmc_backend.dto.api.JourneyContext;
 import com.icl.fmfmc_backend.dto.api.JourneyRequest;

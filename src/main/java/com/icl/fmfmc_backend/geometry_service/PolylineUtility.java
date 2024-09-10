@@ -1,17 +1,13 @@
-package com.icl.fmfmc_backend.Routing;
+package com.icl.fmfmc_backend.geometry_service;
 
 import com.google.maps.internal.PolylineEncoding;
 import com.google.maps.model.LatLng;
-import com.icl.fmfmc_backend.entity.GeoCoordinates;
-import com.icl.fmfmc_backend.service.CoordinateFormatter;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class PolylineUtility {
 

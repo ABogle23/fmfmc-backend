@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.controller;
+package com.icl.fmfmc_backend.controller.test;
 
 import com.icl.fmfmc_backend.dto.foodEstablishment.FoodEstablishmentBuilder;
 import com.icl.fmfmc_backend.dto.foodEstablishment.FoodEstablishmentRequest;

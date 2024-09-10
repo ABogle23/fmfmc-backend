@@ -1,4 +1,4 @@
-package com.icl.fmfmc_backend.integration;
+package com.icl.fmfmc_backend.integration.charger;
 
 import com.icl.fmfmc_backend.config.integration.OpenChargeMapProperties;
 import com.icl.fmfmc_backend.dto.charger.OpenChargeMapResponseDTO;

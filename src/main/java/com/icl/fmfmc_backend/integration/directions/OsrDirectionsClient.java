@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.integration.directions;
 
-import com.icl.fmfmc_backend.Routing.GeometryService;
+import com.icl.fmfmc_backend.geometry_service.GeometryService;
 import com.icl.fmfmc_backend.config.integration.OpenRouteServiceProperties;
 import com.icl.fmfmc_backend.dto.directions.DirectionsRequest;
 import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;

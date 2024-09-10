@@ -1,6 +1,6 @@
 package com.icl.fmfmc_backend.entity.routing;
 
-import com.icl.fmfmc_backend.Routing.GeometryService;
+import com.icl.fmfmc_backend.geometry_service.GeometryService;
 import com.icl.fmfmc_backend.dto.api.JourneyRequest;
 import com.icl.fmfmc_backend.dto.directions.DirectionsResponse;
 import com.icl.fmfmc_backend.dto.directions.OSRDirectionsServiceGeoJSONResponse;
