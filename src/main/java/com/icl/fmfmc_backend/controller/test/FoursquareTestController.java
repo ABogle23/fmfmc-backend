@@ -17,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/test")
 @Hidden
+@Deprecated
 public class FoursquareTestController {
 
   private final FoodEstablishmentBuilder requestBuilder = new FoursquareRequestBuilder();

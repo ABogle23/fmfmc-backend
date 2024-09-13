@@ -12,6 +12,7 @@ import org.springframework.util.LinkedMultiValueMap;
 @RestController
 @RequestMapping("/test")
 @Hidden
+@Deprecated
 public class OCMTestController {
 
     private final OpenChargeMapClient openChargeMapClient;
