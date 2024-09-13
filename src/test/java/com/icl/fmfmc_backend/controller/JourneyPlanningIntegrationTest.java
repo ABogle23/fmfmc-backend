@@ -45,7 +45,7 @@ import java.util.stream.Stream;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-//@ContextConfiguration(classes = {TestContainerConfig.class, TestDataLoaderConfig.class})
+// @ContextConfiguration(classes = {TestContainerConfig.class, TestDataLoaderConfig.class})
 @ContextConfiguration(classes = {TestContainerConfig.class})
 public class JourneyPlanningIntegrationTest {
 
@@ -56,7 +56,7 @@ public class JourneyPlanningIntegrationTest {
 
   @Autowired private ObjectMapper objectMapper;
 
-//  @Autowired private JourneyService journeyService;
+  //  @Autowired private JourneyService journeyService;
 
   @MockBean private DirectionsClient directionsClient;
 
@@ -71,6 +71,7 @@ public class JourneyPlanningIntegrationTest {
   private void addTestData(String sqlFile) {
     testContainerConfig.loadData(dataSource, sqlFile);
   }
+
   @BeforeEach
   public void setUp() {
     addTestData(HEAVY_DATA);
@@ -82,9 +83,9 @@ public class JourneyPlanningIntegrationTest {
   }
 
   @AfterEach
-    public void resetMocks() {
-        Mockito.reset(directionsClient, foodEstablishmentClient);
-    }
+  public void resetMocks() {
+    Mockito.reset(directionsClient, foodEstablishmentClient);
+  }
 
   @Test
   public void requestWithoutEatingOptionReturnsValidResult() throws Exception {
@@ -174,16 +175,21 @@ public class JourneyPlanningIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.data.chargers.length()").value(expChargersCount))
-            .andExpect(jsonPath("$.data.segment_details.stop_durations.length()").value(expChargersCount))
-            .andExpect(jsonPath("$.data.segment_details.charge_speeds_kw.length()").value(expChargersCount))
-            .andExpect(jsonPath("$.data.segment_details.arrival_charges.length()").value(expSegmentCount))
-            .andExpect(jsonPath("$.data.segment_details.departing_charges.length()").value(expSegmentCount))
-            .andExpect(jsonPath("$.data.segment_details.arrival_times.length()").value(expSegmentCount))
-            .andExpect(jsonPath("$.data.segment_details.depart_times.length()").value(expSegmentCount))
-            .andExpect(jsonPath("$.data.segment_details.segment_distances.length()").value(expSegmentCount))
-            .andExpect(jsonPath("$.data.segment_details.segment_durations.length()").value(expSegmentCount))
-
-            .andDo(print());
+        .andExpect(
+            jsonPath("$.data.segment_details.stop_durations.length()").value(expChargersCount))
+        .andExpect(
+            jsonPath("$.data.segment_details.charge_speeds_kw.length()").value(expChargersCount))
+        .andExpect(
+            jsonPath("$.data.segment_details.arrival_charges.length()").value(expSegmentCount))
+        .andExpect(
+            jsonPath("$.data.segment_details.departing_charges.length()").value(expSegmentCount))
+        .andExpect(jsonPath("$.data.segment_details.arrival_times.length()").value(expSegmentCount))
+        .andExpect(jsonPath("$.data.segment_details.depart_times.length()").value(expSegmentCount))
+        .andExpect(
+            jsonPath("$.data.segment_details.segment_distances.length()").value(expSegmentCount))
+        .andExpect(
+            jsonPath("$.data.segment_details.segment_durations.length()").value(expSegmentCount))
+        .andDo(print());
   }
 
   @Test
@@ -290,10 +296,21 @@ public class JourneyPlanningIntegrationTest {
       throws Exception {
 
     DirectionsResponse directionsResponse = TestDataFactory.createDefaultDirectionsResponse();
-    Mockito.when(directionsClient.getDirections(any())).thenReturn(directionsResponse);
+    Mockito.when(directionsClient.getDirections(any()))
+        .thenReturn(directionsResponse)
+        .thenReturn(TestDataFactory.createSnappedDirectionsResponse())
+        .thenReturn(TestDataFactory.createFinalDirectionsResponse());
 
     List<FoodEstablishment> foodEstablishments =
         TestDataFactory.createFoodEstablishmentsForPoiTest();
+
+    FoodEstablishment optimalFe =
+        TestDataFactory.createDefaultFoodEstablishment(
+            "999", "OptimalFe", -1.5353251185417531, 51.21390363023607);
+    optimalFe.setPopularity(0.99);
+    optimalFe.setRating(9.9);
+    foodEstablishments.add(optimalFe);
+
     Mockito.when(foodEstablishmentClient.getFoodEstablishmentsByParam(any()))
         .thenReturn(foodEstablishments);
 

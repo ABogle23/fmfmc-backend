@@ -176,7 +176,7 @@ public class JourneyService {
 
     /* -----Build Result----- */
 
-    List<FoodEstablishment> foodEstablishmentsWithinPolygon = Collections.emptyList();
+//    List<FoodEstablishment> foodEstablishmentsWithinPolygon = Collections.emptyList();
     JourneyResult journeyResult = new JourneyResult(journey, journeyRequest);
     fileLogger.info("JourneyResult object: {}", journeyResult.toString());
 

@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class ChargerCompactDTO {
-    private Long id;
-    private GeoCoordinates geocodes;
+  private Long id;
+  private GeoCoordinates geocodes;
 }

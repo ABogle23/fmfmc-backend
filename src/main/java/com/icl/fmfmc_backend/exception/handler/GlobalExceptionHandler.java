@@ -76,13 +76,14 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(JourneyNotFoundException.class)
   public ResponseEntity<ApiErrorResponse> handleJourneyNotFoundException(
-          JourneyNotFoundException ex) {
+      JourneyNotFoundException ex) {
     String error = ex.getMessage();
 
     ApiErrorResponse errorResponse =
-            new ApiErrorResponse(
-                    HttpStatus.NOT_FOUND.value(), "Please check your input parameters and try again.", List.of(error));
+        new ApiErrorResponse(
+            HttpStatus.NOT_FOUND.value(),
+            "Please check your input parameters and try again.",
+            List.of(error));
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
-
 }

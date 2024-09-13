@@ -70,11 +70,11 @@ public class SecurityConfig {
         .httpBasic(httpBasic -> httpBasic.disable())
         .formLogin(form -> form.disable())
 
-        //        .requiresChannel(channel -> channel.requestMatchers("/api/**").requiresSecure())
-        //        .headers(
-        //            headers ->
-        //                headers.httpStrictTransportSecurity(
-        //                    hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000))) //
+                .requiresChannel(channel -> channel.requestMatchers("/api/**").requiresSecure())
+                .headers(
+                    headers ->
+                        headers.httpStrictTransportSecurity(
+                            hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000)))
         // enable hsts
         .addFilterBefore(apiKeyFilter(), BasicAuthenticationFilter.class);
 
