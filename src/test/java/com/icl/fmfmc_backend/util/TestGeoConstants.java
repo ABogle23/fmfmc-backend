@@ -5,9 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Utility class containing test constants related to geographical data.
- * ls1 is heavily used by the whole test suite.
- * ls1Snapped and ls1fFinal are largely used by JourneyPlanningIntegrationTest.
+ * Utility class containing test constants related to geographical data. ls1 is heavily used by the
+ * whole test suite. ls1Snapped and ls1fFinal are largely used by JourneyPlanningIntegrationTest.
  */
 public class TestGeoConstants {
   public static final String ls1 =

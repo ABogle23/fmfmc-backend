@@ -80,7 +80,10 @@ public class SecurityConfigTest {
   @Test
   @WithMockUser()
   public void shouldEnforceHttps() throws Exception {
-    mockMvc.perform(post("/api/find-journey")).andDo(print()).andExpect(status().is3xxRedirection());
+    mockMvc
+        .perform(post("/api/find-journey"))
+        .andDo(print())
+        .andExpect(status().is3xxRedirection());
   }
 
   @Test

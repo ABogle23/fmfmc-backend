@@ -345,14 +345,11 @@ public class ChargerServiceTest {
     chargerService.saveCharger(chargerInBoundingBox1);
     chargerService.saveCharger(chargerInBoundingBox2);
 
-    // Create ChargerQuery using bounding box coordinates
     ChargerQuery query =
         ChargerQuery.builder().topLeftLatLng(0.0, 10.0).bottomRightLatLng(10.0, 0.0).build();
 
-    // Retrieve chargers within bounding box
     List<Charger> chargersInBoundingBox = chargerService.getChargersByParams(query);
 
-    // Assert results
     assertEquals(
         3,
         chargersInBoundingBox.size(),
@@ -385,6 +382,7 @@ public class ChargerServiceTest {
     chargerInQuery2.getConnections().get(0).setPowerKW(100L);
     chargerInQuery2.setNumberOfPoints(5L);
 
+    // Chargers outside BB/query
     Charger chargerInBoundingBoxButNotQuery =
         TestDataFactory.createDefaultCharger(7L, 2, 5.0, 5.0); // Within bounding box
     chargerInBoundingBoxButNotQuery.getConnections().get(0).setPowerKW(5L);
@@ -399,7 +397,6 @@ public class ChargerServiceTest {
     chargerService.saveCharger(chargerInBoundingBoxButNotQuery);
     chargerService.saveCharger(chargerInQueryButNotBoundingBox);
 
-    // Create ChargerQuery using bounding box coordinates
     ChargerQuery query =
         ChargerQuery.builder()
             .topLeftLatLng(0.0, 10.0)
@@ -408,10 +405,8 @@ public class ChargerServiceTest {
             .minNoChargePoints(4)
             .build();
 
-    // Retrieve chargers within bounding box
     List<Charger> chargersInBoundingBox = chargerService.getChargersByParams(query);
 
-    // Assert results
     assertEquals(
         2,
         chargersInBoundingBox.size(),

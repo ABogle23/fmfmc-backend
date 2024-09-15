@@ -89,7 +89,4 @@ public class ElectricVehicleServiceTest {
     ElectricVehicle nonExistentEv = electricVehicleService.findElectricVehicleById(10000L);
     assertNull(nonExistentEv);
   }
-
-
-
 }

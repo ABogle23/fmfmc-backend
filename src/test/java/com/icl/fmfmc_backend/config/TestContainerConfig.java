@@ -94,12 +94,13 @@ public class TestContainerConfig {
     // Create index on `numberOfPoints` in the `chargers` table
     jdbcTemplate.execute("CREATE INDEX idx_number_of_points ON chargers(number_of_points);");
     jdbcTemplate.execute("CREATE INDEX idx_location ON chargers(location);");
-    // Create index on `powerKW` in the `connections` table (assuming connections is a separate table and not embedded)
+    // Create index on `powerKW` in the `connections` table (assuming connections is a separate
+    // table and not embedded)
     jdbcTemplate.execute("CREATE INDEX idx_power_kw ON charger_connections(powerKW);");
     // Create index on `connectionTypeID` in the `connections` table
-    jdbcTemplate.execute("CREATE INDEX idx_connection_type_id ON charger_connections(connection_typeid);");
+    jdbcTemplate.execute(
+        "CREATE INDEX idx_connection_type_id ON charger_connections(connection_typeid);");
 
     System.out.println("Indexes created.");
   }
-
 }
