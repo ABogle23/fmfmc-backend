@@ -1,5 +1,6 @@
 package com.icl.fmfmc_backend.dto.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
@@ -115,6 +116,7 @@ public class JourneyRequest {
   @JsonProperty("final_destination_charge_level")
   private Double finalDestinationChargeLevel = 0.2;
 
+  @JsonIgnore
   @AssertTrue(
       message =
           "Final destination charge level must not be higher than charge level after each stop")
@@ -221,7 +223,7 @@ public class JourneyRequest {
   private Integer maxPrice;
 
   @Schema(
-      description = "Max walking distance between suggested eating option and charger",
+      description = "Max walking distance between suggested eating option and charger in metres",
       example = "2000",
       defaultValue = "500")
   @JsonSetter(nulls = Nulls.SKIP)
@@ -301,7 +303,6 @@ public class JourneyRequest {
   @JsonProperty("eating_option_search_deviation")
   private DeviationScope eatingOptionSearchDeviation = DeviationScope.moderate;
 
-  // mot implemented due to potential routing service algo issues
   public Double getChargerSearchDeviationAsFraction() {
     if (this.chargerSearchDeviation == null) {
       return 6.5; // 6.5km
