@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.time.Duration;
 
 /** A filter that applies rate limiting to incoming requests. */
-public class RateLimitFilter implements Filter, jakarta.servlet.Filter {
+public class RateLimitFilter implements jakarta.servlet.Filter {
 
   private Bucket bucket;
 
@@ -23,27 +23,6 @@ public class RateLimitFilter implements Filter, jakarta.servlet.Filter {
     // Configure the rate limit
     Bandwidth limit = Bandwidth.classic(20, Refill.greedy(20, Duration.ofMinutes(1)));
     this.bucket = Bucket4j.builder().addLimit(limit).build();
-  }
-
-  @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-    Bandwidth limit = Bandwidth.classic(1, Refill.greedy(1, Duration.ofMinutes(1)));
-    this.bucket = Bucket4j.builder().addLimit(limit).build();
-  }
-
-  @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-      throws IOException, ServletException {
-    System.out.println("Rate Limiting");
-    ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-    if (probe.isConsumed()) {
-      chain.doFilter(request, response);
-    } else {
-      HttpServletResponse httpResponse = (HttpServletResponse) response;
-      httpResponse.setContentType("text/plain");
-      httpResponse.setStatus(429);
-      httpResponse.getWriter().write("Too many requests");
-    }
   }
 
   /**

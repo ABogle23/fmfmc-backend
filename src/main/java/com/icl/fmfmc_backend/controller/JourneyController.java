@@ -66,8 +66,8 @@ public class JourneyController {
                     mediaType = "application/json",
                     schema = @Schema(implementation = ApiErrorResponse.class)))
       })
-  @LogExecutionTime(message = "Response time for /find-route endpoint ")
-  @PostMapping("/find-route")
+  @LogExecutionTime(message = "Response time for /find-journey endpoint ")
+  @PostMapping("/find-journey")
   public ResponseEntity<?> getJourney(@Valid @RequestBody JourneyRequest journeyRequest)
       throws JourneyNotFoundException {
     logger.info("Received route request: {}", journeyRequest);

@@ -134,7 +134,7 @@ public class JourneyPlanningIntegrationTest {
 
     mockMvc
         .perform(
-            post("/api/find-route")
+            post("/api/find-journey")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validJourneyRequest)))
         .andExpect(status().isOk())
@@ -169,7 +169,7 @@ public class JourneyPlanningIntegrationTest {
 
     mockMvc
         .perform(
-            post("/api/find-route")
+            post("/api/find-journey")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validJourneyRequest)))
         .andExpect(status().isOk())
@@ -239,7 +239,7 @@ public class JourneyPlanningIntegrationTest {
 
     mockMvc
         .perform(
-            post("/api/find-route")
+            post("/api/find-journey")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validJourneyRequest)))
         .andExpect(status().isOk())
@@ -319,7 +319,7 @@ public class JourneyPlanningIntegrationTest {
     if (!isSuccessExpected) {
       mockMvc
           .perform(
-              post("/api/find-route").contentType(MediaType.APPLICATION_JSON).content(jsonPayload))
+              post("/api/find-journey").contentType(MediaType.APPLICATION_JSON).content(jsonPayload))
           .andExpect(status().isNotFound())
           .andDo(print());
 
@@ -328,7 +328,7 @@ public class JourneyPlanningIntegrationTest {
       ResultActions resultActions =
           mockMvc
               .perform(
-                  post("/api/find-route")
+                  post("/api/find-journey")
                       .contentType(MediaType.APPLICATION_JSON)
                       .content(jsonPayload))
               .andExpect(status().isOk())

@@ -39,7 +39,7 @@ public class SecurityConfigTest {
   @Test
   public void shouldRejectUnauthenticatedAccess() throws Exception {
     mockMvc
-        .perform(post("/api/find-route").secure(true))
+        .perform(post("/api/find-journey").secure(true))
         .andDo(print())
         .andExpect(status().isUnauthorized());
   }
@@ -48,7 +48,7 @@ public class SecurityConfigTest {
   @WithMockUser()
   public void shouldAllowAuthenticatedAccess() throws Exception {
     mockMvc
-        .perform(post("/api/find-route").secure(true))
+        .perform(post("/api/find-journey").secure(true))
         .andDo(print())
         .andExpect(status().isBadRequest());
   }
@@ -57,7 +57,7 @@ public class SecurityConfigTest {
   public void shouldAllowAuthenticatedAccessForValidApiKey() throws Exception {
     mockMvc
         .perform(
-            post("/api/find-route")
+            post("/api/find-journey")
                 .secure(true)
                 .header("X-Api-Key", fmfmcApiKeyProperties.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON))
@@ -69,7 +69,7 @@ public class SecurityConfigTest {
   public void shouldDisallowAuthenticatedAccessForInvalidApiKey() throws Exception {
     mockMvc
         .perform(
-            post("/api/find-route")
+            post("/api/find-journey")
                 .secure(true)
                 .header("X-Api-Key", "123")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -80,7 +80,7 @@ public class SecurityConfigTest {
   @Test
   @WithMockUser()
   public void shouldEnforceHttps() throws Exception {
-    mockMvc.perform(post("/api/find-route")).andDo(print()).andExpect(status().is3xxRedirection());
+    mockMvc.perform(post("/api/find-journey")).andDo(print()).andExpect(status().is3xxRedirection());
   }
 
   @Test

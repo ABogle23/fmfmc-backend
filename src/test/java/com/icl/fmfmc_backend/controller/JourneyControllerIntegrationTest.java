@@ -46,16 +46,6 @@ public class JourneyControllerIntegrationTest {
 
   @Autowired private ObjectMapper objectMapper;
 
-//  @TestConfiguration
-//  static class MockSecurityConfig {
-//    @Bean
-//    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-//      http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
-//          .csrf(csrf -> csrf.disable());
-//      return http.build();
-//    }
-//  }
-
   @Test
   public void minValidRequestParamsReturnsSuccess() throws Exception {
     JourneyRequest validRequest = new JourneyRequest();
@@ -63,6 +53,7 @@ public class JourneyControllerIntegrationTest {
     validRequest.setStartLong(-118.2437);
     validRequest.setEndLat(34.0522);
     validRequest.setEndLong(-118.2437);
+    validRequest.setEvRange(300000.0);
 
     JourneyResult expectedJourneyResult = new JourneyResult();
     when(journeyService.getJourney(any(JourneyRequest.class), any(JourneyContext.class)))
@@ -70,7 +61,7 @@ public class JourneyControllerIntegrationTest {
 
     mockMvc
         .perform(
-            post("/api/find-route")
+            post("/api/find-journey")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validRequest)))
         .andExpect(status().isOk())
@@ -122,7 +113,7 @@ public class JourneyControllerIntegrationTest {
 
     mockMvc
         .perform(
-            post("/api/find-route")
+            post("/api/find-journey")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validJourneyRequest)))
         .andExpect(status().isOk())
@@ -140,7 +131,7 @@ public class JourneyControllerIntegrationTest {
 
     mockMvc
         .perform(
-            post("/api/find-route")
+            post("/api/find-journey")
                 .contentType(MediaType.APPLICATION_JSON)
                 //                        .header("X-API-Key", fmfmcApiKeyProperties.getApiKey())
                 .content(objectMapper.writeValueAsString(invalidRequest)))
@@ -161,7 +152,7 @@ public class JourneyControllerIntegrationTest {
 
     mockMvc
         .perform(
-            post("/api/find-route")
+            post("/api/find-journey")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validRequest)))
         .andExpect(status().isNotFound())
@@ -181,14 +172,12 @@ public class JourneyControllerIntegrationTest {
               "eating_option_search_deviation": "INVALID"
             }
             """;
-
     JourneyResult expectedJourneyResult = new JourneyResult();
     when(journeyService.getJourney(any(JourneyRequest.class), any(JourneyContext.class)))
         .thenReturn(expectedJourneyResult);
-
     mockMvc
         .perform(
-            post("/api/find-route").contentType(MediaType.APPLICATION_JSON).content(jsonPayload))
+            post("/api/find-journey").contentType(MediaType.APPLICATION_JSON).content(jsonPayload))
         .andExpect(status().isBadRequest())
         .andExpect(
             jsonPath("$.details[0]")
@@ -385,7 +374,7 @@ public class JourneyControllerIntegrationTest {
 
       mockMvc
           .perform(
-              post("/api/find-route").contentType(MediaType.APPLICATION_JSON).content(jsonPayload))
+              post("/api/find-journey").contentType(MediaType.APPLICATION_JSON).content(jsonPayload))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.success").value(true));
 
@@ -394,7 +383,7 @@ public class JourneyControllerIntegrationTest {
     } else {
       mockMvc
           .perform(
-              post("/api/find-route").contentType(MediaType.APPLICATION_JSON).content(jsonPayload))
+              post("/api/find-journey").contentType(MediaType.APPLICATION_JSON).content(jsonPayload))
           .andExpect(status().isBadRequest())
           .andExpect(jsonPath("$.message").value("Validation Failed"));
 
