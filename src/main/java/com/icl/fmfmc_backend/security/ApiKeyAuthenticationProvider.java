@@ -11,8 +11,6 @@ public class ApiKeyAuthenticationProvider implements AuthenticationProvider {
 
   private final FmfmcApiKeyProperties fmfmcApiKeyProperties;
 
-  //    private final String VALID_API_KEY = fmfmcApiKeyProperties.getApiKey();
-
   /**
    * Authenticates the provided API key.
    *

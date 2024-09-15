@@ -74,7 +74,6 @@ public class KMeansPlusPlusClusteringService extends AbstractClusteringService {
         count += clusters.get(i).size();
       }
       System.out.println("Total cluster chargers: " + count);
-
     }
 
     return centroids;
@@ -90,19 +89,17 @@ public class KMeansPlusPlusClusteringService extends AbstractClusteringService {
       double avgDistance =
           cluster.stream().mapToDouble(p -> p.distance(centroid)).average().orElse(0);
       double threshold = avgDistance * 1.5; // set threshold tp 150% of avg dist
-//      cluster.removeIf(p -> p.distance(centroid) > threshold); // remove outliers in cluster
+      //      cluster.removeIf(p -> p.distance(centroid) > threshold); // remove outliers in cluster
 
       // identify outliers in cluster
-      List<Point> outliers = cluster.stream()
-              .filter(p -> p.distance(centroid) > threshold)
-              .toList();
+      List<Point> outliers =
+          cluster.stream().filter(p -> p.distance(centroid) > threshold).toList();
 
       // remove outliers from cluster
       cluster.removeAll(outliers);
 
       // remove outliers from originalClusterSet
       originalClusterSet.removeAll(outliers);
-
     }
   }
 

@@ -19,26 +19,28 @@ import java.util.List;
 @Table(name = "food_establishment")
 public class FoodEstablishment {
 
-    @Id
-    private String id;
-    private String name;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_info_id", referencedColumnName = "id")
-//    @JsonManagedReference
-    private AddressInfo address;
-    @ElementCollection(fetch = FetchType.LAZY)
-    private List<Category> categories;
-    @Embedded
-    private GeoCoordinates geocodes;
-    private String closedStatus;
-    private Double popularity;
-    private Integer price;
-    private Double rating;
-    private LocalDateTime createdAt;
-    private String website;
-    @JsonIgnore
-    @Column(columnDefinition = "Point")
-    private Point location;
-    private Long adjacentChargerId;
+  @Id private String id;
+  private String name;
 
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "address_info_id", referencedColumnName = "id")
+  //    @JsonManagedReference
+  private AddressInfo address;
+
+  @ElementCollection(fetch = FetchType.LAZY)
+  private List<Category> categories;
+
+  @Embedded private GeoCoordinates geocodes;
+  private String closedStatus;
+  private Double popularity;
+  private Integer price;
+  private Double rating;
+  private LocalDateTime createdAt;
+  private String website;
+
+  @JsonIgnore
+  @Column(columnDefinition = "Point")
+  private Point location;
+
+  private Long adjacentChargerId;
 }

@@ -4,7 +4,7 @@ import org.springframework.util.MultiValueMap;
 
 public interface FoodEstablishmentRequest {
 
-    void setParameter(String key, String value);
-    MultiValueMap<String, String> getQueryParams();
+  void setParameter(String key, String value);
 
+  MultiValueMap<String, String> getQueryParams();
 }

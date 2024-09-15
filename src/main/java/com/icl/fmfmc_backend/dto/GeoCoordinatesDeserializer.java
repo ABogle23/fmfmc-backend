@@ -14,11 +14,12 @@ import java.util.stream.Collectors;
 
 public class GeoCoordinatesDeserializer extends JsonDeserializer<List<GeoCoordinates>> {
 
-    @Override
-    public List<GeoCoordinates> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        List<List<Double>> coordinatesList = p.readValueAs(new TypeReference<List<List<Double>>>() {});
-        return coordinatesList.stream()
-                .map(coordinates -> new GeoCoordinates(coordinates.get(0), coordinates.get(1)))
-                .collect(Collectors.toList());
-    }
+  @Override
+  public List<GeoCoordinates> deserialize(JsonParser p, DeserializationContext ctxt)
+      throws IOException {
+    List<List<Double>> coordinatesList = p.readValueAs(new TypeReference<List<List<Double>>>() {});
+    return coordinatesList.stream()
+        .map(coordinates -> new GeoCoordinates(coordinates.get(0), coordinates.get(1)))
+        .collect(Collectors.toList());
+  }
 }

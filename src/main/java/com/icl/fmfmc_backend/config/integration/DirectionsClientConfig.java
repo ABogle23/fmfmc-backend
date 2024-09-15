@@ -25,8 +25,7 @@ public class DirectionsClientConfig {
   // can add additional client here e.g. for mapbox or google
 
   @Bean("mapboxClient")
-  public DirectionsClient mapboxClient(
-          MapboxProperties mapboxProperties) {
+  public DirectionsClient mapboxClient(MapboxProperties mapboxProperties) {
     return new MapboxDirectionsClient(mapboxProperties);
   }
 
@@ -34,7 +33,4 @@ public class DirectionsClientConfig {
   public MapboxProperties mapboxProperties() {
     return new MapboxProperties();
   }
-
-
-
 }

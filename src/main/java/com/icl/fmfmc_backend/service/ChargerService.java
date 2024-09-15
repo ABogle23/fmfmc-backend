@@ -24,9 +24,7 @@ import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.Polygon;
 
-/**
- * Service class for managing Charger entities.
- */
+/** Service class for managing Charger entities. */
 @Service
 @RequiredArgsConstructor
 @Slf4j

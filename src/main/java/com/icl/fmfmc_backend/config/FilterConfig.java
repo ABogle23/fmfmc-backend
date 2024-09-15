@@ -7,24 +7,22 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
-/**
- * Configuration class for registering servlet filters.
- */
+/** Configuration class for registering servlet filters. */
 @Component
-//@Profile("!test")
+// @Profile("!test")
 public class FilterConfig {
 
-    /**
-     * Registers the RateLimitFilter for the application.
-     *
-     * @return a FilterRegistrationBean configured with the RateLimitFilter
-     */
-    @Bean
-    public FilterRegistrationBean<RateLimitFilter> rateLimitFilter() {
-        FilterRegistrationBean<RateLimitFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new RateLimitFilter());
-        registration.addUrlPatterns("/api/*");
-        registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return registration;
-    }
+  /**
+   * Registers the RateLimitFilter for the application.
+   *
+   * @return a FilterRegistrationBean configured with the RateLimitFilter
+   */
+  @Bean
+  public FilterRegistrationBean<RateLimitFilter> rateLimitFilter() {
+    FilterRegistrationBean<RateLimitFilter> registration = new FilterRegistrationBean<>();
+    registration.setFilter(new RateLimitFilter());
+    registration.addUrlPatterns("/api/*");
+    registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
+    return registration;
+  }
 }

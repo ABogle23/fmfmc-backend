@@ -1,5 +1,6 @@
 package com.icl.fmfmc_backend.service;
 
+import com.icl.fmfmc_backend.config.integration.EvScraperServiceProperties;
 import com.icl.fmfmc_backend.entity.ElectricVehicle;
 import com.icl.fmfmc_backend.entity.enums.ConnectionType;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,14 @@ import java.util.List;
 @Service
 public class EvScraperService {
 
+  private final EvScraperServiceProperties evScraperServiceProperties;
   private final ElectricVehicleService electricVehicleService;
   private static final Pattern NUMERIC_PATTERN = Pattern.compile("\\d+"); // extract numbers
 
   /** Scrapes electric vehicle data from a predefined website and saves it to the database. */
   public void scrapeEvData() {
     try {
-      String baseUrl = "https://ev-database.org";
+      String baseUrl = evScraperServiceProperties.getBaseUrl();
       String mainUrl = baseUrl + "/uk";
       Document mainDoc = Jsoup.connect(mainUrl).get();
       Elements listItems = mainDoc.select(".list-item");

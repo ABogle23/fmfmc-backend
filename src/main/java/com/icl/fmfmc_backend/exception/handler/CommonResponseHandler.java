@@ -74,6 +74,7 @@ public class CommonResponseHandler {
     return body;
   }
 
+  @Deprecated
   private static boolean isMapboxResponse(ClientResponse response) {
     HttpHeaders headers = response.headers().asHttpHeaders();
     return headers.entrySet().stream()

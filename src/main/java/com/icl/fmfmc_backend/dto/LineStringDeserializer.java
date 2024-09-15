@@ -25,7 +25,8 @@ public class LineStringDeserializer extends JsonDeserializer<LineString> {
    * @throws IOException if an I/O error occurs during deserialization
    */
   @Override
-  public LineString deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException {
+  public LineString deserialize(JsonParser jsonParser, DeserializationContext context)
+      throws IOException {
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
     List<Coordinate> coordinates = new ArrayList<>();
     if (node.isArray()) {

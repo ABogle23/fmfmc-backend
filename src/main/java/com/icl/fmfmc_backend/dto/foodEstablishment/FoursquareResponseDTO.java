@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.util.List;
 
-//https://docs.foursquare.com/developer/reference/place-search
+// https://docs.foursquare.com/developer/reference/place-search
 
 @Data
 public class FoursquareResponseDTO {
@@ -106,6 +106,5 @@ public class FoursquareResponseDTO {
       @JsonProperty("total_tips")
       private Integer totalTips;
     }
-
   }
 }

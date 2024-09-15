@@ -28,11 +28,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.max;
 
-// TODO: Incorporate double safety check for final destination charge level
-// TODO: Handle situations whereby meeting the finalDestinationChargeLevel requires a stop very soon
-// after eating.
-// TODO: Significant issues with chargers opposite side of road being selected
-
 @RequiredArgsConstructor
 @Slf4j
 @Service

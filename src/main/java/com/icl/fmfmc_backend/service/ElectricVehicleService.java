@@ -48,20 +48,6 @@ public class ElectricVehicleService {
     return null;
   }
 
-  //    @Transactional
-  //    public ElectricVehicle saveElectricVehicle(ElectricVehicle ev) {
-  ////        log.info("Saving ElectricVehicle");
-  //
-  //        ev.setCreatedAt(LocalDateTime.now());
-  //        ev.setUpdatedAt(LocalDateTime.now());
-  //
-  //        ElectricVehicle savedEv = electricVehicleRepo.save(ev);
-  //
-  //        log.info("ElectricVehicle with id: {} name: {} saved successfully", savedEv.getId(),
-  // savedEv.getModel());
-  //        return savedEv;
-  //    }
-
   /**
    * Saves an electric vehicle entity.
    *

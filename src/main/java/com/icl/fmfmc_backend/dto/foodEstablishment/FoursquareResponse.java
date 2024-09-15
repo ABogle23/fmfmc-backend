@@ -8,7 +8,6 @@ import java.util.List;
 
 @Getter
 public class FoursquareResponse {
-    @JsonProperty("results")
-    private List<FoodEstablishment> results;
-
+  @JsonProperty("results")
+  private List<FoodEstablishment> results;
 }
