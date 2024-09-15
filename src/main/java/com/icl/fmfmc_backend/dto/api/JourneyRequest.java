@@ -269,6 +269,7 @@ public class JourneyRequest {
   @JsonProperty("stopping_range")
   private StoppingRange stoppingRange = StoppingRange.middle;
 
+  @JsonIgnore
   public Double[] getStoppingRangeAsFraction() {
     if (this.stoppingRange == null) {
       return new Double[] {0.33, 0.67}; // default to middle if null
@@ -303,6 +304,7 @@ public class JourneyRequest {
   @JsonProperty("eating_option_search_deviation")
   private DeviationScope eatingOptionSearchDeviation = DeviationScope.moderate;
 
+  @JsonIgnore
   public Double getChargerSearchDeviationAsFraction() {
     if (this.chargerSearchDeviation == null) {
       return 6.5; // 6.5km
@@ -316,6 +318,7 @@ public class JourneyRequest {
     };
   }
 
+  @JsonIgnore
   public Double getEatingOptionSearchDeviationAsFraction() {
     if (this.eatingOptionSearchDeviation == null) {
       return 6.5; // 1.5km

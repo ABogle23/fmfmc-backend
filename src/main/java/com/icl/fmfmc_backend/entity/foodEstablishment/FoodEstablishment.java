@@ -35,9 +35,9 @@ public class FoodEstablishment {
   private Double popularity;
   private Integer price;
   private Double rating;
+  @JsonIgnore
   private LocalDateTime createdAt;
   private String website;
-
   @JsonIgnore
   @Column(columnDefinition = "Point")
   private Point location;

@@ -36,7 +36,6 @@ public class Charger {
   private LocalDateTime dateLastStatusUpdate;
   private LocalDateTime dateCreated;
   private String usageCost;
-
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "address_info_id", referencedColumnName = "id")
   private AddressInfo addressInfo;
@@ -45,15 +44,20 @@ public class Charger {
   private List<Connection> connections;
 
   @Embedded
+  @Schema(description = "Geographical coordinates of the charger")
   private GeoCoordinates geocodes;
   private Long dataProviderID;
+  @Schema(description = "Number of individual charging bays for an EV, distinct from number of charging connectors")
   private Long numberOfPoints;
+  @Schema(description = "Type of access to the charger: Public (1, 4, 5, 7), Restricted (6), Private (2, 3)")
   private Long usageTypeID;
   private Long submissionStatusTypeID;
   private Long statusTypeID;
   private Long operatorID;
   private String operatorsReference;
+  @JsonIgnore
   private LocalDateTime createdAt;
+  @JsonIgnore
   private LocalDateTime updatedAt;
 
   @JsonIgnore
