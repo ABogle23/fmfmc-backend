@@ -431,10 +431,12 @@ public class RoutingService {
                 < Math.abs(nextTargetDistance - closestDistance)) {
           closestCharger = entry.getKey();
           closestDistance = chargerDistance;
+          System.out.println("did it happen in if 1");
         }
+        System.out.println("did it happen in if 2");
+
       } else {
-        // once charger distance exceeds the target, add the last closest charger and move to next
-        // interval
+        // once charger distance exceeds the target, add the last closest charger and move to next interval
         if (closestCharger != null) {
 
           // calc range used up to this charger and update
@@ -450,14 +452,19 @@ public class RoutingService {
           if (nextTargetDistance > journey.getRouteLength()) {
             break;
           }
-          closestCharger = null; // reset for  next interval
-          closestDistance = Double.MAX_VALUE;
+//          closestCharger = entry.getKey();
+//          closestDistance = chargerDistance;
+//          closestCharger = null; // reset for  next interval
+//          closestDistance = Double.MAX_VALUE;
         } else {
           logger.error(
               "Could not find any chargers within range based on current battery level and route.");
           throw new NoChargerWithinRangeException(
               "Unable to find any chargers within range based on current battery level and route.");
         }
+          closestCharger = entry.getKey();
+          closestDistance = chargerDistance;
+
       }
 
       // TO BE DELETED for testing

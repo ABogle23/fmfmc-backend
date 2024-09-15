@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
-public class RouteServiceTest {
+public class RoutingServiceTest {
 
   @Mock private DirectionsClientManager directionsClientManager;
 
@@ -342,6 +342,7 @@ public class RouteServiceTest {
         new java.util.ArrayList<>(TestDataFactory.createChargersForCurrentBatterySetTest());
     inadequateChargers.add(chargers.get(4));
 
+
     TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 100000.0, 0.60, 0.9, 0.5);
     List<Charger> suitableChargers = null;
 
@@ -371,6 +372,39 @@ public class RouteServiceTest {
             () -> routingService.findSuitableChargers(journey, inadequateChargers),
             "Expected findSuitableChargers to throw, it didn't");
     //    assertTrue(thrown.getMessage().contains("specific part of the expected message"));
+
+  }
+
+  @Test
+  @DisplayName("Should not skip chargers")
+  public void doesntSkipChargers() {
+
+    List<Charger> inadequateChargers = new ArrayList<>();
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 109188L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 128366L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 72601L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 112482L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 41030L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 90205L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 75045L));
+
+
+    for (Charger charger : chargers) {
+      System.out.println(charger.getId());
+    }
+
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 25000.0, 0.10, 0.9, 0.10);
+    List<Charger> suitableChargers = null;
+
+    try {
+      suitableChargers = routingService.findSuitableChargers(journey, inadequateChargers);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
+    } catch (NoChargerWithinRangeException e) {
+      fail("NoChargerWithinRangeException should not have been thrown");
+    }
+
+    TestHelperFunctions.assertSuitableChargers(
+            suitableChargers, 5, 109188L, 128366L, 112482L, 41030L, 90205L);
 
   }
 

@@ -20,7 +20,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RouteServiceWithFoodAdjacentChargerSetTest {
+public class RoutingServiceWithFoodAdjacentChargerSetTest {
 
   @Mock private DirectionsClientManager directionsClientManager;
 
@@ -345,6 +345,40 @@ public class RouteServiceWithFoodAdjacentChargerSetTest {
     assertTrue(journey.getCurrentBattery() > journey.getMinChargeLevel());
     assertTrue(journey.getCurrentBattery() > journey.getFinalDestinationChargeLevel());
     TestHelperFunctions.assertEqualsWithTolerance(43094, journey.getCurrentBattery(), 100);
+  }
+
+  @Test
+  @DisplayName("Should not skip chargers")
+  public void doesntSkipChargers() {
+
+    List<Charger> inadequateChargers = new ArrayList<>();
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 109188L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 128366L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 72601L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 112482L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 41030L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 90205L));
+    inadequateChargers.add(TestHelperFunctions.findChargerById(chargers, 75045L));
+    TestHelperFunctions.setFoodAdjacentCharger(inadequateChargers, journey, 72601L);
+
+
+    for (Charger charger : chargers) {
+      System.out.println(charger.getId());
+    }
+
+    TestHelperFunctions.setBatteryAndCharging(journey, 0.9, 25000.0, 0.10, 0.9, 0.10);
+    List<Charger> suitableChargers = null;
+
+    try {
+      suitableChargers = routingService.findSuitableChargers(journey, inadequateChargers);
+      TestHelperFunctions.printSuitableChargers(suitableChargers);
+    } catch (NoChargerWithinRangeException e) {
+      fail("NoChargerWithinRangeException should not have been thrown");
+    }
+
+    TestHelperFunctions.assertSuitableChargers(
+            suitableChargers, 5, 109188L, 128366L, 72601L, 41030L, 90205L);
+
   }
 
 }
