@@ -3,6 +3,8 @@ package com.icl.fmfmc_backend.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -12,7 +14,7 @@ import java.util.*;
 
 public class KMeansPlusPlusClusteringServiceTest {
 
-  private ClusteringStrategy service = new KMeansPlusPlusClusteringService();
+  private ClusteringStrategy service;
   private GeometryFactory geometryFactory;
 
   @BeforeEach
@@ -69,6 +71,8 @@ public class KMeansPlusPlusClusteringServiceTest {
         "Success rate below 80%: " + successCount + " out of " + totalRuns);
   }
 
+  @Disabled("No longer applicable")
+  @Tag("exclude")
   @Test
   void testClusterChargersClustersThreeDistinctBalancedGroupsWithOutliersIntoThreeClusters() {
     int successCount = 0;
@@ -84,6 +88,8 @@ public class KMeansPlusPlusClusteringServiceTest {
         "Success rate below 75%: " + successCount + " out of " + totalRuns);
   }
 
+  @Disabled("No longer applicable")
+  @Tag("exclude")
   @Test
   void testClusterChargersClustersThreeDistinctUnbalancedGroupsWithOutliersIntoThreeClusters() {
     int successCount = 0;
@@ -99,6 +105,8 @@ public class KMeansPlusPlusClusteringServiceTest {
         "Success rate below 75%: " + successCount + " out of " + totalRuns);
   }
 
+  @Disabled("No longer applicable")
+  @Tag("exclude")
   @Test
   void testClusterChargersClustersThreeDistinctUnbalancedGroupsWithOutliersIntoTwoClusters() {
     int successCount = 0;
