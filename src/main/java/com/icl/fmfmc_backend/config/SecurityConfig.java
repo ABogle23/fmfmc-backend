@@ -53,7 +53,9 @@ public class SecurityConfig {
                 cors.configurationSource(
                     request -> {
                       CorsConfiguration config = new CorsConfiguration();
-                      config.setAllowedOrigins(Arrays.asList("http://localhost:63342"));
+                      config.addAllowedOriginPattern("*");
+                      //
+                      // config.setAllowedOrigins(Arrays.asList("http://localhost:63342"));
                       config.setAllowedMethods(
                           Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                       config.setAllowedHeaders(Arrays.asList("*"));
@@ -70,11 +72,13 @@ public class SecurityConfig {
         .httpBasic(httpBasic -> httpBasic.disable())
         .formLogin(form -> form.disable())
 
-                .requiresChannel(channel -> channel.requestMatchers("/api/**").requiresSecure())
-                .headers(
-                    headers ->
-                        headers.httpStrictTransportSecurity(
-                            hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000)))
+        //                .requiresChannel(channel ->
+        // channel.requestMatchers("/api/**").requiresSecure())
+        //                .headers(
+        //                    headers ->
+        //                        headers.httpStrictTransportSecurity(
+        //                            hsts ->
+        // hsts.includeSubDomains(true).maxAgeInSeconds(31536000)))
         // enable hsts
         .addFilterBefore(apiKeyFilter(), BasicAuthenticationFilter.class);
 
@@ -91,17 +95,17 @@ public class SecurityConfig {
     return new ProviderManager(new ApiKeyAuthenticationProvider(fmfmcApiKeyProperties));
   }
 
-  @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(Arrays.asList("http://localhost:63342"));
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    configuration.setAllowedHeaders(Arrays.asList("*"));
-    configuration.setAllowCredentials(true);
-    configuration.setMaxAge(3600L);
-
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-    return source;
-  }
+  //  @Bean
+  //  public CorsConfigurationSource corsConfigurationSource() {
+  //    CorsConfiguration configuration = new CorsConfiguration();
+  //    configuration.setAllowedOrigins(Arrays.asList("http://localhost:63342"));
+  //    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+  //    configuration.setAllowedHeaders(Arrays.asList("*"));
+  //    configuration.setAllowCredentials(true);
+  //    configuration.setMaxAge(3600L);
+  //
+  //    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+  //    source.registerCorsConfiguration("/**", configuration);
+  //    return source;
+  //  }
 }
