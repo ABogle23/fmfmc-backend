@@ -82,13 +82,13 @@ public class RateLimitFilterIntegrationTest {
     for (int i = 0; i < callCount; i++) {
       mockMvc
           .perform(
-              post("/api/find-route").contentType(MediaType.APPLICATION_JSON).content(jsonRequest))
+              post("/api/find-journey").contentType(MediaType.APPLICATION_JSON).content(jsonRequest))
           .andExpect(status().isOk()); // 200
     }
 
     mockMvc
         .perform(
-            post("/api/find-route").contentType(MediaType.APPLICATION_JSON).content(jsonRequest))
+            post("/api/find-journey").contentType(MediaType.APPLICATION_JSON).content(jsonRequest))
         .andExpect(status().isTooManyRequests()); // 429
   }
 }
