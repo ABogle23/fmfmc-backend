@@ -1,7 +1,5 @@
 Project Setup Instructions
 
-OpenAPI docs in yaml and json format are available in the root folder or via the endpoints '/v3/api-docs' and '/v3/api-docs.yaml'.
-
 Prerequisites:
 - Java Development Kit: JDK 17 or higher installed.
 - Gradle
@@ -29,4 +27,4 @@ Setup Instructions
 
 4. Test the application
 - Using a tool like Postman, you can test the API endpoints, ensure the application API key is contained in the request headers.
-- The OpenAPI docs are available at '/v3/api-docs' and '/v3/api-docs.yaml'.
+- The OpenAPI docs are available at 'api/api-docs-yaml' and 'api/api-docs-json'. '/swagger-ui.html' for interactive docs.
