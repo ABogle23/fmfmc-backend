@@ -1,5 +1,8 @@
 package com.icl.fmfmc_backend.entity.enums;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "The type of connection available at a charging station")
 public enum ConnectionType implements FmfmcEnum {
   TYPE2("Type 2", "type2"),
   CHADEMO("CHAdeMO", "chademo"),
